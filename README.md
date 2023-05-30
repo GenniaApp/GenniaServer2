@@ -8,6 +8,9 @@ What is CubeBattle?
 * inspired by [generals.io](https://generals.io)
 ## todo
 - product-screenshot
+- user头像现在是随机生成的
+- Join Create room 大小不一致
+- 房间是否存在函数
 ## Development
 
 First, run the development server:
