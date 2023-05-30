@@ -122,7 +122,8 @@ a {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #1f1f1f;
+    --tw-bg-opacity: 1;
+    background-color: rgb(17 24 39 / var(--tw-bg-opacity));
     font-family: "Quicksand", sans-serif;
     font-size: 16px;
 }
