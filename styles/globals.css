@@ -40,58 +40,147 @@ a {
   box-sizing: border-box;
 }
 
-/*
-======================================================
-*/
+/* Game css from https://github.com/dhyegocalota/generals-io-webapp */
 
-.dotsContainer {
-  width: 60px;
-  height: 25px;
-  background: #f2f2f2;
-  border-radius: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.Button {
+    padding: .45em .9em;
+    border: 0;
+    cursor: pointer;
 }
 
-#dot1,
-#dot2,
-#dot3 {
-  width: 7px;
-  height: 7px;
-  background: #cacaca;
-  border-radius: 50%;
-  margin: 3px;
-  transition: all 0.5s ease-in-out;
-  animation: typing 1s infinite;
+.Button:focus { outline: none }
+
+.Button:active { opacity: .8 }
+
+.Button--small {
+    font-size: .7em;
 }
 
-#dot1 {
-  animation-delay: 1s;
+.Button--regular {
+    font-size: 1em;
 }
 
-#dot2 {
-  animation-delay: 0.5s;
+.Button--big {
+    font-size: 1.3em;
 }
 
-#dot3 {
-  animation-delay: 0.8s;
+.Button--blank {
+    background-color: #fff;
+    color: var(--primary-color);
+    box-shadow: 2px 2px 0 var(--primary-color);
 }
 
-@keyframes typing {
-  0% {
-    transform: translateY(0);
-    transition: all 0.5s ease-in-out;
-  }
-
-  50% {
-    transform: translateY(-5px);
-    transition: all 0.5s ease-in-out;
-  }
-
-  100% {
-    transform: translateY(0);
-    transition: all 0.5s ease-in-out;
-  }
+.Button--blank:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+    box-shadow: 4px 4px 0 var(--primary-color);
 }
 
+.Button--primary {
+    background-color: var(--primary-color);
+    color: #fff;
+    box-shadow: 2px 2px 0 var(--primary-color);
+}
+
+.Button--primary:hover { box-shadow: 4px 4px 0 var(--primary-color) }
+
+.Dialog {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.Dialog__Content {
+    min-width: 150px;
+    padding: 1em;
+    background-color: #fff;
+    box-shadow: 2px 2px 0 var(--primary-color);
+}
+
+
+.DialogButtons {
+    display: flex;
+    margin-top: .55em;
+    flex-direction: column;
+    align-items: center;
+}
+
+.DialogButtons .Button {
+    margin: .25em 0;
+}
+
+.Game {
+    --primary-color: #d7afff;
+
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #1f1f1f;
+    font-family: "Quicksand", sans-serif;
+    font-size: 16px;
+}
+
+.Game__TurnsCount {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.Game__Map {
+    flex: 1;
+}
+
+.Game__Players {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.Map {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.Player__Name {
+    color: #fff;
+}
+
+.Players {
+    background-color: #fff;
+    border-collapse: collapse;
+    font-size: .9em;
+}
+
+.Players th,
+.Players td {
+    padding: .25em .5em;
+    border: 1.5px solid #1f1f1f;
+}
+
+.Players th:first-child,
+.Players td:first-child { text-align: center }
+
+.Players th { font-weight: normal }
+
+.TurnsCount {
+    display: inline-block;
+    padding: .2em .4em;
+    background-color: #fff;
+    font-size: .85em;
+    box-shadow: 2px 2px 0 var(--primary-color);
+}
+
+.WinDialog {}
+
+.WinDialog__Title {
+    margin: 0;
+    text-align: center;
+}

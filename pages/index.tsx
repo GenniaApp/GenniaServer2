@@ -2,8 +2,8 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import Cookies from 'js-cookie';
-import Lobby from '@/components/Lobby';
-import ChatBox from '@/components/ChatBox';
+import Lobby from '@/components/lobby';
+import ChatBox from '@/components/chatbox';
 
 const LandingPage: React.FC = () => {
   const usernameRef = useRef<HTMLInputElement>(null);
@@ -40,13 +40,13 @@ const LandingPage: React.FC = () => {
         </div>
       ) : (
         <main className="flex flex-col justify-center items-center flex-1">
-          <h1 className="text-6xl font-bold mb-8">CubeBattle</h1>
+          <h1 className="text-6xl font-bold mb-8 text-blue-500">CubeBattle</h1>
           <form ref={formRef} className="flex flex-col items-center">
-            <label htmlFor="name" className="text-2xl mb-4">Enter your name:</label>
+            <label htmlFor="name" className="text-2xl mb-4">Enter your name</label>
             <input type="text" id="name" name="name" className="px-4 py-2 rounded-lg bg-gray-800 text-white mb-4" required ref={usernameRef} />
           </form>
 
-          <Link href="#" className="px-8 py-4 bg-yellow-500 text-black rounded-lg font-bold hover:bg-yellow-600 transition-colors duration-300" onClick={handlePlayClick}>
+          <Link href="#" className="bg-blue-500 hover:bg-blue-600 text-white font-bold font-lg py-3 px-5 rounded-lg" onClick={handlePlayClick}>
             Play
           </Link>
         </main>
