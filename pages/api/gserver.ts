@@ -1,5 +1,7 @@
 import { Server } from 'socket.io';
 import GameMap from '@/lib/map'
+import {gamerooms, getRoomsInfo, createRoom, leaveRoom} from '@/lib/rooms'
+import { Room, RoomInfo} from "@/lib/types";
 import Point from '@/lib/point'
 import Player from '@/lib/player'
 import genniaserver from '../../package.json'
@@ -21,56 +23,6 @@ const serverConfig: serverConfigProp = {
   port: 8080,
 }
 
-
-interface Room {
-  id: string,
-  username: string;
-  gameStarted: boolean;
-  map: GameMap | undefined;
-  gameLoop: any;
-  gameConfig: {
-    maxPlayers: number;
-    gameSpeed: number;
-    mapWidth: number;
-    mapHeight: number;
-    mountain: number;
-    city: number;
-    swamp: number;
-  };
-  players: Player[];
-  generals: Point[];
-  forceStartNum: number;
-  mapGenerated: boolean;
-}
-
-const gamerooms: { [key: string]: Room } = {};
-
-function leaveRoom(roomId: string) {
-  delete gamerooms[roomId];
-}
-
-function createRoom(roomId: string) {
-  gamerooms[roomId] = {
-    id: roomId,
-    username: "",
-    gameStarted: false,
-    map: undefined,
-    gameLoop: undefined,
-    gameConfig: {
-      maxPlayers: 8,
-      gameSpeed: 3,
-      mapWidth: 0.75,
-      mapHeight: 0.75,
-      mountain: 0.5,
-      city: 0.5,
-      swamp: 0,
-    },
-    players: new Array<Player>(),
-    generals: new Array<Point>(),
-    forceStartNum: 0,
-    mapGenerated: false,
-  };
-}
 
 async function handleDisconnectInGame(room: Room, player: Player, io: Server) {
   try {
@@ -137,6 +89,7 @@ async function handleGame(room: Room, io: Server) {
     room.gameStarted = true;
 
     room.map = new GameMap(
+      "random",
       room.gameConfig.mapWidth,
       room.gameConfig.mapHeight,
       room.gameConfig.mountain,
@@ -150,7 +103,7 @@ async function handleGame(room: Room, io: Server) {
     io.in(room.id).emit("init_game_map", room.map.width, room.map.height);
 
     for (let [id, socket] of io.sockets.sockets) {
-      socket.on("attack", async (from, to, isHalf) => {
+      socket.on("attack", async (from:Point, to:Point, isHalf:boolean) => {
         let playerIndex = await getPlayerIndexBySocket(room, id);
         if (playerIndex !== -1) {
           let player = room.players[playerIndex];
@@ -261,32 +214,46 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
     const io = new Server((res.socket as any).server);
 
     io.on("connection", async (socket) => {
+      console.log(`new ${socket.id} connected`);
+      socket.setMaxListeners(20);
 
-      const { roomId, name, picture } = socket.handshake.query;
+      const { roomId, name, picture }= socket.handshake.query;
+      
       console.log(`Socket ${socket.id} has connected to room ${roomId} named ${name} picture ${picture}`)
 
-      if (!gamerooms[roomId as string]) { createRoom(roomId as string); }
+      console.log(gamerooms)
 
-      let room = gamerooms[roomId as string];
+      if (!roomId) {
+        socket.emit("reject_join", "Room id is required.");
+        socket.disconnect();
+        return;
+      }
+      if (!gamerooms[roomId]) { 
+        console.log(`Room not found, Create new room ${roomId}`)
+        createRoom(roomId); 
+      }
+
+      let room = gamerooms[roomId];
 
       if (room.players.length >= room.gameConfig.maxPlayers)
         socket.emit("reject_join", "The room is full.");
       else {
-        socket.on("query_server_info", async () => {
-          socket.emit(
-            "server_info",
-            serverConfig.name,
-            genniaserver.version,
-            room.gameStarted,
-            room.players.length,
-            room.forceStartNum,
-            room.gameConfig.maxPlayers
-          );
-        });
+        socket.join(roomId as string);
       }
 
       let player: Player;
 
+      socket.on("query_server_info", async () => {
+        socket.emit(
+          "server_info",
+          serverConfig.name,
+          genniaserver.version,
+          room.gameStarted,
+          room.players.length,
+          room.forceStartNum,
+          room.gameConfig.maxPlayers
+        );
+      });
       socket.on("reconnect", async (playerId) => {
         try {
           if (room.gameStarted) {

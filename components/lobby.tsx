@@ -1,16 +1,9 @@
-import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useState, useRef, useEffect } from "react";
 import classNames from "classnames";
 import ChatBox from "@/components/chatbox";
-
-interface Room {
-  name: string;
-  gameMode: string;
-  playersNum: number;
-  botsNum: number;
-  status: string;
-}
+import { RoomInfo } from "@/lib/types";
 
 function generateRandomString(length: number) {
   const alphabet = "abcdefghijklmnopqrstuvwxyz";
@@ -22,15 +15,25 @@ function generateRandomString(length: number) {
 }
 
 function Lobby() {
+  const [rooms, setRooms] = useState<RoomInfo[]>([]);
   const router = useRouter();
-  const rooms: Room[] = [
-    { name: 'Room 1', gameMode: 'FFA', playersNum: 2, botsNum: 0, status: 'Waiting' },
-    { name: 'Room 2', gameMode: '1v1', playersNum: 4, botsNum: 2, status: 'In Progress' },
-    { name: 'Room 3', gameMode: 'custom', playersNum: 6, botsNum: 4, status: 'Waiting' }
-  ];
+  // const rooms: RoomInfo[] = [
+  //   { id: 'Room1', mapId: 'random_map', players: 2, maxPlayers: 0, gameStarted: true, gameSpeed: 2},
+  // ];
 
-  const handleRoomClick = (roomName: string) => {
-    router.push(`/room/${roomName}`);
+  useEffect(() => {
+    const fetchRooms = async () => {
+      const res = await fetch("/api/rooms");
+      console.log(res);
+      const rooms = await res.json();
+      console.log(rooms);
+      setRooms(rooms.room_info);
+    };
+    setInterval(fetchRooms, 2000);
+  }, []);
+
+  const handleRoomClick = (roomId: string) => {
+    router.push(`/game/${roomId}`);
   };
 
   const handleCreateRoomClick = async () => {
@@ -42,14 +45,13 @@ function Lobby() {
         success = true;
         router.push(`/room/${random_roomid}`);
         break;
-        }
       }
+    }
     if (!success) {
-      alert('Failed to create room. Please try again later.');
+      alert("Failed to create room. Please try again later.");
     }
   };
-    
-    
+
   return (
     <div className="flex flex-col h-screen bg-gray-900">
       <div className="flex-1 flex flex-col justify-center items-center">
@@ -59,16 +61,16 @@ function Lobby() {
             <thead>
               <tr>
                 <th className="text-left text-gray-400 py-4 px-6 uppercase font-medium text-sm">
-                  Room Name
+                  Room Id
                 </th>
                 <th className="text-left text-gray-400 py-4 px-6 uppercase font-medium text-sm">
-                  Game Mode
+                  Map Id
+                </th>
+                <th className="text-left text-gray-400 py-4 px-6 uppercase font-medium text-sm">
+                  Game Speed
                 </th>
                 <th className="text-left text-gray-400 py-4 px-6 uppercase font-medium text-sm">
                   Players
-                </th>
-                <th className="text-left text-gray-400 py-4 px-6 uppercase font-medium text-sm">
-                  Bots
                 </th>
                 <th className="text-left text-gray-400 py-4 px-6 uppercase font-medium text-sm">
                   Status
@@ -79,49 +81,54 @@ function Lobby() {
               </tr>
             </thead>
             <tbody>
-              {rooms.map((room) => (
-                <tr key={room.name} className="hover:bg-gray-700">
-                  <td
-                    className="py-4 px-6 text-white font-medium cursor-pointer"
-                    onClick={() => handleRoomClick(room.name)}
-                  >
-                    {room.name}
-                  </td>
-                  <td className="py-4 px-6 text-white font-medium">
-                    {room.gameMode}
-                  </td>
-                  <td className="py-4 px-6 text-white font-medium">
-                    {room.playersNum}
-                  </td>
-                  <td className="py-4 px-6 text-white font-medium">
-                    {room.botsNum}
-                  </td>
-                  <td className="py-4 px-6 text-white font-medium">
-                    <span
-                      className={classNames("text-sm font-medium", {
-                        "text-green-600": room.status === "open",
-                        "text-red-600": room.status === "closed",
-                      })}
+              {rooms &&
+                rooms.length > 0 &&
+                rooms.map((room) => (
+                  <tr key={room.id} className="hover:bg-gray-700">
+                    <td
+                      className="py-4 px-6 text-white font-medium cursor-pointer"
+                      onClick={() => handleRoomClick(room.id)}
                     >
-                      {room.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg"
-                      onClick={() => handleRoomClick(room.name)}
-                    >
-                      Join
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                      {room.id}
+                    </td>
+                    <td className="py-4 px-6 text-white font-medium">
+                      {room.mapId}
+                    </td>
+                    <td className="py-4 px-6 text-white font-medium">
+                      {room.gameSpeed}
+                    </td>
+                    <td className="py-4 px-6 text-white font-medium">
+                      {`${room.players}/${room.maxPlayers}`}
+                    </td>
+                    <td className="py-4 px-6 text-white font-medium">
+                      <span
+                        className={classNames(
+                          "text-sm font-medium",
+                          room.gameStarted ? "text-red-600" : "text-green-600"
+                        )}
+                      >
+                        {room.gameStarted ? "Started" : "Waiting"}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <button
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg"
+                        onClick={() => handleRoomClick(room.id)}
+                      >
+                        Join
+                      </button>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
         <div className="my-5">
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg" onClick={handleCreateRoomClick}>
-              Create Room
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg"
+            onClick={handleCreateRoomClick}
+          >
+            Create Room
           </button>
         </div>
       </div>

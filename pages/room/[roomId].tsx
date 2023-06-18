@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 import ChatBox from "@/components/chatbox";
 import io from "socket.io-client";
 import Link from "next/link";
@@ -19,18 +19,17 @@ interface GameConfig {
 }
 
 const players_example = [
-    { name: "Player 1", color: "bg-red-500", ready: true },
-    { name: "Player 2", color: "bg-blue-500", ready: false },
-    { name: "Player 3", color: "bg-green-500", ready: true },
-]
+  { name: "Player 1", color: "bg-red-500", ready: true },
+  { name: "Player 2", color: "bg-blue-500", ready: false },
+  { name: "Player 3", color: "bg-green-500", ready: true },
+];
 
 export default function GameRoom() {
-
   const router = useRouter();
-  const { roomId }= router.query; // as string
+  const { roomId } = router.query; // as string
 
   // const [roomId, setRoomId] = useState("");
-//   const [players, setPlayers] = useState<Player[]>([]);
+  //   const [players, setPlayers] = useState<Player[]>([]);
   const [players, setPlayers] = useState<Player[]>(players_example);
   const [shareLink, setShareLink] = useState("");
   const [gameConfig, setGameConfig] = useState<GameConfig>({
@@ -41,9 +40,7 @@ export default function GameRoom() {
 
   useEffect(() => {
     setShareLink(window.location.href);
-  },[]);
-
-
+  }, []);
 
   // useEffect(() => {
   //   socket.on("connect", () => {
@@ -93,8 +90,11 @@ export default function GameRoom() {
       <div className="bg-gray-800 rounded-lg p-8 w-full max-w-3xl">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold text-white">Room: {roomId}</h1>
-          <span className="text-gray-400 text-lg" >{shareLink}</span>
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg" onClick={handleCopyLink}>
+          <span className="text-gray-400 text-lg">{shareLink}</span>
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg"
+            onClick={handleCopyLink}
+          >
             Copy Link
           </button>
         </div>
@@ -107,7 +107,9 @@ export default function GameRoom() {
                   key={player.name}
                   className="flex items-center justify-between mb-2"
                 >
-                  <div className={`w-4 h-4 rounded-full mr-4 ${player.color}`} />
+                  <div
+                    className={`w-4 h-4 rounded-full mr-4 ${player.color}`}
+                  />
                   <span className="text-white flex-1">{player.name}</span>
                   {player.ready ? (
                     <span className="text-green-500 font-medium">Ready</span>
@@ -187,7 +189,7 @@ export default function GameRoom() {
             </div>
           </div>
         </div>
-        <ChatBox roomid={roomId} />
+        <ChatBox roomid={roomId as string} />
       </div>
     </div>
   );
