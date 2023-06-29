@@ -1,330 +1,343 @@
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
+import {
+  Snackbar,
+  Box,
+  Button,
+  Slider,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
+import TerrainIcon from "@mui/icons-material/Terrain";
+import LocationCityIcon from "@mui/icons-material/LocationCity";
+import WaterIcon from "@mui/icons-material/Water";
 import { io } from "socket.io-client";
-import MessageCenter from "@/components/messageCenter";
-import GameSetting from "@/components/gameSetting";
-import PlayerView from "@/components/playerView";
-import Swal from "sweetalert2";
+import { ThemeProvider } from "@mui/material/styles";
+import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import { useTranslation } from "next-i18next";
+
+import theme from "../components/theme";
+
+import Navbar from "../components/Navbar";
+
+const socket = io("http://localhost:3000");
 
 interface Player {
   name: string;
   color: string;
-  ready: boolean;
+  ready_status: boolean;
 }
 
-export default function GameBoard() {
-  const [gameMap, setGameMap] = useState([]);
-  const [selectedTd, setSelectedTd] = useState(null);
-  const [queue, setQueue] = useState([]);
-  const [serverInfo, setServerInfo] = useState({ name: "", version: "" });
-  const [gameStarted, setGameStarted] = useState(false);
-  const [gameSpeed, setGameSpeed] = useState(1);
-  const [mapWidth, setMapWidth] = useState(50);
-  const [mapHeight, setMapHeight] = useState(50);
-  const [mountain, setMountain] = useState(0);
-  const [city, setCity] = useState(0);
-  const [swamp, setSwamp] = useState(0);
-  const [maxPlayerNum, setMaxPlayerNum] = useState(4);
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [activeTab, setActiveTab] = useState("players");
+function PlayerTable({ players }: { players: Player[] }) {
+  return (
+    <Box sx={{ display: "flex", ml: 2 }}>
+      {players.map((player) => (
+        <Box
+          key={player.name}
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            p: 1,
+            // bgcolor: player.color,
+            borderRadius: 1,
+            mb: 1,
+          }}
+        >
+          <Typography
+            variant="body1"
+            sx={{
+              color: player.color,
+              textDecoration: player.ready_status ? "underline" : "none",
+            }}
+          >
+            {player.name}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
+}
+const demoPlayers: Player[] = [
+  {
+    name: "Player 1",
+    color: "#ff0000",
+    ready_status: true,
+  },
+  {
+    name: "Player 2",
+    color: "#00ff00",
+    ready_status: false,
+  },
+  {
+    name: "Player 3",
+    color: "#0000ff",
+    ready_status: true,
+  },
+];
 
-  const socketRef = useRef<any>();
+function GamingRoom() {
+  const [value, setValue] = useState(0);
+  const [gameSpeed, setGameSpeed] = useState(3);
+  const [maxPlayerNum, setMaxPlayerNum] = useState(2);
+  const [mapWidth, setMapWidth] = useState(0.5);
+  const [mapHeight, setMapHeight] = useState(0.5);
+  const [mountain, setMountain] = useState(0.5);
+  const [city, setCity] = useState(0.5);
+  const [swamp, setSwamp] = useState(0.5);
+  const [readyNum, setReadyNum] = useState(0);
+  const [shareLink, setShareLink] = useState("");
+  const [players, setPlayers] = useState<Player[]>(demoPlayers);
 
-  const router = useRouter();
-  const { roomId } = router.query; // as string
-  const user = { name: "testName", picture: "tmp.png", playerId: "testId" };
+  const [open, setOpen] = useState(false);
 
-  const players_example = [
-    { name: "Player 1", color: "bg-red-500", ready: true },
-    { name: "Player 2", color: "bg-blue-500", ready: false },
-    { name: "Player 3", color: "bg-green-500", ready: true },
-  ];
+  const { t } = useTranslation();
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
+  const handleClose = () => {
+    setOpen(false);
   };
 
-  const handleMessageChange = (event: any) => {
-    // setMessage(event.target.value);
-    setMessage(event.currentTarget.value);
-  };
-
-  const reJoinGame = () => {
-    router.push(`/`);
-  };
-
-  const handleSendMessage = (event: any) => {
-    if (message.length != 0) {
-      setMessages([...messages, message]);
-      setMessage("");
-    }
-  };
+  const forceStartOK = [1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8];
+  //                    0  1  2  3  4  5  6  7  8  9 10 11 12
   useEffect(() => {
-    if (!roomId) return;
-    fetch("/api/gserver").finally(() => {
-      socketRef.current = io({
-        query: { roomId: roomId, name: user.name, picture: user.picture },
-      });
+    setShareLink(window.location.href);
+  }, []);
 
-      let socket = socketRef.current;
+  socket.on("force_start_changed", (fsNum) => {
+    setReadyNum(fsNum);
+  });
 
-      socket.on("connect", () => {
-        console.log(`socket client connect to server: ${socket.id}`);
-      });
+  const handleChange = (event: Event, newValue: number) => {
+    setValue(newValue);
+  };
 
-      socket.on("server_info", (name, version) => {
-        console.log(`server_info: ${name} ${version}`);
-        setServerInfo({ name, version });
-      });
-
-      socket.on("game_update", (gameMap, width, height, turn, leaderBoard) => {
-        // Update game map state
-        setGameMap(JSON.parse(gameMap));
-        console.log(gameMap);
-        console.log(`width ${width}`);
-        console.log(`height ${height}`);
-        console.log(`leaderBoard ${leaderBoard}`);
-      });
-
-      socket.on("reject_join", (title, message) => {
-        Swal.fire({
-          title: title,
-          text: message,
-          icon: "error",
-          showDenyButton: false,
-          showCancelButton: false,
-          allowOutsideClick: false,
-          confirmButtonText: "OK",
-        }).then((result) => {
-          // return to home or lobby
-          reJoinGame();
-        });
-      });
-
-      socket.on("connect_error", (error) => {
-        console.log("\nConnection Failed: " + error);
-        // $("#submitGameJoin").attr("class", "ui disabled fluid red button");
-        // $("#submitGameJoin").text("Game Join Failed.");
-        socket.emit("leave_game");
-        socket.close();
-      });
-
-      socket.on("disconnect", () => {
-        // if (!window.leaved_game) {
-        Swal.fire({
-          title: "Disconnected from the server",
-          html: "Please reflush the App.",
-          icon: "error",
-          showDenyButton: false,
-          showCancelButton: false,
-          allowOutsideClick: false,
-          confirmButtonText: "Quit",
-        }).then((result) => {
-          /* Read more about isConfirmed, isDenied below */
-          reJoinGame();
-        });
-        console.log("Disconnected from server.");
-        // }
-      });
-
-      socket.on("reconnect", () => {
-        console.log("Reconnected to server.");
-        if (gameStarted) {
-          socket.emit("reconnect", user.playerId);
-        } else {
-          socket.emit("set_username", user.name);
-          socket.emit("get_game_settings");
-        }
-      });
-
-      socket.emit("query_server_info");
-      socket.emit("set_username", user.name);
-      console.log("send query server info");
-
-      return () => {
-        socket.disconnect();
-      };
-    });
-  }, [roomId]);
-
-  function handleKeyDown(event) {
-    const withinMap = (point) => {
-      // Check if point is within game map boundaries
-      return (
-        point.x >= 0 &&
-        point.x < gameMap.length &&
-        point.y >= 0 &&
-        point.y < gameMap[0].length
-      );
+  const handleSliderChange =
+    (setter: (value: number) => void) => (event: Event, newValue: number) => {
+      setter(newValue);
+      socket.emit(setter.name, newValue);
     };
-
-    const handleMove = (direction) => {
-      let newPoint;
-      if (direction === "left") {
-        newPoint = { x: selectedTd.x, y: selectedTd.y - 1 };
-      } else if (direction === "up") {
-        newPoint = { x: selectedTd.x - 1, y: selectedTd.y };
-      } else if (direction === "right") {
-        newPoint = { x: selectedTd.x, y: selectedTd.y + 1 };
-      } else if (direction === "down") {
-        newPoint = { x: selectedTd.x + 1, y: selectedTd.y };
-      }
-
-      if (withinMap(newPoint)) {
-        setQueue([
-          ...queue,
-          {
-            from: selectedTd,
-            to: newPoint,
-            half: selectedTd.half,
-          },
-        ]);
-        setSelectedTd(newPoint);
-      }
-    };
-
-    switch (event.which) {
-      case 65: // Left
-      case 37:
-        handleMove("left");
-        break;
-      case 87: // Up
-      case 38:
-        handleMove("up");
-        break;
-      case 68: // Right
-      case 39:
-        handleMove("right");
-        break;
-      case 83: // Down
-      case 40:
-        handleMove("down");
-        break;
-      default:
-        break;
-    }
-  }
-
-  function handleAttackFailure(from, to) {
-    setQueue((prevQueue) => {
-      // Remove last item from queue
-      const newQueue = [...prevQueue];
-      newQueue.pop();
-
-      // Remove any items in queue that have the same 'to' point as the failed attack
-      let lastPoint = to;
-      while (newQueue.length > 0) {
-        const point = newQueue[newQueue.length - 1].from;
-        if (point.x === lastPoint.x && point.y === lastPoint.y) {
-          newQueue.pop();
-          lastPoint = point;
-        } else {
-          break;
-        }
-      }
-
-      return newQueue;
-    });
-  }
-
-  function handleSelectTd(point) {
-    setSelectedTd(point);
-  }
 
   return (
-    // todo: set page title
-    <div className="flex flex-col h-screen">
-      <text className="text-white">
-        {serverInfo.name} Version: {serverInfo.version}{" "}
-      </text>
-      <div className="flex-1">
-        <div className="flex justify-center items-center h-full">
-          <div className="w-full max-w-3xl">
-            {gameStarted ? (
-              <table>
-                {gameMap.map((row, i) => (
-                  <tr key={i}>
-                    {row.map((cell, j) => (
-                      <td
-                        key={`${i}-${j}`}
-                        className={`reqblock color${
-                          cell.color
-                        } ${cell.type.toLowerCase()} ${
-                          selectedTd && selectedTd.x === i && selectedTd.y === j
-                            ? "selected"
-                            : ""
-                        }`}
-                        onClick={() => handleSelectTd({ x: i, y: j })}
-                        // onClick={handleAttack}
-                      >
-                        {cell.unit}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </table>
-            ) : (
-              <div className="bg-white shadow-lg px-4 py-6">
-                <div className="flex justify-between items-center mb-4">
-                  <div className="text-xl font-bold text-gray-700">
-                    Game Room
-                  </div>
-                </div>
-                <div className="flex justify-between items-center mb-4">
-                  <div
-                    className={` bg-gray-300 cursor-pointer text-xl font-bold rounded-t-lg ${
-                      activeTab === "players"
-                        ? "text-gray-700"
-                        : "text-gray-400"
-                    }`}
-                    onClick={() => handleTabChange("players")}
-                  >
-                    Players
-                  </div>
-                  <div
-                    className={` bg-gray-300 cursor-pointer text-xl font-bold rounded-t-lg ${
-                      activeTab === "settings"
-                        ? "text-gray-700"
-                        : "text-gray-400"
-                    }`}
-                    onClick={() => handleTabChange("settings")}
-                  >
-                    Game Settings
-                  </div>
-                </div>
-                {activeTab === "players" && (
-                  <PlayerView maxPlayerNum={maxPlayerNum} />
-                )}
-                {activeTab === "settings" && (
-                  <GameSetting
-                    gameSpeed={gameSpeed}
-                    setGameSpeed={setGameSpeed}
-                    mapWidth={mapWidth}
-                    setMapWidth={setMapWidth}
-                    mapHeight={mapHeight}
-                    setMapHeight={setMapHeight}
-                    mountain={mountain}
-                    setMountain={setMountain}
-                    city={city}
-                    setCity={setCity}
-                    swamp={swamp}
-                    setSwamp={setSwamp}
-                    maxPlayerNum={maxPlayerNum}
-                    setMaxPlayerNum={setMaxPlayerNum}
-                  />
-                )}
-              </div>
-            )}
-            <MessageCenter
-              message={message}
-              messages={messages}
-              handleMessageChange={handleMessageChange}
-              handleSendMessage={handleSendMessage}
-            />
-          </div>
-        </div>
-      </div>
+    <ThemeProvider theme={theme}>
+      <Navbar />
+      <Box className="bg-container">
+        <Box
+          sx={{
+            width: {
+              xs: "90vw",
+              md: "50vw",
+            },
+          }}
+        >
+          <Typography variant="h6" sx={{ color: "#bbb!important", mb: 2 }}>
+            Share url to your friends :{" "}
+            <code
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                navigator.clipboard.writeText(shareLink);
+                setOpen(true);
+              }}
+            >
+              {shareLink}
+            </code>
+          </Typography>
+          <Snackbar
+            open={open}
+            autoHideDuration={1000}
+            onClose={handleClose}
+            message="Copied!"
+          />
+          <Box
+            className="menu-container"
+            sx={{
+              mb: 2,
+            }}
+          >
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              variant="fullWidth"
+              indicatorColor="primary"
+              textColor="primary"
+              aria-label="game settings tabs"
+            >
+              <Tab label={t("game")} />
+              <Tab label={t("map")} />
+              <Tab label={t("terrain")} />
+            </Tabs>
+            <TabPanel value={value} index={0}>
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <SliderBox
+                  label={t("game-speed")}
+                  value={gameSpeed}
+                  min={0}
+                  max={6}
+                  marks={[
+                    { value: 0, label: "0.25x" },
+                    { value: 1, label: "0.5x" },
+                    { value: 2, label: "0.75x" },
+                    { value: 3, label: "1x" },
+                    { value: 4, label: "2x" },
+                    { value: 5, label: "3x" },
+                    { value: 6, label: "4x" },
+                  ]}
+                  handleChange={handleSliderChange(setGameSpeed)}
+                />
+                <SliderBox
+                  label={t("max-player-num")}
+                  value={maxPlayerNum}
+                  min={2}
+                  max={12}
+                  marks={Array.from({ length: 11 }, (_, i) => ({
+                    value: i + 2,
+                    label: i + 2,
+                  }))}
+                  handleChange={handleSliderChange(setMaxPlayerNum)}
+                />
+              </Box>
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <SliderBox
+                  label={t("width")}
+                  value={mapWidth}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  handleChange={handleSliderChange(setMapWidth)}
+                />
+                <SliderBox
+                  label={t("height")}
+                  value={mapHeight}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  handleChange={handleSliderChange(setMapHeight)}
+                />
+              </Box>
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <SliderBox
+                  label={t("mountain")}
+                  value={mountain}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  handleChange={handleSliderChange(setMountain)}
+                  icon={<TerrainIcon />}
+                />
+                <SliderBox
+                  label={t("city")}
+                  value={city}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  handleChange={handleSliderChange(setCity)}
+                  icon={<LocationCityIcon />}
+                />
+                <SliderBox
+                  label={t("swamp")}
+                  value={swamp}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  handleChange={handleSliderChange(setSwamp)}
+                  icon={<WaterIcon />}
+                />
+              </Box>
+            </TabPanel>
+          </Box>
+          <Box className="menu-container" sx={{ mb: 2 }}>
+            <Typography variant="h6" sx={{ color: "#5ea2ef", my: 2, ml: 2 }}>
+              {t("players")}
+            </Typography>
+            <PlayerTable players={players} />
+          </Box>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ width: "100%" }}
+          >
+            Force Start ({readyNum}/{forceStartOK[maxPlayerNum]})
+          </Button>
+        </Box>
+      </Box>
+    </ThemeProvider>
+  );
+}
+
+function TabPanel(props: any) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
+}
+
+interface SliderBoxProps {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  marks?: { value: number; label: string }[];
+  icon?: React.ReactNode;
+  handleChange: any;
+}
+
+const SliderBox = ({
+  label,
+  value,
+  min,
+  max,
+  step = 1,
+  marks,
+  icon,
+  handleChange,
+}: SliderBoxProps) => {
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", my: 2.5 }}>
+      {icon}
+      <Typography id={`${label}Label`} sx={{ mr: 2 }}>
+        {label}
+      </Typography>
+      <Slider
+        name={label}
+        id={label}
+        aria-labelledby={`${label}Label`}
+        valueLabelDisplay="on"
+        step={step}
+        min={min}
+        max={max}
+        defaultValue={value}
+        value={value}
+        marks={marks}
+        onChange={handleChange}
+      />
+    </Box>
+  );
+};
+
+export default GamingRoom;
+
+export async function getServerSideProps(context) {
+  // extract the locale identifier from the URL
+  const { locale } = context;
+
+  return {
+    props: {
+      // pass the translation props to the page component
+      ...(await serverSideTranslations(locale)),
+    },
+  };
 }

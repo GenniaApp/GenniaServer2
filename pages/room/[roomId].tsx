@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import ChatBox from "@/components/chatbox";
+import ChatBox from "./components/chatbox";
 import io from "socket.io-client";
 import Link from "next/link";
 
