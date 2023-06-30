@@ -91,7 +91,7 @@ function Navbar() {
               <MenuIcon />
             </IconButton>
             <Box sx={{ display: "flex", alignItems: "center" }}>
-              <Image src="/img/favicon-new.png" width={32} height={32} alt="favicon" />
+              <Image src="/img/favicon.png" width={32} height={32} alt="favicon" />
               <Typography variant="h6" sx={{ marginLeft: 1 }}>
                 Gennia v1.0
               </Typography>
@@ -129,7 +129,7 @@ function Navbar() {
 
             <Link href='/'>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Image src="/img/favicon-new.png" width={32} height={32} alt="logo" />
+                <Image src="/img/favicon.png" width={32} height={32} alt="logo" />
                 <Typography variant="h6" sx={{ marginLeft: 1 }}>
                   Gennia v1.0
                 </Typography>

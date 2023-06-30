@@ -5,7 +5,7 @@ export default function Document() {
     <Html lang="en">
       <Head />
       <title>Gennia</title>
-      <link rel="shortcut icon" href="/img/favicon-new.png" />
+      <link rel="shortcut icon" href="/img/favicon.png" />
       <body>
         <Main />
         <NextScript />

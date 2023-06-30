@@ -1,6 +1,6 @@
 {
-  "name": "nextjs-socket-chat",
-  "version": "0.1.0",
+  "name": "gennia-server",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -31,7 +31,6 @@
     "prop-types": "^15.8.1",
     "randomuser": "^1.2.2",
     "react": "18.2.0",
-    "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "18.2.0",
     "react-i18next": "^13.0.1",
     "react-icons": "^4.9.0",

@@ -12,8 +12,7 @@ import Footer from './components/Footer';
 import Login from './components/login';
 
 import Lobby from './components/lobby';
-// import ChatBox from './components/chatbox';
-import ChatBox from './components/chatbox-mui';
+import ChatBox from './components/chatbox';
 import theme from './components/theme';
 
 

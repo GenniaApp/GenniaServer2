@@ -28,7 +28,7 @@ function Login({ username, handlePlayClick }) {
                     height: "16vh",
                 }}
             >
-                <Image src="/img/favicon-new.png" width={100} height={100} alt="logo" />
+                <Image src="/img/favicon.png" width={100} height={100} alt="logo" />
                 <Box className="menu-container" sx={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: { xs: "80vw", md: "40vw" } }}>
                     <Typography variant="h4" color="white" sx={{ padding: 4 }}>
                         {t('welcome')}
