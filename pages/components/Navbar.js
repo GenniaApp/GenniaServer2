@@ -73,26 +73,9 @@ function Navbar() {
   const { t } = useTranslation();
 
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
 
   return (
     <AppBar position="fixed" className="navbar">
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            {t("modal-title")}
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            {t("modal-text")}
-          </Typography>
-        </Box>
-      </Modal>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
 
@@ -158,7 +141,7 @@ function Navbar() {
                 <Button
                   id="navbar-link"
                   onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: "white", textTransform: 'none', fontSize: '1.2rem' }}
+                  sx={{ color: "white", textTransform: 'none', fontSize: '1rem' }}
                 >
                   {t(item.label)}
                 </Button>

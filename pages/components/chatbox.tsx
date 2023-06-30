@@ -4,7 +4,6 @@ import useChat from "@/lib/usechat";
 import ChatMessage from "./chatmessage";
 import NewMessageForm from "./newmessageform";
 import Users from "./users";
-import UserAvatar from "./useravatar";
 
 const ChatBox = ({ roomid }: { roomid: string }) => {
   const router = useRouter();

@@ -12,7 +12,8 @@ import Footer from './components/Footer';
 import Login from './components/login';
 
 import Lobby from './components/lobby';
-import ChatBox from './components/chatbox';
+// import ChatBox from './components/chatbox';
+import ChatBox from './components/chatbox-mui';
 import theme from './components/theme';
 
 
@@ -41,25 +42,16 @@ export default function Home() {
   return (
     <ThemeProvider theme={theme}>
       <Navbar />
-
-      <Box
-        className="bg-container"
-      >
-
-        {!username && (
-          <Login username={username} handlePlayClick={handlePlayClick} />
-        )}
-        {username && (
-          <div>
-            <Lobby />
-            {/* todo */}
-            {/* <ChatBox roomid="lobby" /> */}
-          </div>
-        )}
-
-
-      </Box>
-      <Footer />
+      {!username && (
+        <Login username={username} handlePlayClick={handlePlayClick} />
+      )}
+      {username && (
+        <div>
+          <Lobby />
+          {/* <ChatBox roomid="lobby" /> */}
+        </div>
+      )}
+      {/* <Footer /> */}
     </ThemeProvider>
   )
 }

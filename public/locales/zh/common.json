@@ -6,7 +6,7 @@
     "play": "开始游戏",
     "room-id": "房间号",
     "map-id": "地图",
-    "game-speed": "游戏速度",
+    "game-speed": "速度",
     "players": "玩家",
     "status": "状态",
     "join": "加入",
@@ -20,5 +20,6 @@
     "height": "高度",
     "mountain": "山丘",
     "city": "城市",
-    "swamp": "沼泽"
+    "swamp": "沼泽",
+    "mini-footer-text": "版权所有"
 }
