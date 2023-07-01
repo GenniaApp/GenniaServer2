@@ -43,11 +43,10 @@ export default function Home() {
         <Login username={username} handlePlayClick={handlePlayClick} />
       )}
       {username && (
-        <div>
-          <Lobby />
-          {/* <ChatBox roomid="lobby" /> */}
-        </div>
+        <Lobby />
       )}
+
+      {/* <ChatBox roomid="lobby" /> */}
       {/* <Footer /> */}
     </ThemeProvider>
   )

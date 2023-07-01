@@ -35,10 +35,10 @@ export default function useTileState(tile) {
   const typeValue = useMemo(() => typesEnum[typeKey], [typesEnum, typeKey]);
   const typeImageUrl = useMemo(
     () =>
-        // FOG: 'question-mark.png'
-      ({ BASE: '/assets/crown.png', SPAWNER: '/assets/tower.png', FOG: '/assets/mountain.png', BLANK: '/assets/mountain.png'}[
-        typeValue
-      ]),
+    // FOG: 'question-mark.png'
+    ({ BASE: '/img/crown.png', SPAWNER: '/img/city.png', FOG: '/img/mountain.png', BLANK: '/img/mountain.png' }[
+      typeValue
+    ]),
     [typeValue]
   );
 

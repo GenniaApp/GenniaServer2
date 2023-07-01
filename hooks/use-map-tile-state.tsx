@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { Stage } from "konva";
 import { usePlayerState, useTileState } from "@/hooks/index";
 
 export default function useMapTileState({
@@ -100,16 +99,6 @@ export default function useMapTileState({
     }
   }, [isSelected, selectedStroke, isRevealed, revealedStroke]);
 
-  const getStageByEventTarget = useCallback((eventTarget) => {
-    const isStage = eventTarget instanceof Stage;
-
-    if (isStage) {
-      return eventTarget;
-    }
-
-    return getStageByEventTarget(eventTarget.getParent());
-  }, []);
-
   const canMove = useMemo(() => {
     return isOwned || isNextPossibleMove;
   }, [isOwned, isNextPossibleMove]);
@@ -117,21 +106,21 @@ export default function useMapTileState({
   const handleMouseEnter = useCallback(
     (event) => {
       if (canMove) {
-        const stage = getStageByEventTarget(event.currentTarget);
-        stage.container().style.cursor = "pointer";
+        // const stage = getStageByEventTarget(event.currentTarget);
+        // stage.container().style.cursor = "pointer";
       }
     },
-    [canMove, getStageByEventTarget]
+    [canMove]
   );
 
   const handleMouseLeave = useCallback(
     (event) => {
       if (canMove) {
-        const stage = getStageByEventTarget(event.currentTarget);
-        stage.container().style.cursor = "default";
+        // const stage = getStageByEventTarget(event.currentTarget);
+        // stage.container().style.cursor = "default";
       }
     },
-    [canMove, getStageByEventTarget]
+    [canMove]
   );
 
   const handleClick = useCallback(() => {

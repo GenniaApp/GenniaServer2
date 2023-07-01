@@ -115,7 +115,7 @@ const map = [
 // playersState Object<[id, name, color, unitiesCount, landsCount]>
 const players = {
   1: [1, "dh", "#ff0000", 1736, 43],
-  2: [2, "IDK", "#0a10bf", 896, 25],
+  2: [2, "IDK", "#4700fb", 896, 25],
 };
 
 export { map, players };
