@@ -4,15 +4,13 @@ import { useState, useEffect } from "react";
 
 import { useRouter } from 'next/router'
 
-import { Box, Button, TextField, Typography } from "@mui/material";
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Login from './components/login';
 
 import Lobby from './components/lobby';
-import ChatBox from './components/chatbox';
 import theme from './components/theme';
 
 

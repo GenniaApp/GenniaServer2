@@ -21,6 +21,11 @@ function SurrenderDialog(props) {
     [isOpen]
   );
 
+  const handleCloseSurrender = useCallback(() => {
+    setIsOpen(false);
+    handleSurrender();
+  }, []);
+
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
 
@@ -37,7 +42,7 @@ function SurrenderDialog(props) {
       title="Are you sure you want to surrender?"
     >
       <DialogButtons>
-        <Button variant="primary" onClick={handleSurrender}>
+        <Button variant="primary" onClick={handleCloseSurrender}>
           Surrender
         </Button>
       </DialogButtons>

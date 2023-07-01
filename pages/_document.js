@@ -6,6 +6,12 @@ export default function Document() {
       <Head />
       <title>Gennia</title>
       <link rel="shortcut icon" href="/img/favicon.png" />
+
+      <meta
+        name="description"
+        content="A real-time multiplayer game with Nextjs Socket.IO"
+      />
+      <meta name="keywords" content="Gennia, multiplayer-game"></meta>
       <body>
         <Main />
         <NextScript />

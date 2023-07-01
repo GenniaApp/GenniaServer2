@@ -4,7 +4,7 @@ import SurrenderDialog from "./SurrenderDialog";
 import TurnsCount from "./TurnsCount";
 import Map from "./Map";
 import Players from "./Players";
-import WinDialog from "./WinDialog";
+import OverDialog from "./OverDialog";
 
 interface TurnsCountProps {
   count: number;
@@ -36,14 +36,22 @@ interface GameProps {
   turnsCount: TurnsCountProps["count"];
   map: MapProps["map"];
   players: PlayersProps["players"];
+  roomId: string;
 }
 
 function Game(props: GameProps) {
-  const { className, turnsCount, map, players, ...restProps } = props;
+  const { className, turnsCount, map, players, roomId, ...restProps } = props;
+  const [didOver, setDidOver] = useState(false);
   const [didWin, setDidWin] = useState(false);
-  const handleWinDialogClose = useCallback(() => {
+  const handleOverDialogClose = useCallback(() => {
     // TODO
+    setDidOver(false);
+  }, []);
+
+  const handleSurrender = useCallback(() => {
+    // TODO emit surrender event
     setDidWin(false);
+    setDidOver(true);
   }, []);
 
   return (
@@ -51,8 +59,13 @@ function Game(props: GameProps) {
       <TurnsCount className="Game__TurnsCount" count={turnsCount} />
       <Map className="Game__Map" map={map} players={players} />
       <Players className="Game__Players" players={players} />
-      <SurrenderDialog />
-      <WinDialog open={didWin} onClose={handleWinDialogClose} />
+      <SurrenderDialog onSurrender={handleSurrender} />
+      <OverDialog
+        open={didOver}
+        didWin={didWin}
+        onClose={handleOverDialogClose}
+        roomId={roomId}
+      />
     </div>
   );
 }

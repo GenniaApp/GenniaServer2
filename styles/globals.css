@@ -172,9 +172,9 @@ a {
 	box-shadow: 2px 2px 0 var(--primary-color);
 }
 
-.WinDialog {}
+.OverDialog {}
 
-.WinDialog__Title {
+.OverDialog__Title {
 	margin: 0;
 	text-align: center;
 }
@@ -867,12 +867,12 @@ blockquote {
 }
 
 #game-map td.king {
-	background-image: url("/asset/img/crown.png");
+	background-image: url("/img/crown.png");
 }
 
 #game-map td.city {
 	background-color: gray;
-	background-image: url("/asset/img/city.png");
+	background-image: url("/img/city.png");
 }
 
 #game-map td.neutral {
@@ -880,18 +880,18 @@ blockquote {
 }
 
 #game-map td.mountain {
-	background-image: url("/asset/img/mountain.png");
+	background-image: url("/img/mountain.png");
 	background-color: #bbbbbb;
 }
 
 #game-map td.obstacle {
-	background-image: url("/asset/img/obstacle.png");
+	background-image: url("/img/obstacle.png");
 	border: 1px solid transparent;
 	background-color: rgba(255, 255, 255, 0.1);
 }
 
 #game-map td.swamp {
-	background-image: url("/asset/img/swamp.png");
+	background-image: url("/img/swamp.png");
 	background-color: gray;
 }
 
