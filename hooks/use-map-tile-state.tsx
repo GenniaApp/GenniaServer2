@@ -20,7 +20,7 @@ export default function useMapTileState({
   const {
     isOwned,
     playerId,
-    typeImage,
+    typeImageUrl,
     unitiesCount,
     isRevealed,
     isSpawnerType,
@@ -132,7 +132,7 @@ export default function useMapTileState({
   const isHighlight = isNextPossibleMove;
 
   return {
-    image: typeImage,
+    image: typeImageUrl,
     text: unitiesCount,
     fill,
     stroke,

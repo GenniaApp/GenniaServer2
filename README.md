@@ -8,7 +8,6 @@ What is CubeBattle?
 - using react/nextjs/socket/tailwindcss
 - inspired by [generals.io](https://generals.io), the game mode will be different from generals in the future.
 
-
 ## How to Play
 
 WIP

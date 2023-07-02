@@ -8,7 +8,7 @@ interface MapTileProps {
   fill?: string; // fill color
   stroke?: string; // stroke color
   fontSize?: number;
-  image?: HTMLImageElement;
+  image?: string;
   text?: string | number;
   rowIndex: number;
   columnIndex: number;
@@ -84,12 +84,12 @@ function MapTile(props: MapTileProps) {
       {image && (
         <Image
           src={image}
+          width={zoomedImageSize}
+          height={zoomedImageSize}
           style={{
             position: 'absolute',
             left: imageXY,
             top: imageXY,
-            width: zoomedImageSize,
-            height: zoomedImageSize,
             opacity: 0.8,
           }}
           alt={`tile-${rowIndex}-${columnIndex}`}

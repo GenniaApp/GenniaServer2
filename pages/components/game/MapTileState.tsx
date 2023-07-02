@@ -1,12 +1,11 @@
 import React from 'react';
 import MapTile from './MapTile';
-// import { useMapTileState } from "@/hooks/index";
 import useMapTileState from '@/hooks/use-map-tile-state';
-import { Player, Tile, MapPosition } from './types-new';
+import { PlayerProp, TileProp, MapPosition } from './types-new';
 
 interface MapTileStateProps {
-  tile: Tile;
-  players: Player[];
+  tile: TileProp;
+  players: PlayerProp[];
   rowIndex: number;
   columnIndex: number;
   selectedMapPosition: MapPosition;
