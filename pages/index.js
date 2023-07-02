@@ -1,8 +1,8 @@
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { useTranslation } from 'next-i18next'
-import { useState, useEffect } from "react";
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
+import { useState, useEffect } from 'react';
 
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/router';
 
 import { ThemeProvider } from '@mui/material/styles';
 
@@ -13,15 +13,13 @@ import Login from './components/login';
 import Lobby from './components/lobby';
 import theme from './components/theme';
 
-
-
 export default function Home() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-  const { t } = useTranslation()
+  const [username, setUsername] = useState('');
+  const { t } = useTranslation();
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
+    const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
       setUsername(storedUsername);
     }
@@ -29,12 +27,10 @@ export default function Home() {
 
   const handlePlayClick = (username) => {
     setUsername(username);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("username", username);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('username', username);
     }
   };
-
-
 
   return (
     <ThemeProvider theme={theme}>
@@ -42,24 +38,22 @@ export default function Home() {
       {!username && (
         <Login username={username} handlePlayClick={handlePlayClick} />
       )}
-      {username && (
-        <Lobby />
-      )}
+      {username && <Lobby />}
 
       {/* <ChatBox roomid="lobby" /> */}
       {/* <Footer /> */}
     </ThemeProvider>
-  )
+  );
 }
 
 export async function getStaticProps(context) {
   // extract the locale identifier from the URL
-  const { locale } = context
+  const { locale } = context;
 
   return {
     props: {
       // pass the translation props to the page component
       ...(await serverSideTranslations(locale)),
     },
-  }
+  };
 }

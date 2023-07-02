@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from "react";
-import Image from "next/image";
+import { useEffect, useMemo } from 'react';
+import Image from 'next/image';
 
 interface MapTileProps {
   zoom?: number;
@@ -21,7 +21,7 @@ function MapTile(props: MapTileProps) {
     zoom = 1,
     imageZoom = 0.8,
     size = 50,
-    fill = "#363636",
+    fill = '#363636',
     stroke,
     fontSize = 20,
     image,
@@ -62,7 +62,7 @@ function MapTile(props: MapTileProps) {
   return (
     <div
       style={{
-        position: "absolute",
+        position: 'absolute',
         left: tileX,
         top: tileY,
         width: zoomedSize,
@@ -72,7 +72,7 @@ function MapTile(props: MapTileProps) {
     >
       <div
         style={{
-          position: "absolute",
+          position: 'absolute',
           left: 0,
           top: 0,
           width: zoomedSize,
@@ -85,7 +85,7 @@ function MapTile(props: MapTileProps) {
         <Image
           src={image}
           style={{
-            position: "absolute",
+            position: 'absolute',
             left: imageXY,
             top: imageXY,
             width: zoomedImageSize,
@@ -98,19 +98,19 @@ function MapTile(props: MapTileProps) {
       {text && (
         <div
           style={{
-            position: "absolute",
+            position: 'absolute',
             left: 0,
             top: 0,
             width: zoomedSize,
             height: zoomedSize,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
             fontSize: zoomedFontSize,
-            color: "#fff",
-            textOverflow: "ellipsis",
-            overflow: "hidden",
-            textShadow: "0 0 2px #000",
+            color: '#fff',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+            textShadow: '0 0 2px #000',
           }}
         >
           {text}
@@ -120,12 +120,12 @@ function MapTile(props: MapTileProps) {
       {isHighlight && (
         <div
           style={{
-            position: "absolute",
+            position: 'absolute',
             top: 0,
             left: 0,
             width: zoomedSize,
             height: zoomedSize,
-            backgroundColor: "#000",
+            backgroundColor: '#000',
             opacity: 0.5,
           }}
         />

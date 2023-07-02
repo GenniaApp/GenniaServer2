@@ -1,4 +1,4 @@
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 
 const turnsCountPropTypes = PropTypes.number;
 const playerPropTypes = PropTypes.arrayOf(PropTypes.any);

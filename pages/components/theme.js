@@ -2,7 +2,7 @@ import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
-    mode: "dark"
+    mode: 'dark',
     // text: {
     //   primary: '#FFF',
     //   // secondary: '#FFF',
@@ -15,7 +15,6 @@ const theme = createTheme({
     //   contrastText: '#FFFFFF',
     // },
   },
-
 
   // typography: {
   //   "fontFamily": `"Open Sans"`,

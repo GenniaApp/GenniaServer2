@@ -1,7 +1,7 @@
-import React from "react";
-import Player from "./Player";
-import { playerPropTypes } from "./types";
-import { usePlayerState } from "@/hooks/index";
+import React from 'react';
+import Player from './Player';
+import { playerPropTypes } from './types';
+import { usePlayerState } from '@/hooks/index';
 
 export default function PlayerState(props) {
   const { player, ...restProps } = props;

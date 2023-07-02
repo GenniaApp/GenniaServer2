@@ -1,13 +1,13 @@
-import React from "react";
-import PropTypes from "prop-types";
-import classNames from "classnames";
-import { turnsCountPropTypes } from "./types";
+import React from 'react';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import { turnsCountPropTypes } from './types';
 
 function TurnsCount(props) {
   const { className, count, ...restProps } = props;
 
   return (
-    <div {...restProps} className={classNames("TurnsCount", className)}>
+    <div {...restProps} className={classNames('TurnsCount', className)}>
       Turn {count}
     </div>
   );

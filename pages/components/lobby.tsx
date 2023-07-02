@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import {
   Table,
   TableBody,
@@ -12,14 +12,14 @@ import {
   Button,
   Box,
   CircularProgress,
-} from "@mui/material";
-import { RoomInfo } from "@/lib/types";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useTranslation } from "next-i18next";
+} from '@mui/material';
+import { RoomInfo } from '@/lib/types';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
 function generateRandomString(length: number) {
-  const alphabet = "abcdefghijklmnopqrstuvwxyz";
-  let result = "";
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  let result = '';
   for (let i = 0; i < length; i++) {
     result += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
   }
@@ -36,7 +36,7 @@ function Lobby() {
   useEffect(() => {
     const fetchRooms = async () => {
       // setLoading(true);
-      const res = await fetch("/api/rooms");
+      const res = await fetch('/api/rooms');
       const rooms = await res.json();
       console.log(rooms);
       setRooms(rooms.room_info);
@@ -62,54 +62,54 @@ function Lobby() {
       }
     }
     if (!success) {
-      alert("Failed to create room. Please try again later.");
+      alert('Failed to create room. Please try again later.');
     }
   };
 
   return (
     <Box
-      className="bg-container"
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="center"
+      className='bg-container'
+      display='flex'
+      flexDirection='column'
+      alignItems='center'
+      justifyContent='center'
       sx={{
         width: {
-          xs: "90vw",
-          md: "50vw",
+          xs: '90vw',
+          md: '50vw',
         },
       }}
     >
       <Typography
-        variant="h4"
-        component="h1"
-        sx={{ color: "white" }}
+        variant='h4'
+        component='h1'
+        sx={{ color: 'white' }}
         gutterBottom
       >
-        {t("lobby")}
+        {t('lobby')}
       </Typography>
-      <TableContainer className="menu-container" component={Paper}>
-        <Table size="small">
+      <TableContainer className='menu-container' component={Paper}>
+        <Table size='small'>
           <TableHead>
             <TableRow>
-              <TableCell>{t("room-id")}</TableCell>
-              <TableCell>{t("map-id")}</TableCell>
-              <TableCell>{t("game-speed")}</TableCell>
-              <TableCell>{t("players")}</TableCell>
-              <TableCell>{t("status")}</TableCell>
+              <TableCell>{t('room-id')}</TableCell>
+              <TableCell>{t('map-id')}</TableCell>
+              <TableCell>{t('game-speed')}</TableCell>
+              <TableCell>{t('players')}</TableCell>
+              <TableCell>{t('status')}</TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={6} align='center'>
                   <CircularProgress />
                 </TableCell>
               </TableRow>
             ) : rooms.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} align="center">
+                <TableCell colSpan={6} align='center'>
                   No rooms available
                 </TableCell>
               </TableRow>
@@ -117,10 +117,10 @@ function Lobby() {
               rooms.map((room) => (
                 <TableRow key={room.id}>
                   <TableCell
-                    component="th"
-                    scope="row"
+                    component='th'
+                    scope='row'
                     onClick={() => handleRoomClick(room.id)}
-                    sx={{ cursor: "pointer" }}
+                    sx={{ cursor: 'pointer' }}
                   >
                     {room.id}
                   </TableCell>
@@ -129,19 +129,19 @@ function Lobby() {
                   <TableCell>{`${room.players}/${room.maxPlayers}`}</TableCell>
                   <TableCell>
                     <Typography
-                      variant="body2"
-                      color={room.gameStarted ? "error" : "success"}
+                      variant='body2'
+                      color={room.gameStarted ? 'error' : 'success'}
                     >
-                      {room.gameStarted ? "Started" : "Waiting"}
+                      {room.gameStarted ? 'Started' : 'Waiting'}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Button
-                      variant="contained"
-                      color="primary"
+                      variant='contained'
+                      color='primary'
                       onClick={() => handleRoomClick(room.id)}
                     >
-                      {t("join")}
+                      {t('join')}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -152,11 +152,11 @@ function Lobby() {
       </TableContainer>
       <Box marginTop={2}>
         <Button
-          variant="contained"
-          color="primary"
+          variant='contained'
+          color='primary'
           onClick={handleCreateRoomClick}
         >
-          {t("create-room")}
+          {t('create-room')}
         </Button>
       </Box>
     </Box>

@@ -1,14 +1,11 @@
 import { Typography } from '@mui/material';
 
-
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useTranslation } from "next-i18next";
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-import Router from "next/router";
-
-
+import Router from 'next/router';
 
 function Footer() {
   const { t } = useTranslation();
@@ -18,7 +15,7 @@ function Footer() {
       <div className='mini-footer-container'>
         <div className='mini-footer-content'>
           <Typography variant='subtitle' component='p'>
-            Gennia App© {t("mini-footer-text")} <br></br>
+            Gennia App© {t('mini-footer-text')} <br></br>
           </Typography>
         </div>
       </div>

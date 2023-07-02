@@ -1,6 +1,6 @@
-import Game from "./components/game/Game";
-import { map, players } from "./static-demo-game-state.js";
-import Navbar from "./components/Navbar";
+import Game from './components/game/Game';
+import { map, players } from './static-demo-game-state.js';
+import Navbar from './components/Navbar';
 
 export default function TextHome() {
   return (

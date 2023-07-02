@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
-import { UserData, User, Message } from "./types";
+import { useEffect, useRef, useState } from 'react';
+import { io } from 'socket.io-client';
+import { UserData, User, Message } from './types';
 
 import {
   USER_JOIN_CHAT_EVENT,
   USER_LEAVE_CHAT_EVENT,
-  NEW_CHAT_MESSAGE_EVENT
+  NEW_CHAT_MESSAGE_EVENT,
 } from './eventconst';
 
 export default function useChat(roomId: string) {
@@ -16,13 +16,13 @@ export default function useChat(roomId: string) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const response = await fetch("https://api.randomuser.me/");
+      const response = await fetch('https://api.randomuser.me/');
       const result = await response.json();
 
-      let username = localStorage.getItem("username");
+      let username = localStorage.getItem('username');
       // 设置匿名 username
       if (username === undefined) {
-        username = "Anonymous";
+        username = 'Anonymous';
       }
 
       setUser({
@@ -41,9 +41,9 @@ export default function useChat(roomId: string) {
         const response = await fetch(`/api/rooms/${roomId}/users`);
         const result = await response.json();
         setUsers(result.users);
-        console.log(` /api/rooms/${roomId}/users result.users ${result.users}`)
+        console.log(` /api/rooms/${roomId}/users result.users ${result.users}`);
       } catch (err) {
-        console.log(` /api/rooms/${roomId}/users error ${err}`)
+        console.log(` /api/rooms/${roomId}/users error ${err}`);
       }
     };
 
@@ -52,9 +52,7 @@ export default function useChat(roomId: string) {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      const response = await fetch(
-        `/api/rooms/${roomId}/messages`
-      );
+      const response = await fetch(`/api/rooms/${roomId}/messages`);
       const result = await response.json();
       setMessages(result.messages);
     };
@@ -68,10 +66,10 @@ export default function useChat(roomId: string) {
     }
     fetch('/api/socketio').finally(() => {
       socketRef.current = io({
-        query: { roomId, name: user.name, picture: user.picture }
+        query: { roomId, name: user.name, picture: user.picture },
       });
 
-      socketRef.current.on("connect", () => {
+      socketRef.current.on('connect', () => {
         console.log(`socket connect: ${socketRef.current.id}`);
       });
 
@@ -113,4 +111,4 @@ export default function useChat(roomId: string) {
     users,
     sendMessage,
   };
-}      
+}

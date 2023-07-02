@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef } from "react";
-import classNames from "classnames";
-import PropTypes from "prop-types";
+import React, { useCallback, useEffect, useRef } from 'react';
+import classNames from 'classnames';
+import PropTypes from 'prop-types';
 
 function Dialog(props) {
   const {
@@ -17,7 +17,7 @@ function Dialog(props) {
 
   const handleKeydown = useCallback(
     (event) => {
-      if (event.key === "Escape" && isOpen) {
+      if (event.key === 'Escape' && isOpen) {
         triggerClose();
       }
     },
@@ -25,10 +25,10 @@ function Dialog(props) {
   );
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeydown);
+    window.addEventListener('keydown', handleKeydown);
 
     return () => {
-      window.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener('keydown', handleKeydown);
     };
   }, [handleKeydown]);
 
@@ -47,10 +47,10 @@ function Dialog(props) {
     return (
       <div
         {...restProps}
-        className={classNames("Dialog", className)}
+        className={classNames('Dialog', className)}
         onClick={handleClick}
       >
-        <div ref={contentRef} className="Dialog__Content">
+        <div ref={contentRef} className='Dialog__Content'>
           {title}
           {subtitle}
           {children}

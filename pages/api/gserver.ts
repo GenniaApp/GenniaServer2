@@ -1,12 +1,12 @@
 import { Server } from 'socket.io';
-import GameMap from '@/lib/map'
-import {gamerooms, getRoomsInfo, createRoom, leaveRoom} from '@/lib/rooms'
-import { Room, RoomInfo} from "@/lib/types";
-import Point from '@/lib/point'
-import Player from '@/lib/player'
-import genniaserver from '../../package.json'
-import xss from 'xss'
-import crypto from 'crypto'
+import GameMap from '@/lib/map';
+import { gamerooms, getRoomsInfo, createRoom, leaveRoom } from '@/lib/rooms';
+import { Room, RoomInfo } from '@/lib/types';
+import Point from '@/lib/point';
+import Player from '@/lib/player';
+import genniaserver from '../../package.json';
+import xss from 'xss';
+import crypto from 'crypto';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 const speedArr: number[] = [0.25, 0.5, 0.75, 1, 2, 3, 4];
@@ -16,17 +16,16 @@ const forceStartOK: number[] = [1, 2, 2, 3, 3, 4, 5, 5, 6];
 interface serverConfigProp {
   name: string;
   port: number;
-};
-
-const serverConfig: serverConfigProp = {
-  name: "GenniaServer",
-  port: 8080,
 }
 
+const serverConfig: serverConfigProp = {
+  name: 'GenniaServer',
+  port: 8080,
+};
 
 async function handleDisconnectInGame(room: Room, player: Player, io: Server) {
   try {
-    io.in(room.id).emit("room_message", player.trans(), "quit.");
+    io.in(room.id).emit('room_message', player.trans(), 'quit.');
     room.players = room.players.filter((p) => p.id != player.id);
   } catch (e: any) {
     console.log(e.message);
@@ -35,7 +34,7 @@ async function handleDisconnectInGame(room: Room, player: Player, io: Server) {
 
 async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
   try {
-    io.in(room.id).emit("room_message", player.trans(), "quit.");
+    io.in(room.id).emit('room_message', player.trans(), 'quit.');
     let newPlayers = [];
     room.forceStartNum = 0;
     for (let i = 0, c = 0; i < room.players.length; ++i) {
@@ -47,11 +46,11 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
         }
       }
     }
-    io.in(room.id).emit("force_start_changed", room.forceStartNum);
+    io.in(room.id).emit('force_start_changed', room.forceStartNum);
     room.players = newPlayers;
     if (room.players.length > 0) room.players[0].setRoomHost(true);
     io.in(room.id).emit(
-      "players_changed",
+      'players_changed',
       room.players.map((player) => player.trans())
     );
   } catch (e: any) {
@@ -83,13 +82,13 @@ async function handleGame(room: Room, io: Server) {
     for (let [id, socket] of io.sockets.sockets) {
       let playerIndex = await getPlayerIndexBySocket(room, id);
       if (playerIndex !== -1) {
-        socket.emit("game_started", room.players[playerIndex].color);
+        socket.emit('game_started', room.players[playerIndex].color);
       }
     }
     room.gameStarted = true;
 
     room.map = new GameMap(
-      "random",
+      'random',
       room.gameConfig.mapWidth,
       room.gameConfig.mapHeight,
       room.gameConfig.mountain,
@@ -100,14 +99,15 @@ async function handleGame(room: Room, io: Server) {
     room.players = await room.map.generate();
     room.mapGenerated = true;
 
-    io.in(room.id).emit("init_game_map", room.map.width, room.map.height);
+    io.in(room.id).emit('init_game_map', room.map.width, room.map.height);
 
     for (let [id, socket] of io.sockets.sockets) {
-      socket.on("attack", async (from:Point, to:Point, isHalf:boolean) => {
+      socket.on('attack', async (from: Point, to: Point, isHalf: boolean) => {
         let playerIndex = await getPlayerIndexBySocket(room, id);
         if (playerIndex !== -1) {
           let player = room.players[playerIndex];
-          if (room.map &&
+          if (
+            room.map &&
             player.operatedTurn < room.map.turn &&
             room.map.commandable(player, from, to)
           ) {
@@ -118,9 +118,9 @@ async function handleGame(room: Room, io: Server) {
             }
 
             room.players[playerIndex].operatedTurn = room.map.turn;
-            socket.emit("attack_success", from, to);
+            socket.emit('attack_success', from, to);
           } else {
-            socket.emit("attack_failure", from, to);
+            socket.emit('attack_failure', from, to);
           }
         }
       });
@@ -135,18 +135,19 @@ async function handleGame(room: Room, io: Server) {
           let blockPlayerIndex = await getPlayerIndex(room, block.player.id);
           if (blockPlayerIndex !== -1) {
             if (block.player !== player && player.isDead === false) {
-              console.log(block.player.username, "captured", player.username);
-              io.in(room.id).emit("captured", block.player.trans(), player.trans());
+              console.log(block.player.username, 'captured', player.username);
+              io.in(room.id).emit(
+                'captured',
+                block.player.trans(),
+                player.trans()
+              );
               io.sockets.sockets
                 .get(player.socket_id)
-                .emit("game_over", block.player.trans());
+                .emit('game_over', block.player.trans());
               player.isDead = true;
               room.map.getBlock(player.king).kingBeDominated();
               player.land.forEach((block) => {
-                room.map.transferBlock(
-                  block,
-                  room.players[blockPlayerIndex]
-                );
+                room.map.transferBlock(block, room.players[blockPlayerIndex]);
                 room.players[blockPlayerIndex].winLand(block);
               });
               player.land.length = 0;
@@ -158,10 +159,10 @@ async function handleGame(room: Room, io: Server) {
         for (let a of room.players)
           if (!a.isDead) (alivePlayer = a), ++countAlive;
         if (countAlive === 1) {
-          io.in(room.id).emit("game_ended", alivePlayer.id);
+          io.in(room.id).emit('game_ended', alivePlayer.id);
           room.gameStarted = false;
           room.forceStartNum = 0;
-          console.log("Game ended");
+          console.log('Game ended');
           clearInterval(room.gameLoop);
         }
 
@@ -182,12 +183,10 @@ async function handleGame(room: Room, io: Server) {
         for (let [id, socket] of io.sockets.sockets) {
           let playerIndex = await getPlayerIndexBySocket(room, id);
           if (playerIndex !== -1) {
-            let view = await room.map.getViewPlayer(
-              room.players[playerIndex]
-            );
+            let view = await room.map.getViewPlayer(room.players[playerIndex]);
             view = JSON.stringify(view);
             socket.emit(
-              "game_update",
+              'game_update',
               view,
               room.map.width,
               room.map.height,
@@ -205,47 +204,47 @@ async function handleGame(room: Room, io: Server) {
   }
 }
 
-
-
 function ioHandler(req: NextApiRequest, res: NextApiResponse) {
   if (!(res.socket as any).server.io) {
     console.log('*First use, starting socket.io');
 
     const io = new Server((res.socket as any).server);
 
-    io.on("connection", async (socket) => {
+    io.on('connection', async (socket) => {
       console.log(`new ${socket.id} connected`);
       socket.setMaxListeners(20);
 
-      const { roomId, name, picture }= socket.handshake.query;
-      
-      console.log(`Socket ${socket.id} has connected to room ${roomId} named ${name} picture ${picture}`)
+      const { roomId, name, picture } = socket.handshake.query;
 
-      console.log(gamerooms)
+      console.log(
+        `Socket ${socket.id} has connected to room ${roomId} named ${name} picture ${picture}`
+      );
+
+      console.log(gamerooms);
 
       if (!roomId) {
-        socket.emit("reject_join", "Room id is required.");
+        socket.emit('reject_join', 'Room id is required.');
         socket.disconnect();
         return;
       }
-      if (!gamerooms[roomId]) { 
-        console.log(`Room not found, Create new room ${roomId}`)
-        createRoom(roomId); 
+      if (!gamerooms[roomId]) {
+        console.log(`Room not found, Create new room ${roomId}`);
+        createRoom(roomId);
       }
 
       let room = gamerooms[roomId];
 
       if (room.players.length >= room.gameConfig.maxPlayers)
-        socket.emit("reject_join", "The room is full.");
+        socket.emit('reject_join', 'The room is full.');
       else {
         socket.join(roomId as string);
       }
 
       let player: Player;
 
-      socket.on("query_server_info", async () => {
+      socket.on('query_server_info', async () => {
         socket.emit(
-          "server_info",
+          'server_info',
           serverConfig.name,
           genniaserver.version,
           room.gameStarted,
@@ -254,7 +253,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
           room.gameConfig.maxPlayers
         );
       });
-      socket.on("reconnect", async (playerId) => {
+      socket.on('reconnect', async (playerId) => {
         try {
           if (room.gameStarted) {
             // Allow to reconnect
@@ -263,39 +262,39 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               player = room.players[playerIndex];
               room.players[playerIndex].socket_id = socket.id;
               io.in(room.id).emit(
-                "room_message",
+                'room_message',
                 player.trans(),
-                "re-joined the lobby."
+                're-joined the lobby.'
               );
             }
           }
         } catch (e) {
           socket.emit(
-            "error",
-            "An unknown error occurred: " + e.message,
+            'error',
+            'An unknown error occurred: ' + e.message,
             e.stack
           );
         }
       });
 
-      socket.on("set_username", async (username) => {
+      socket.on('set_username', async (username) => {
         try {
           username = xss(username);
           if (!username.length) {
-            socket.emit("reject_join", "Username is invalid");
+            socket.emit('reject_join', 'Username is invalid');
             return;
           }
           if (room.gameStarted) {
-            socket.emit("reject_join", "Game is already started");
+            socket.emit('reject_join', 'Game is already started');
             return;
           }
           // This socket will be first called when the player connects the server
           let playerId = crypto
             .randomBytes(Math.ceil(10 / 2))
-            .toString("hex")
+            .toString('hex')
             .slice(0, 10);
-          console.log("Player:", username, "playerId:", playerId);
-          socket.emit("set_player_id", playerId);
+          console.log('Player:', username, 'playerId:', playerId);
+          socket.emit('set_player_id', playerId);
 
           player = new Player(
             playerId,
@@ -307,9 +306,13 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
           room.players.push(player);
           let playerIndex = room.players.length - 1;
 
-          io.in(room.id).emit("room_message", player.trans(), "joined the lobby.");
           io.in(room.id).emit(
-            "players_changed",
+            'room_message',
+            player.trans(),
+            'joined the lobby.'
+          );
+          io.in(room.id).emit(
+            'players_changed',
             room.players.map((player) => player.trans())
           );
 
@@ -319,12 +322,12 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
           }
           room.players[playerIndex].username = username;
           io.in(room.id).emit(
-            "players_changed",
+            'players_changed',
             room.players.map((player) => player.trans())
           );
 
           // Only emit to this player so it will get the latest status
-          socket.emit("force_start_changed", room.forceStartNum);
+          socket.emit('force_start_changed', room.forceStartNum);
 
           if (room.players.length >= room.gameConfig.maxPlayers) {
             await handleGame(room, io);
@@ -334,11 +337,11 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on("get_game_settings", async () => {
-        socket.emit("push_game_settings", room.gameConfig);
+      socket.on('get_game_settings', async () => {
+        socket.emit('push_game_settings', room.gameConfig);
       });
 
-      socket.on("change_host", async (userId) => {
+      socket.on('change_host', async (userId) => {
         try {
           if (player.isRoomHost) {
             let currentHost = await getPlayerIndex(room, player.id);
@@ -347,7 +350,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               room.players[currentHost].setRoomHost(false);
               room.players[newHost].setRoomHost(true);
               io.in(room.id).emit(
-                "players_changed",
+                'players_changed',
                 room.players.map((player) => player.trans())
               );
             }
@@ -357,22 +360,22 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on("change_game_speed", async (value) => {
+      socket.on('change_game_speed', async (value) => {
         try {
           if (player.isRoomHost) {
-            console.log("Changing game speed to " + speedArr[value] + "x");
+            console.log('Changing game speed to ' + speedArr[value] + 'x');
             room.gameConfig.gameSpeed = value;
-            io.in(room.id).emit("game_config_changed", room.gameConfig);
+            io.in(room.id).emit('game_config_changed', room.gameConfig);
             io.in(room.id).emit(
-              "room_message",
+              'room_message',
               player.trans(),
               `changed the game speed to ${speedArr[value]}x.`
             );
           } else {
             socket.emit(
-              "error",
-              "Changement was failed",
-              "You are not the game host."
+              'error',
+              'Changement was failed',
+              'You are not the game host.'
             );
           }
         } catch (e) {
@@ -380,22 +383,22 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on("change_map_width", async (value) => {
+      socket.on('change_map_width', async (value) => {
         try {
           if (player.isRoomHost) {
-            console.log("Changing map width to" + value);
+            console.log('Changing map width to' + value);
             room.gameConfig.mapWidth = value;
-            io.in(room.id).emit("game_config_changed", room.gameConfig);
+            io.in(room.id).emit('game_config_changed', room.gameConfig);
             io.in(room.id).emit(
-              "room_message",
+              'room_message',
               player.trans(),
               `changed the map width to ${value}.`
             );
           } else {
             socket.emit(
-              "error",
-              "Changement was failed",
-              "You are not the game host."
+              'error',
+              'Changement was failed',
+              'You are not the game host.'
             );
           }
         } catch (e) {
@@ -403,22 +406,22 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on("change_map_height", async (value) => {
+      socket.on('change_map_height', async (value) => {
         try {
           if (player.isRoomHost) {
-            console.log("Changing map height to" + value);
+            console.log('Changing map height to' + value);
             room.gameConfig.mapHeight = value;
-            io.in(room.id).emit("game_config_changed", room.gameConfig);
+            io.in(room.id).emit('game_config_changed', room.gameConfig);
             io.in(room.id).emit(
-              "room_message",
+              'room_message',
               player.trans(),
               `changed the map height to ${value}.`
             );
           } else {
             socket.emit(
-              "error",
-              "Changement was failed",
-              "You are not the game host."
+              'error',
+              'Changement was failed',
+              'You are not the game host.'
             );
           }
         } catch (e) {
@@ -426,22 +429,22 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on("change_mountain", async (value) => {
+      socket.on('change_mountain', async (value) => {
         try {
           if (player.isRoomHost) {
-            console.log("Changing mountain to" + value);
+            console.log('Changing mountain to' + value);
             room.gameConfig.mountain = value;
-            io.in(room.id).emit("game_config_changed", room.gameConfig);
+            io.in(room.id).emit('game_config_changed', room.gameConfig);
             io.in(room.id).emit(
-              "room_message",
+              'room_message',
               player.trans(),
               `changed the mountain to ${value}.`
             );
           } else {
             socket.emit(
-              "error",
-              "Changement was failed",
-              "You are not the game host."
+              'error',
+              'Changement was failed',
+              'You are not the game host.'
             );
           }
         } catch (e) {
@@ -449,22 +452,22 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on("change_city", async (value) => {
+      socket.on('change_city', async (value) => {
         try {
           if (player.isRoomHost) {
-            console.log("Changing city to" + value);
+            console.log('Changing city to' + value);
             room.gameConfig.city = value;
-            io.in(room.id).emit("game_config_changed", room.gameConfig);
+            io.in(room.id).emit('game_config_changed', room.gameConfig);
             io.in(room.id).emit(
-              "room_message",
+              'room_message',
               player.trans(),
               `changed the city to ${value}.`
             );
           } else {
             socket.emit(
-              "error",
-              "Changement was failed",
-              "You are not the game host."
+              'error',
+              'Changement was failed',
+              'You are not the game host.'
             );
           }
         } catch (e) {
@@ -472,22 +475,22 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on("change_swamp", async (value) => {
+      socket.on('change_swamp', async (value) => {
         try {
           if (player.isRoomHost) {
-            console.log("Changing swamp to" + value);
+            console.log('Changing swamp to' + value);
             room.gameConfig.swamp = value;
-            io.in(room.id).emit("game_config_changed", room.gameConfig);
+            io.in(room.id).emit('game_config_changed', room.gameConfig);
             io.in(room.id).emit(
-              "room_message",
+              'room_message',
               player.trans(),
               `changed the swamp to ${value}.`
             );
           } else {
             socket.emit(
-              "error",
-              "Changement was failed",
-              "You are not the game host."
+              'error',
+              'Changement was failed',
+              'You are not the game host.'
             );
           }
         } catch (e) {
@@ -495,30 +498,30 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on("change_max_player_num", async (value) => {
+      socket.on('change_max_player_num', async (value) => {
         try {
           if (player.isRoomHost) {
             if (value <= 1) {
               socket.emit(
-                "error",
-                "Changement was failed",
-                "Max player num is invalid."
+                'error',
+                'Changement was failed',
+                'Max player num is invalid.'
               );
               return;
             }
-            console.log("Changing max players to" + value);
+            console.log('Changing max players to' + value);
             room.gameConfig.maxPlayers = value;
-            io.in(room.id).emit("game_config_changed", room.gameConfig);
+            io.in(room.id).emit('game_config_changed', room.gameConfig);
             io.in(room.id).emit(
-              "room_message",
+              'room_message',
               player.trans(),
               `changed the max player num to ${value}.`
             );
           } else {
             socket.emit(
-              "error",
-              "Changement was failed",
-              "You are not the game host."
+              'error',
+              'Changement was failed',
+              'You are not the game host.'
             );
           }
         } catch (e) {
@@ -526,16 +529,16 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on("player_message", async (message) => {
-        io.in(room.id).emit("room_message", player.trans(), ": " + message);
+      socket.on('player_message', async (message) => {
+        io.in(room.id).emit('room_message', player.trans(), ': ' + message);
       });
 
-      socket.on("disconnect", async () => {
+      socket.on('disconnect', async () => {
         if (!room.gameStarted) await handleDisconnectInRoom(room, player, io);
         else await handleDisconnectInGame(room, player, io);
       });
 
-      socket.on("leave_game", async () => {
+      socket.on('leave_game', async () => {
         try {
           socket.disconnect();
           await handleDisconnectInGame(room, player, io);
@@ -544,7 +547,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on("force_start", async () => {
+      socket.on('force_start', async () => {
         try {
           let playerIndex = await getPlayerIndex(room, player.id);
           if (room.players[playerIndex].forceStart === true) {
@@ -555,10 +558,10 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
             ++room.forceStartNum;
           }
           io.in(room.id).emit(
-            "players_changed",
+            'players_changed',
             room.players.map((player) => player.trans())
           );
-          io.in(room.id).emit("force_start_changed", room.forceStartNum);
+          io.in(room.id).emit('force_start_changed', room.forceStartNum);
 
           if (room.forceStartNum >= forceStartOK[room.players.length]) {
             await handleGame(room, io);
@@ -572,13 +575,12 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
     console.log('socket.io already running');
   }
   res.end();
-
-};
+}
 
 export const config = {
   api: {
-    bodyParser: false
-  }
-}
+    bodyParser: false,
+  },
+};
 
 export default ioHandler;

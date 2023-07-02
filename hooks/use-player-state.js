@@ -1,4 +1,4 @@
-import { usePlayerStateValidation } from "@/hooks/index";
+import { usePlayerStateValidation } from '@/hooks/index';
 
 /**
  * usePlayerState

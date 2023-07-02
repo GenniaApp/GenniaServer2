@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Snackbar,
   Box,
@@ -7,20 +7,20 @@ import {
   Tab,
   Tabs,
   Typography,
-} from "@mui/material";
-import TerrainIcon from "@mui/icons-material/Terrain";
-import LocationCityIcon from "@mui/icons-material/LocationCity";
-import WaterIcon from "@mui/icons-material/Water";
-import { io } from "socket.io-client";
-import { ThemeProvider } from "@mui/material/styles";
-import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-import { useTranslation } from "next-i18next";
+} from '@mui/material';
+import TerrainIcon from '@mui/icons-material/Terrain';
+import LocationCityIcon from '@mui/icons-material/LocationCity';
+import WaterIcon from '@mui/icons-material/Water';
+import { io } from 'socket.io-client';
+import { ThemeProvider } from '@mui/material/styles';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 
-import theme from "../components/theme";
+import theme from '../components/theme';
 
-import Navbar from "../components/Navbar";
+import Navbar from '../components/Navbar';
 
-const socket = io("http://localhost:3000");
+const socket = io('http://localhost:3000');
 
 interface Player {
   name: string;
@@ -30,14 +30,14 @@ interface Player {
 
 function PlayerTable({ players }: { players: Player[] }) {
   return (
-    <Box sx={{ display: "flex", ml: 2 }}>
+    <Box sx={{ display: 'flex', ml: 2 }}>
       {players.map((player) => (
         <Box
           key={player.name}
           sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             p: 1,
             // bgcolor: player.color,
             borderRadius: 1,
@@ -45,10 +45,10 @@ function PlayerTable({ players }: { players: Player[] }) {
           }}
         >
           <Typography
-            variant="body1"
+            variant='body1'
             sx={{
               color: player.color,
-              textDecoration: player.ready_status ? "underline" : "none",
+              textDecoration: player.ready_status ? 'underline' : 'none',
             }}
           >
             {player.name}
@@ -60,18 +60,18 @@ function PlayerTable({ players }: { players: Player[] }) {
 }
 const demoPlayers: Player[] = [
   {
-    name: "Player 1",
-    color: "#ff0000",
+    name: 'Player 1',
+    color: '#ff0000',
     ready_status: true,
   },
   {
-    name: "Player 2",
-    color: "#00ff00",
+    name: 'Player 2',
+    color: '#00ff00',
     ready_status: false,
   },
   {
-    name: "Player 3",
-    color: "#0000ff",
+    name: 'Player 3',
+    color: '#0000ff',
     ready_status: true,
   },
 ];
@@ -86,7 +86,7 @@ function GamingRoom() {
   const [city, setCity] = useState(0.5);
   const [swamp, setSwamp] = useState(0.5);
   const [readyNum, setReadyNum] = useState(0);
-  const [shareLink, setShareLink] = useState("");
+  const [shareLink, setShareLink] = useState('');
   const [players, setPlayers] = useState<Player[]>(demoPlayers);
 
   const [open, setOpen] = useState(false);
@@ -103,7 +103,7 @@ function GamingRoom() {
     setShareLink(window.location.href);
   }, []);
 
-  socket.on("force_start_changed", (fsNum) => {
+  socket.on('force_start_changed', (fsNum) => {
     setReadyNum(fsNum);
   });
 
@@ -123,15 +123,15 @@ function GamingRoom() {
       <Box
         sx={{
           width: {
-            xs: "90vw",
-            md: "40vw",
+            xs: '90vw',
+            md: '40vw',
           },
         }}
       >
-        <Typography variant="h6" sx={{ color: "#bbb!important", mb: 2 }}>
-          Share url to your friends :{" "}
+        <Typography variant='h6' sx={{ color: '#bbb!important', mb: 2 }}>
+          Share url to your friends :{' '}
           <code
-            style={{ cursor: "pointer" }}
+            style={{ cursor: 'pointer' }}
             onClick={() => {
               navigator.clipboard.writeText(shareLink);
               setOpen(true);
@@ -144,10 +144,10 @@ function GamingRoom() {
           open={open}
           autoHideDuration={1000}
           onClose={handleClose}
-          message="Copied!"
+          message='Copied!'
         />
         <Box
-          className="menu-container"
+          className='menu-container'
           sx={{
             mb: 2,
           }}
@@ -155,35 +155,35 @@ function GamingRoom() {
           <Tabs
             value={value}
             onChange={handleChange}
-            variant="fullWidth"
-            indicatorColor="primary"
-            textColor="primary"
-            aria-label="game settings tabs"
+            variant='fullWidth'
+            indicatorColor='primary'
+            textColor='primary'
+            aria-label='game settings tabs'
           >
-            <Tab label={t("game")} />
-            <Tab label={t("map")} />
-            <Tab label={t("terrain")} />
+            <Tab label={t('game')} />
+            <Tab label={t('map')} />
+            <Tab label={t('terrain')} />
           </Tabs>
           <TabPanel value={value} index={0}>
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <SliderBox
-                label={t("game-speed")}
+                label={t('game-speed')}
                 value={gameSpeed}
                 min={0}
                 max={6}
                 marks={[
-                  { value: 0, label: "0.25x" },
-                  { value: 1, label: "0.5x" },
-                  { value: 2, label: "0.75x" },
-                  { value: 3, label: "1x" },
-                  { value: 4, label: "2x" },
-                  { value: 5, label: "3x" },
-                  { value: 6, label: "4x" },
+                  { value: 0, label: '0.25x' },
+                  { value: 1, label: '0.5x' },
+                  { value: 2, label: '0.75x' },
+                  { value: 3, label: '1x' },
+                  { value: 4, label: '2x' },
+                  { value: 5, label: '3x' },
+                  { value: 6, label: '4x' },
                 ]}
                 handleChange={handleSliderChange(setGameSpeed)}
               />
               <SliderBox
-                label={t("max-player-num")}
+                label={t('max-player-num')}
                 value={maxPlayerNum}
                 min={2}
                 max={12}
@@ -196,9 +196,9 @@ function GamingRoom() {
             </Box>
           </TabPanel>
           <TabPanel value={value} index={1}>
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <SliderBox
-                label={t("width")}
+                label={t('width')}
                 value={mapWidth}
                 min={0}
                 max={1}
@@ -206,7 +206,7 @@ function GamingRoom() {
                 handleChange={handleSliderChange(setMapWidth)}
               />
               <SliderBox
-                label={t("height")}
+                label={t('height')}
                 value={mapHeight}
                 min={0}
                 max={1}
@@ -216,9 +216,9 @@ function GamingRoom() {
             </Box>
           </TabPanel>
           <TabPanel value={value} index={2}>
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <SliderBox
-                label={t("mountain")}
+                label={t('mountain')}
                 value={mountain}
                 min={0}
                 max={1}
@@ -227,7 +227,7 @@ function GamingRoom() {
                 icon={<TerrainIcon />}
               />
               <SliderBox
-                label={t("city")}
+                label={t('city')}
                 value={city}
                 min={0}
                 max={1}
@@ -236,7 +236,7 @@ function GamingRoom() {
                 icon={<LocationCityIcon />}
               />
               <SliderBox
-                label={t("swamp")}
+                label={t('swamp')}
                 value={swamp}
                 min={0}
                 max={1}
@@ -247,17 +247,17 @@ function GamingRoom() {
             </Box>
           </TabPanel>
         </Box>
-        <Box className="menu-container" sx={{ mb: 2 }}>
-          <Typography variant="h6" sx={{ color: "#5ea2ef", my: 2, ml: 2 }}>
-            {t("players")}
+        <Box className='menu-container' sx={{ mb: 2 }}>
+          <Typography variant='h6' sx={{ color: '#5ea2ef', my: 2, ml: 2 }}>
+            {t('players')}
           </Typography>
           <PlayerTable players={players} />
         </Box>
         <Button
-          variant="contained"
-          color="primary"
-          size="large"
-          sx={{ width: "100%" }}
+          variant='contained'
+          color='primary'
+          size='large'
+          sx={{ width: '100%' }}
         >
           Force Start ({readyNum}/{forceStartOK[maxPlayerNum]})
         </Button>
@@ -271,7 +271,7 @@ function TabPanel(props: any) {
 
   return (
     <div
-      role="tabpanel"
+      role='tabpanel'
       hidden={value !== index}
       id={`tabpanel-${index}`}
       aria-labelledby={`tab-${index}`}
@@ -304,16 +304,16 @@ const SliderBox = ({
   handleChange,
 }: SliderBoxProps) => {
   return (
-    <Box sx={{ display: "flex", alignItems: "center", my: 2.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', my: 2.5 }}>
       {icon}
-      <Typography id={`${label}Label`} sx={{ mr: 2, whiteSpace: "nowrap" }}>
+      <Typography id={`${label}Label`} sx={{ mr: 2, whiteSpace: 'nowrap' }}>
         {label}
       </Typography>
       <Slider
         name={label}
         id={label}
         aria-labelledby={`${label}Label`}
-        valueLabelDisplay="on"
+        valueLabelDisplay='on'
         step={step}
         min={min}
         max={max}

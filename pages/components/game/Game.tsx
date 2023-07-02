@@ -1,10 +1,10 @@
-import React, { useCallback, useState } from "react";
-import classNames from "classnames";
-import SurrenderDialog from "./SurrenderDialog";
-import TurnsCount from "./TurnsCount";
-import Map from "./Map";
-import Players from "./Players";
-import OverDialog from "./OverDialog";
+import React, { useCallback, useState } from 'react';
+import classNames from 'classnames';
+import SurrenderDialog from './SurrenderDialog';
+import TurnsCount from './TurnsCount';
+import Map from './Map';
+import Players from './Players';
+import OverDialog from './OverDialog';
 
 interface TurnsCountProps {
   count: number;
@@ -33,9 +33,9 @@ interface MapProps {
 
 interface GameProps {
   className?: string;
-  turnsCount: TurnsCountProps["count"];
-  map: MapProps["map"];
-  players: PlayersProps["players"];
+  turnsCount: TurnsCountProps['count'];
+  map: MapProps['map'];
+  players: PlayersProps['players'];
   roomId: string;
 }
 
@@ -55,10 +55,10 @@ function Game(props: GameProps) {
   }, []);
 
   return (
-    <div {...restProps} className={classNames("Game", className)}>
-      <TurnsCount className="Game__TurnsCount" count={turnsCount} />
-      <Map className="Game__Map" map={map} players={players} />
-      <Players className="Game__Players" players={players} />
+    <div {...restProps} className={classNames('Game', className)}>
+      <TurnsCount className='Game__TurnsCount' count={turnsCount} />
+      <Map className='Game__Map' map={map} players={players} />
+      <Players className='Game__Players' players={players} />
       <SurrenderDialog onSurrender={handleSurrender} />
       <OverDialog
         open={didOver}

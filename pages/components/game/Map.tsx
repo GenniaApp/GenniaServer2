@@ -1,10 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
-import classNames from "classnames";
-import { PlayersProp, MapProp } from "./types-new";
-import {
-  usePossibleNextMapPositions,
-} from "@/hooks/index";
-import MapTileState from "./MapTileState";
+import { useCallback, useMemo, useState } from 'react';
+import classNames from 'classnames';
+import { PlayersProp, MapProp } from './types-new';
+import { usePossibleNextMapPositions } from '@/hooks/index';
+import MapTileState from './MapTileState';
 
 interface MapProps {
   className?: string;
@@ -51,7 +49,7 @@ function Map(props: MapProps) {
         width: mapWidth,
         height: mapHeight,
       }}
-      className={classNames("Map", className)}
+      className={classNames('Map', className)}
     >
       {map.map((tiles, rowIndex) => {
         return tiles.map((tile, columnIndex) => {

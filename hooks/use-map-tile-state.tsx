@@ -1,5 +1,5 @@
-import { useCallback, useMemo } from "react";
-import { usePlayerState, useTileState } from "@/hooks/index";
+import { useCallback, useMemo } from 'react';
+import { usePlayerState, useTileState } from '@/hooks/index';
 
 export default function useMapTileState({
   players,
@@ -9,12 +9,12 @@ export default function useMapTileState({
   selectedMapPosition,
   onChangeSelectedMapPosition: triggerChangeSelectedMapPosition,
   possibleNextMapPositions,
-  notRevealedFill = "#363636",
-  notOwnedArmyFill = "#D7D7D7",
-  notOwnedSpawnerFill = "#757575",
-  blankFill = "#B3B3B3",
-  selectedStroke = "#fff",
-  revealedStroke = "#000",
+  notRevealedFill = '#363636',
+  notOwnedArmyFill = '#D7D7D7',
+  notOwnedSpawnerFill = '#757575',
+  blankFill = '#B3B3B3',
+  selectedStroke = '#fff',
+  revealedStroke = '#000',
 }) {
   const tileState = useTileState(tile);
   const {

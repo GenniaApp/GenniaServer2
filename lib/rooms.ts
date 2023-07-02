@@ -1,10 +1,10 @@
-import { Room, RoomInfo } from "./types";
-import Point from './point'
-import Player from './player'
+import { Room, RoomInfo } from './types';
+import Point from './point';
+import Player from './player';
 
 export const gamerooms: { [key: string]: Room } = {};
 
-createRoom("test"); // for testing, should be removed
+createRoom('test'); // for testing, should be removed
 
 export function getRoomsInfo(): RoomInfo[] {
   if (Object.keys(gamerooms).length === 0) {
@@ -29,7 +29,7 @@ export function leaveRoom(roomId: string) {
 export function createRoom(roomId: string) {
   gamerooms[roomId] = {
     id: roomId,
-    username: "",
+    username: '',
     gameStarted: false,
     map: undefined,
     gameLoop: undefined,

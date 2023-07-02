@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
-import PropTypes from "prop-types";
-import Dialog from "./Dialog";
-import DialogButtons from "./DialogButtons";
-import Button from "./Button";
+import React, { useCallback, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import Dialog from './Dialog';
+import DialogButtons from './DialogButtons';
+import Button from './Button';
 
 function SurrenderDialog(props) {
   const { onSurrender: handleSurrender, ...restProps } = props;
@@ -14,7 +14,7 @@ function SurrenderDialog(props) {
 
   const handleKeydown = useCallback(
     (event) => {
-      if (event.key === "Escape" && !isOpen) {
+      if (event.key === 'Escape' && !isOpen) {
         setIsOpen(true);
       }
     },
@@ -27,10 +27,10 @@ function SurrenderDialog(props) {
   }, [handleSurrender]);
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeydown);
+    window.addEventListener('keydown', handleKeydown);
 
     return () => {
-      window.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener('keydown', handleKeydown);
     };
   }, [handleKeydown]);
 
@@ -39,10 +39,10 @@ function SurrenderDialog(props) {
       {...restProps}
       open={isOpen}
       onClose={handleClose}
-      title="Are you sure you want to surrender?"
+      title='Are you sure you want to surrender?'
     >
       <DialogButtons>
-        <Button variant="primary" onClick={handleCloseSurrender}>
+        <Button variant='primary' onClick={handleCloseSurrender}>
           Surrender
         </Button>
       </DialogButtons>

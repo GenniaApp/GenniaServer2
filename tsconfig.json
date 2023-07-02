@@ -5,7 +5,7 @@
       "@/lib/*": ["lib/*"],
       "@/hooks/*": ["hooks/*"],
       "./components/*": ["components/*"],
-      "@/styles/*": ["styles/*"],
+      "@/styles/*": ["styles/*"]
     },
 
     "target": "es2015",
