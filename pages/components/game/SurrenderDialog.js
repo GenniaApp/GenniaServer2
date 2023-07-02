@@ -24,7 +24,7 @@ function SurrenderDialog(props) {
   const handleCloseSurrender = useCallback(() => {
     setIsOpen(false);
     handleSurrender();
-  }, []);
+  }, [handleSurrender]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeydown);

@@ -48,7 +48,7 @@ export default function useChat(roomId: string) {
     };
 
     fetchUsers();
-  }, []);
+  }, [roomId]);
 
   useEffect(() => {
     const fetchMessages = async () => {
