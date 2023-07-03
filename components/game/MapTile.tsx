@@ -1,37 +1,64 @@
 import { useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import { PlayerProp, TileProp, MapPosition } from './types-new';
+import useMapTileState from '@/hooks/use-map-tile-state';
 
 interface MapTileProps {
   zoom?: number;
   imageZoom?: number;
   size?: number;
-  fill?: string; // fill color
-  stroke?: string; // stroke color
   fontSize?: number;
-  image?: string;
-  text?: string | number;
+  onChangeSize?: (size: number) => void;
+  tile: TileProp;
+  players: PlayerProp[];
   rowIndex: number;
   columnIndex: number;
-  onChangeSize?: (size: number) => void;
-  highlight?: boolean;
+  selectedMapPosition: MapPosition;
+  onChangeSelectedMapPosition: (mapPosition: MapPosition) => void;
+  possibleNextMapPositions: {
+    top: MapPosition;
+    right: MapPosition;
+    bottom: MapPosition;
+    left: MapPosition;
+  };
+  restProps: any;
 }
 
+// function MapTile(props: MapTileProps) {
 function MapTile(props: MapTileProps) {
   const {
-    zoom = 1,
+    zoom,
     imageZoom = 0.8,
-    size = 50,
-    fill = '#363636',
-    stroke,
+    size,
     fontSize = 20,
-    image,
-    text,
     rowIndex,
     columnIndex,
-    onChangeSize: triggerChangeSize,
-    highlight: isHighlight,
+    tile,
+    players,
+    selectedMapPosition,
+    onChangeSelectedMapPosition: handleChangeSelectedMapPosition,
+    possibleNextMapPositions,
     ...restProps
   } = props;
+
+  const {
+    image,
+    text,
+    fill,
+    stroke,
+    onMouseEnter,
+    onMouseLeave,
+    onClick,
+    highlight: isHighlight,
+  } = useMapTileState({
+    players,
+    tile,
+    rowIndex,
+    columnIndex,
+    selectedMapPosition,
+    onChangeSelectedMapPosition: handleChangeSelectedMapPosition,
+    possibleNextMapPositions,
+  });
 
   const zoomedSize = useMemo(() => size * zoom, [size, zoom]);
 
@@ -42,12 +69,6 @@ function MapTile(props: MapTileProps) {
   );
 
   const tileY = useMemo(() => zoomedSize * rowIndex, [zoomedSize, rowIndex]);
-
-  useEffect(() => {
-    if (triggerChangeSize) {
-      triggerChangeSize(zoomedSize);
-    }
-  }, [triggerChangeSize, zoomedSize]);
 
   const zoomedImageSize = useMemo(
     () => zoomedSize * imageZoom,

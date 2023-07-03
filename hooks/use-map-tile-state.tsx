@@ -69,6 +69,7 @@ export default function useMapTileState({
     if (isBlankType) {
       return blankFill;
     }
+    return '#363636'; // TODO
   }, [
     isOwned,
     playerColor,

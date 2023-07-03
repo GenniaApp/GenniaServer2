@@ -6,37 +6,13 @@ import TurnsCount from './TurnsCount';
 import Map from './Map';
 import Players from './Players';
 import OverDialog from './OverDialog';
-
-interface TurnsCountProps {
-  count: number;
-}
-
-interface Player {
-  id: string;
-  name: string;
-  color: number;
-}
-
-interface PlayersProps {
-  players: Player[];
-}
-
-type Tile = (number | boolean)[];
-
-interface MapProps {
-  map: Tile[];
-  selectedTile?: {
-    rowIndex: number;
-    columnIndex: number;
-  };
-  onTileClick?: (rowIndex: number, columnIndex: number) => void;
-}
+import { MapProp, PlayersProp } from './types-new';
 
 interface GameProps {
   className?: string;
-  turnsCount: TurnsCountProps['count'];
-  map: MapProps['map'];
-  players: PlayersProps['players'];
+  turnsCount: number;
+  map: MapProp;
+  players: PlayersProp;
   roomId: string;
 }
 
