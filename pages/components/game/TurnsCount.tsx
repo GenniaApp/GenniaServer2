@@ -1,9 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { turnsCountPropTypes } from './types';
 
-function TurnsCount(props) {
+interface TurnsCountProps {
+  className?: string;
+  count: number;
+}
+
+function TurnsCount(props: TurnsCountProps) {
   const { className, count, ...restProps } = props;
 
   return (
@@ -12,10 +15,5 @@ function TurnsCount(props) {
     </div>
   );
 }
-
-TurnsCount.propTypes = {
-  className: PropTypes.string,
-  count: turnsCountPropTypes,
-};
 
 export default TurnsCount;

@@ -1,8 +1,8 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useEffect } from 'react';
 import classNames from 'classnames';
 import { PlayersProp, MapProp } from './types-new';
 import { usePossibleNextMapPositions } from '@/hooks/index';
-import MapTileState from './MapTileState';
+import MapTile from './MapTile';
 
 interface MapProps {
   className?: string;
@@ -18,11 +18,8 @@ function Map(props: MapProps) {
     return firstRow.length;
   }, [map]);
 
-  const [tileSize, setTileSize] = useState(0);
-  const handleChangeSize = useCallback((size: number) => {
-    setTileSize(size);
-  }, []);
-
+  const [zoom, setZoom] = useState(1);
+  const [tileSize, setTileSize] = useState(50);
   const mapWidth = useMemo(
     () => tileSize * numberOfColumns,
     [tileSize, numberOfColumns]
@@ -43,6 +40,29 @@ function Map(props: MapProps) {
     selectedMapPosition,
   });
 
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    switch (event.key) {
+      case '1':
+        setZoom(0.8);
+        break;
+      case '2':
+        setZoom(1.0);
+        break;
+      case '3':
+        setZoom(1.2);
+        break;
+      default:
+        break;
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
+
   return (
     <div
       style={{
@@ -54,9 +74,10 @@ function Map(props: MapProps) {
       {map.map((tiles, rowIndex) => {
         return tiles.map((tile, columnIndex) => {
           return (
-            <MapTileState
+            <MapTile
               key={`${rowIndex}/${columnIndex}`}
-              onChangeSize={handleChangeSize}
+              zoom={zoom}
+              size={tileSize}
               rowIndex={rowIndex}
               columnIndex={columnIndex}
               tile={tile}
