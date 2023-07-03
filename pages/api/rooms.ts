@@ -1,9 +1,9 @@
-import { getRoomsInfo } from '@/lib/rooms';
+import { getRoomsInfo } from '../../lib/rooms';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const room_info = getRoomsInfo();
+    const room_info = await getRoomsInfo();
     // console.log("get room_info");
     // console.log(room_info);
     res.status(200).json({ room_info });

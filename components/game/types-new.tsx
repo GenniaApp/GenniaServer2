@@ -10,6 +10,6 @@ export type TilesProp = TileProp[];
 export type MapProp = TilesProp[];
 
 // id, name, color, unitiesCount, landsCount
-export type PlayerProp = [number, string, string, number, number];
+export type PlayerProp = [number, string, number, number, number];
 
 export type PlayersProp = Record<string, PlayerProp>;

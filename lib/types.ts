@@ -31,9 +31,9 @@ export interface Message {
 
 export interface Room {
   id: string;
-  username: string;
+  roomName: string;
   gameStarted: boolean;
-  map: GameMap | undefined;
+  map: GameMap | null;
   gameLoop: any;
   gameConfig: {
     maxPlayers: number;
@@ -52,7 +52,7 @@ export interface Room {
 
 export interface RoomInfo {
   id: string;
-  mapId: string | undefined;
+  roomName: string
   players: number;
   maxPlayers: number;
   gameStarted: boolean;

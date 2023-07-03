@@ -157,7 +157,7 @@ function GamingRoom() {
             </IconButton>
           }
         >
-          <Typography variant='h5'>Test Room 1</Typography>
+          <Typography variant='h5'>{localStorage.getItem('roomName') || 'Untitled Room'}</Typography>
         </Alert>
         <Snackbar
           open={open}

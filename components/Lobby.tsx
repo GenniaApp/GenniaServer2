@@ -46,7 +46,8 @@ function Lobby() {
     setInterval(fetchRooms, 2000);
   }, []);
 
-  const handleRoomClick = (roomId: string) => {
+  const handleRoomClick = (roomId: string, roomName: string) => {
+    localStorage.setItem('roomName', roomName);
     router.push(`/rooms/${roomId}`);
   };
 
@@ -93,7 +94,7 @@ function Lobby() {
           <TableHead>
             <TableRow>
               <TableCell>{t('room-id')}</TableCell>
-              <TableCell>{t('map-id')}</TableCell>
+              <TableCell>{t('room-name')}</TableCell>
               <TableCell>{t('game-speed')}</TableCell>
               <TableCell>{t('players')}</TableCell>
               <TableCell>{t('status')}</TableCell>
@@ -124,7 +125,7 @@ function Lobby() {
                   >
                     {room.id}
                   </TableCell>
-                  <TableCell>{room.mapId}</TableCell>
+                  <TableCell>{room.roomName}</TableCell>
                   <TableCell>{room.gameSpeed}</TableCell>
                   <TableCell>{`${room.players}/${room.maxPlayers}`}</TableCell>
                   <TableCell>
@@ -139,7 +140,7 @@ function Lobby() {
                     <Button
                       variant='contained'
                       color='primary'
-                      onClick={() => handleRoomClick(room.id)}
+                      onClick={() => handleRoomClick(room.id, room.roomName)}
                     >
                       {t('join')}
                     </Button>

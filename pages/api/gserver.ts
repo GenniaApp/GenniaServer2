@@ -1,15 +1,14 @@
 import { Server } from 'socket.io';
-import GameMap from '@/lib/map';
-import { gamerooms, getRoomsInfo, createRoom, leaveRoom } from '@/lib/rooms';
-import { Room, RoomInfo } from '@/lib/types';
-import Point from '@/lib/point';
-import Player from '@/lib/player';
+import GameMap from '../../lib/map';
+import { gamerooms, getRoomsInfo, createRoom, leaveRoom, speedArr } from '../../lib/rooms';
+import { Room, RoomInfo } from '../../lib/types';
+import Point from '../../lib/point';
+import Player from '../../lib/player';
 import genniaserver from '../../package.json';
 import xss from 'xss';
 import crypto from 'crypto';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const speedArr: number[] = [0.25, 0.5, 0.75, 1, 2, 3, 4];
 const forceStartOK: number[] = [1, 2, 2, 3, 3, 4, 5, 5, 6];
 //                    0  1  2  3  4  5  6  7  8
 
@@ -20,7 +19,7 @@ interface serverConfigProp {
 
 const serverConfig: serverConfigProp = {
   name: 'GenniaServer',
-  port: 8080,
+  port: 3000,
 };
 
 async function handleDisconnectInGame(room: Room, player: Player, io: Server) {
@@ -222,14 +221,10 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
 
       console.log(gamerooms);
 
-      if (!roomId) {
-        socket.emit('reject_join', 'Room id is required.');
+      if (!roomId || !gamerooms[roomId]) {
+        socket.emit('reject_join', 'Room id is invalid.');
         socket.disconnect();
         return;
-      }
-      if (!gamerooms[roomId]) {
-        console.log(`Room not found, Create new room ${roomId}`);
-        createRoom(roomId);
       }
 
       let room = gamerooms[roomId];

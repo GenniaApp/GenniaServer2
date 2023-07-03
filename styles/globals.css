@@ -6,7 +6,7 @@ html {
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+  font-family: 'Nunito', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
   /* Quicksand,serif */
   overflow: hidden;
@@ -167,8 +167,7 @@ a {
   box-shadow: 2px 2px 0 var(--primary-color);
 }
 
-.OverDialog {
-}
+.OverDialog {}
 
 .OverDialog__Title {
   margin: 0;
