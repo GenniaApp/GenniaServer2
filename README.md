@@ -1,8 +1,8 @@
-## CubeBattle
+## GenniaServer 2
 
 > **Work In Process** just UI now
 
-What is CubeBattle?
+What is GenniaServer 2?
 
 - A realtime multiplayer game where the goal is to capture all of the enemy's general without losing your own
 - using react/nextjs/socket/tailwindcss
