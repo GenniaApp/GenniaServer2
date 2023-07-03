@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo } from 'react';
 
 export default function useIsValidPositiveInteger(maybePositiveInteger) {
   return useMemo(() => {

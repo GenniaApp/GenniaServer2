@@ -1,8 +1,11 @@
 /** @type {import('next').NextConfig} */
+const { i18n } = require('./next-i18next.config');
 const nextConfig = {
+  i18n,
   reactStrictMode: false,
   swcMinify: true,
   images: {
+    domains: ['localhost'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -13,6 +16,6 @@ const nextConfig = {
     ],
   },
   output: 'standalone',
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

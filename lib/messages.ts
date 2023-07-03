@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Message, MessageData } from "./types";
+import { Message, MessageData } from './types';
 
 const messages: Message[] = [];
 
@@ -15,8 +15,8 @@ export const removeMessage = (id: string) => {
   if (index !== -1) return messages.splice(index, 1)[0];
 };
 
-export const getMessage = (id: string) => messages.find((message) => message.id === id);
+export const getMessage = (id: string) =>
+  messages.find((message) => message.id === id);
 
 export const getMessagesInRoom = (room: string) =>
   messages.filter((message) => message.room === room);
-

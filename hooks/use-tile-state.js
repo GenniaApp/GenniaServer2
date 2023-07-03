@@ -1,6 +1,5 @@
-import { useMemo } from "react";
-import useImage from "use-image";
-import { useTileStateTypes, useTileStateValidation } from "@/hooks/index";
+import { useMemo } from 'react';
+import { useTileStateTypes, useTileStateValidation } from '@/hooks/index';
 
 /**
  * useTileState
@@ -22,7 +21,6 @@ import { useTileStateTypes, useTileStateValidation } from "@/hooks/index";
  *    typeKey:      0 | 1 | 2 | 3 | 4
  *    typeValue:    "BASE" | "SPAWNER" | "FOG" | "ARMY" | "BLANK"
  *    typeImageUrl: "https://link.to/the-image"
- *    typeImage:    {HTMLImage}
  *    isRevealed:   {boolean}
  *    playerId:     {number}
  *    unitiesCount: {number}
@@ -35,26 +33,27 @@ export default function useTileState(tile) {
   const typeValue = useMemo(() => typesEnum[typeKey], [typesEnum, typeKey]);
   const typeImageUrl = useMemo(
     () =>
-        // FOG: 'question-mark.png'
-      ({ BASE: '/assets/crown.png', SPAWNER: '/assets/tower.png', FOG: '/assets/mountain.png', BLANK: '/assets/mountain.png'}[
-        typeValue
-      ]),
+      // FOG: 'question-mark.png'
+      ({
+        BASE: '/img/crown.png',
+        SPAWNER: '/img/city.png',
+        FOG: '/img/mountain.png',
+        BLANK: '/img/mountain.png',
+      }[typeValue]),
     [typeValue]
   );
 
-  const [typeImage] = useImage(typeImageUrl);
   const isOwned = useMemo(() => !!playerId, [playerId]);
-  const isBaseType = useMemo(() => typeValue === "BASE", [typeValue]);
-  const isSpawnerType = useMemo(() => typeValue === "SPAWNER", [typeValue]);
-  const isFogType = useMemo(() => typeValue === "FOG", [typeValue]);
-  const isArmyType = useMemo(() => typeValue === "ARMY", [typeValue]);
-  const isBlankType = useMemo(() => typeValue === "BLANK", [typeValue]);
+  const isBaseType = useMemo(() => typeValue === 'BASE', [typeValue]);
+  const isSpawnerType = useMemo(() => typeValue === 'SPAWNER', [typeValue]);
+  const isFogType = useMemo(() => typeValue === 'FOG', [typeValue]);
+  const isArmyType = useMemo(() => typeValue === 'ARMY', [typeValue]);
+  const isBlankType = useMemo(() => typeValue === 'BLANK', [typeValue]);
 
   return {
     typeKey,
     typeValue,
     typeImageUrl,
-    typeImage,
     isRevealed,
     playerId,
     unitiesCount,
