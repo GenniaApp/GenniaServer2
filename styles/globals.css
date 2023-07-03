@@ -1,34 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+html {
+  width: 100%;
+  height: 100%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
-}
-
-html,
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
   padding: 0;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  /* Quicksand,serif */
+  overflow: hidden;
+  background-image: url('/img/galaxy.jpg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 a {
@@ -42,146 +33,225 @@ a {
 
 /* Game css from https://github.com/dhyegocalota/generals-io-webapp */
 
-.Button {
-    padding: .45em .9em;
-    border: 0;
-    cursor: pointer;
-}
-
-.Button:focus { outline: none }
-
-.Button:active { opacity: .8 }
-
 .Button--small {
-    font-size: .7em;
+  font-size: 0.7em;
 }
 
 .Button--regular {
-    font-size: 1em;
+  font-size: 1em;
 }
 
 .Button--big {
-    font-size: 1.3em;
+  font-size: 1.3em;
 }
 
 .Button--blank {
-    background-color: #fff;
-    color: var(--primary-color);
-    box-shadow: 2px 2px 0 var(--primary-color);
+  background-color: #fff;
+  color: var(--primary-color);
+  box-shadow: 2px 2px 0 var(--primary-color);
 }
 
 .Button--blank:hover {
-    background-color: var(--primary-color);
-    color: #fff;
-    box-shadow: 4px 4px 0 var(--primary-color);
+  background-color: var(--primary-color);
+  color: #fff;
+  box-shadow: 4px 4px 0 var(--primary-color);
 }
 
 .Button--primary {
-    background-color: var(--primary-color);
-    color: #fff;
-    box-shadow: 2px 2px 0 var(--primary-color);
+  background-color: var(--primary-color);
+  color: #fff;
+  box-shadow: 2px 2px 0 var(--primary-color);
 }
 
-.Button--primary:hover { box-shadow: 4px 4px 0 var(--primary-color) }
+.Button--primary:hover {
+  box-shadow: 4px 4px 0 var(--primary-color);
+}
 
 .Dialog {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .Dialog__Content {
-    min-width: 150px;
-    padding: 1em;
-    background-color: #fff;
-    box-shadow: 2px 2px 0 var(--primary-color);
+  min-width: 150px;
+  padding: 1em;
+  background-color: #fff;
+  box-shadow: 2px 2px 0 var(--primary-color);
 }
 
-
 .DialogButtons {
-    display: flex;
-    margin-top: .55em;
-    flex-direction: column;
-    align-items: center;
+  display: flex;
+  margin-top: 0.55em;
+  flex-direction: column;
+  align-items: center;
 }
 
 .DialogButtons .Button {
-    margin: .25em 0;
+  margin: 0.25em 0;
 }
 
 .Game {
-    --primary-color: #d7afff;
+  --primary-color: #d7afff;
 
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    --tw-bg-opacity: 1;
-    background-color: rgb(17 24 39 / var(--tw-bg-opacity));
-    font-family: "Quicksand", sans-serif;
-    font-size: 16px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  --tw-bg-opacity: 1;
+  /* background-color: rgb(17 24 39 / var(--tw-bg-opacity)); */
+  /* font-family: "Quicksand", sans-serif; */
+  font-size: 16px;
 }
 
 .Game__TurnsCount {
-    position: absolute;
-    top: 0;
-    left: 0;
+  position: absolute;
+  top: 64px;
+  left: 5px;
 }
 
 .Game__Map {
-    flex: 1;
+  /* flex: 1; */
 }
 
 .Game__Players {
-    position: absolute;
-    top: 0;
-    right: 0;
+  position: absolute;
+  top: 64px;
+  right: 5px;
 }
 
 .Map {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
 .Player__Name {
-    color: #fff;
+  color: #fff;
 }
 
 .Players {
-    background-color: #fff;
-    border-collapse: collapse;
-    font-size: .9em;
+  background-color: #fff;
+  border-collapse: collapse;
+  font-size: 0.9em;
 }
 
 .Players th,
 .Players td {
-    padding: .25em .5em;
-    border: 1.5px solid #1f1f1f;
+  padding: 0.25em 0.5em;
+  border: 1.5px solid #1f1f1f;
 }
 
 .Players th:first-child,
-.Players td:first-child { text-align: center }
-
-.Players th { font-weight: normal }
-
-.TurnsCount {
-    display: inline-block;
-    padding: .2em .4em;
-    background-color: #fff;
-    font-size: .85em;
-    box-shadow: 2px 2px 0 var(--primary-color);
+.Players td:first-child {
+  text-align: center;
 }
 
-.WinDialog {}
+.Players th {
+  font-weight: normal;
+}
 
-.WinDialog__Title {
-    margin: 0;
-    text-align: center;
+.TurnsCount {
+  display: inline-block;
+  padding: 0.2em 0.4em;
+  background-color: #fff;
+  font-size: 0.85em;
+  box-shadow: 2px 2px 0 var(--primary-color);
+}
+
+.OverDialog {
+}
+
+.OverDialog__Title {
+  margin: 0;
+  text-align: center;
+}
+
+/* Navbar css */
+
+@media (min-width: 1200px) {
+  .navbar {
+    padding: 0px 16% 0px 16%;
+  }
+}
+
+@media (min-width: 900px) {
+  .navbar-mobile-logo {
+    display: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .navbar-pc-logo {
+    display: none !important;
+  }
+}
+
+.navbar {
+  background: rgba(255, 255, 255, 0.1) !important;
+  /* Minimal browser support */
+  backdrop-filter: blur(1px) !important;
+  height: 60px !important;
+}
+
+.navbar-pc-logo {
+  width: 40px;
+  margin: 10px 5px 10px 5px;
+}
+
+.navbar-mobile-logo {
+  width: 40px;
+  margin: 10px 0px 10px 0px;
+}
+
+.navbar-language-switch {
+  height: 30px !important;
+  color: white;
+  background: rgba(217, 217, 217, 0.14);
+  backdrop-filter: blur(2px);
+}
+
+#navbar-link {
+  font-weight: 300 !important;
+}
+
+/* Mini footer */
+
+.mini-footer-container {
+  display: flex;
+  width: 100%;
+  height: 60px;
+  background-color: #333;
+  justify-content: center;
+  align-content: center;
+}
+
+.mini-footer-content {
+  display: flex;
+  width: 80%;
+  height: 50px;
+  align-self: center;
+}
+
+.mini-footer-content p {
+  color: white;
+  display: flex;
+  margin: auto 0 auto 0;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.menu-container {
+  backdrop-filter: blur(3px);
+  background-color: rgba(89, 105, 117, 0.7);
+  border-radius: 10px;
+  color: white;
 }

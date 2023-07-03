@@ -4,8 +4,8 @@
     "paths": {
       "@/lib/*": ["lib/*"],
       "@/hooks/*": ["hooks/*"],
-      "@/components/*": ["components/*"],
-      "@/styles/*": ["styles/*"],
+      "./components/*": ["components/*"],
+      "@/styles/*": ["styles/*"]
     },
     "typeRoots": [
       "node_modules/@types"
