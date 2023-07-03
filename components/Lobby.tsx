@@ -14,7 +14,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { RoomInfo } from '@/lib/types';
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+// import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
 function generateRandomString(length: number) {
@@ -47,7 +47,7 @@ function Lobby() {
   }, []);
 
   const handleRoomClick = (roomId: string) => {
-    router.push(`/games/${roomId}`);
+    router.push(`/rooms/${roomId}`);
   };
 
   const handleCreateRoomClick = async () => {
@@ -57,7 +57,7 @@ function Lobby() {
       const res = await fetch(`/api/rooms/${random_roomid}`); // TODO
       if (res.status === 404) {
         success = true;
-        router.push(`/room/${random_roomid}`);
+        router.push(`/rooms/${random_roomid}`);
         break;
       }
     }
@@ -164,7 +164,7 @@ function Lobby() {
 }
 
 export default Lobby;
-
+/*
 export async function getStaticProps(context) {
   // extract the locale identifier from the URL
   const { locale } = context;
@@ -176,3 +176,4 @@ export async function getStaticProps(context) {
     },
   };
 }
+*/

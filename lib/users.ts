@@ -6,7 +6,7 @@ export const addUser = (
   id: string,
   room: string,
   name: string,
-  picture: string
+  color: number
 ) => {
   const existingUser = users.find(
     (user) => user.room === room && user.name === name
@@ -15,11 +15,11 @@ export const addUser = (
   if (!name || !room) return { error: 'Username and room are required.' };
   if (existingUser) return { error: 'Username is taken.' };
 
-  const user = { id, name, picture, room };
+  const user = { id, name, color, room };
 
   users.push(user);
 
-  return { id, name: user.name, picture: user.picture };
+  return { id, name: user.name, color: user.color };
 };
 
 export const removeUser = (id: string) => {

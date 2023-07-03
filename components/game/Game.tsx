@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { Box } from '@mui/material'
 import classNames from 'classnames';
 import SurrenderDialog from './SurrenderDialog';
 import TurnsCount from './TurnsCount';
@@ -13,7 +14,7 @@ interface TurnsCountProps {
 interface Player {
   id: string;
   name: string;
-  color: string;
+  color: number;
 }
 
 interface PlayersProps {
@@ -55,18 +56,20 @@ function Game(props: GameProps) {
   }, []);
 
   return (
-    <div {...restProps} className={classNames('Game', className)}>
-      <TurnsCount className='Game__TurnsCount' count={turnsCount} />
-      <Map className='Game__Map' map={map} players={players} />
-      <Players className='Game__Players' players={players} />
-      <SurrenderDialog onSurrender={handleSurrender} />
-      <OverDialog
-        open={didOver}
-        didWin={didWin}
-        onClose={handleOverDialogClose}
-        roomId={roomId}
-      />
-    </div>
+    <Box className='menu-container' sx={{ mb: 2 }}>
+      <div {...restProps} className={classNames('Game', className)}>
+        <TurnsCount className='Game__TurnsCount' count={turnsCount} />
+        <Map className='Game__Map' map={map} players={players} />
+        <Players className='Game__Players' players={players} />
+        <SurrenderDialog onSurrender={handleSurrender} />
+        <OverDialog
+          open={didOver}
+          didWin={didWin}
+          onClose={handleOverDialogClose}
+          roomId={roomId}
+        />
+      </div>
+    </Box>
   );
 }
 

@@ -251,7 +251,9 @@ a {
 
 .menu-container {
   backdrop-filter: blur(3px);
-  background-color: rgba(89, 105, 117, 0.7);
+  background-color: rgba(97, 122, 141, 0.7);
   border-radius: 10px;
+  padding: 8px;
+  margin-top: 10px;
   color: white;
 }

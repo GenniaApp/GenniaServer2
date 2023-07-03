@@ -4,17 +4,6 @@ const nextConfig = {
   i18n,
   reactStrictMode: false,
   swcMinify: true,
-  images: {
-    domains: ['localhost'],
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'randomuser.me',
-        port: '8080',
-        pathname: '/api/**',
-      },
-    ],
-  },
   output: 'standalone',
 };
 

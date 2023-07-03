@@ -4,6 +4,7 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
+import Chip from '@mui/material/Chip';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
@@ -14,7 +15,7 @@ import Modal from '@mui/material/Modal';
 
 import { useState } from 'react';
 
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+// import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import Router from 'next/router';
@@ -139,9 +140,10 @@ function Navbar() {
                   height={32}
                   alt='logo'
                 />
-                <Typography variant='h6' sx={{ marginLeft: 1 }}>
-                  Gennia v1.0
+                <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
+                  Gennia Online
                 </Typography>
+                <Chip label='beta' variant='outlined' color='warning' size='small' />
               </Box>
             </Link>
 
@@ -199,7 +201,7 @@ function Navbar() {
   );
 }
 export default Navbar;
-
+/*
 export async function getStaticProps(context) {
   // extract the locale identifier from the URL
   const { locale } = context;
@@ -211,3 +213,4 @@ export async function getStaticProps(context) {
     },
   };
 }
+*/

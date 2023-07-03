@@ -2,35 +2,46 @@ import { useState, useEffect } from 'react';
 import {
   Snackbar,
   Box,
+  Card,
+  Chip,
+  Alert,
+  AlertTitle,
+  CardHeader,
+  CardContent,
   Button,
+  IconButton,
   Slider,
   Tab,
   Tabs,
   Typography,
 } from '@mui/material';
+import ShareIcon from '@mui/icons-material/Share';
 import TerrainIcon from '@mui/icons-material/Terrain';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
 import WaterIcon from '@mui/icons-material/Water';
+import GroupIcon from '@mui/icons-material/Group';
 import { io } from 'socket.io-client';
 import { ThemeProvider } from '@mui/material/styles';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
-import theme from '../components/theme';
+import ColorArr from '../../lib/colors';
 
-import Navbar from '../components/Navbar';
+import theme from '../../components/theme';
+
+import Navbar from '../../components/Navbar';
 
 const socket = io('http://localhost:3000');
 
 interface Player {
   name: string;
-  color: string;
+  color: number;
   ready_status: boolean;
 }
 
 function PlayerTable({ players }: { players: Player[] }) {
   return (
-    <Box sx={{ display: 'flex', ml: 2 }}>
+    <Box sx={{ display: 'flex' }}>
       {players.map((player) => (
         <Box
           key={player.name}
@@ -39,15 +50,17 @@ function PlayerTable({ players }: { players: Player[] }) {
             justifyContent: 'space-between',
             alignItems: 'center',
             p: 1,
-            // bgcolor: player.color,
-            borderRadius: 1,
+            bgcolor: ColorArr[player.color],
+            height: '30px',
+            borderRadius: '20px',
+            marginX: 1,
             mb: 1,
           }}
         >
           <Typography
-            variant='body1'
+            variant='body2'
             sx={{
-              color: player.color,
+              color: '#fff',
               textDecoration: player.ready_status ? 'underline' : 'none',
             }}
           >
@@ -61,17 +74,17 @@ function PlayerTable({ players }: { players: Player[] }) {
 const demoPlayers: Player[] = [
   {
     name: 'Player 1',
-    color: '#ff0000',
+    color: 0,
     ready_status: true,
   },
   {
     name: 'Player 2',
-    color: '#00ff00',
+    color: 1,
     ready_status: false,
   },
   {
     name: 'Player 3',
-    color: '#0000ff',
+    color: 2,
     ready_status: true,
   },
 ];
@@ -128,18 +141,24 @@ function GamingRoom() {
           },
         }}
       >
-        <Typography variant='h6' sx={{ color: '#bbb!important', mb: 2 }}>
-          Share url to your friends :{' '}
-          <code
-            style={{ cursor: 'pointer' }}
-            onClick={() => {
-              navigator.clipboard.writeText(shareLink);
-              setOpen(true);
-            }}
-          >
-            {shareLink}
-          </code>
-        </Typography>
+        <Alert
+          color='info'
+          icon={false}
+          sx={{ backgroundColor: 'transparent', padding: 0 }}
+          action={
+            <IconButton
+              color='primary'
+              onClick={() => {
+                navigator.clipboard.writeText(shareLink);
+                setOpen(true);
+              }}
+            >
+              <ShareIcon />
+            </IconButton>
+          }
+        >
+          <Typography variant='h5'>Test Room 1</Typography>
+        </Alert>
         <Snackbar
           open={open}
           autoHideDuration={1000}
@@ -247,17 +266,24 @@ function GamingRoom() {
             </Box>
           </TabPanel>
         </Box>
-        <Box className='menu-container' sx={{ mb: 2 }}>
-          <Typography variant='h6' sx={{ color: '#5ea2ef', my: 2, ml: 2 }}>
-            {t('players')}
-          </Typography>
-          <PlayerTable players={players} />
-        </Box>
+        <Card className='menu-container' sx={{ mb: 2 }}>
+          <CardHeader
+            avatar={<GroupIcon color='primary' />}
+            title={
+              <Typography sx={{ color: '#90caf9' }}>{t('players')}</Typography>
+            }
+            sx={{ padding: 'sm' }}
+          />
+          <CardContent sx={{ padding: 'sm' }}>
+            <PlayerTable players={players} />
+          </CardContent>
+        </Card>
         <Button
           variant='contained'
           color='primary'
           size='large'
           sx={{ width: '100%' }}
+          onClick={() => {}}
         >
           Force Start ({readyNum}/{forceStartOK[maxPlayerNum]})
         </Button>

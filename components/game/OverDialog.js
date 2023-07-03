@@ -14,7 +14,7 @@ function OverDialog(props) {
   };
 
   const handleBackRoom = () => {
-    Router.push(`/games/${roomId}`);
+    Router.push(`/rooms/${roomId}`);
   };
 
   const dialogTitile = didWin ? 'You won!' : 'Game Over!';

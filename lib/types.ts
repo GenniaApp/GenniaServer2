@@ -3,14 +3,14 @@ import Player from './player';
 import GameMap from './map';
 export interface UserData {
   name: string;
-  picture: string;
+  color: number;
 }
 
 export interface User {
   id: string;
   room: string;
   name: string;
-  picture: string;
+  color: number;
 }
 
 export interface MessageData {

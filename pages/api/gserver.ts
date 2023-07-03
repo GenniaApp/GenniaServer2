@@ -214,10 +214,10 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
       console.log(`new ${socket.id} connected`);
       socket.setMaxListeners(20);
 
-      const { roomId, name, picture } = socket.handshake.query;
+      const { roomId, name, color } = socket.handshake.query;
 
       console.log(
-        `Socket ${socket.id} has connected to room ${roomId} named ${name} picture ${picture}`
+        `Socket ${socket.id} has connected to room ${roomId} named ${name} color ${color}`
       );
 
       console.log(gamerooms);

@@ -6,12 +6,12 @@ import { useRouter } from 'next/router';
 
 import { ThemeProvider } from '@mui/material/styles';
 
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Login from './components/login';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import Login from '../components/Login';
 
-import Lobby from './components/lobby';
-import theme from './components/theme';
+import Lobby from '../components/Lobby';
+import theme from '../components/theme';
 
 export default function Home() {
   const router = useRouter();

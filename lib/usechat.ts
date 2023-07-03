@@ -16,10 +16,7 @@ export default function useChat(roomId: string) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const response = await fetch('https://api.randomuser.me/');
-      const result = await response.json();
-
-      let username = localStorage.getItem('username');
+      let username = localStorage.getItem('username') as string;
       // 设置匿名 username
       if (username === undefined) {
         username = 'Anonymous';
@@ -28,7 +25,7 @@ export default function useChat(roomId: string) {
       setUser({
         // name: result.results[0].name.first,
         name: username,
-        picture: result.results[0].picture.thumbnail,
+        color: -1,
       });
     };
 
@@ -66,7 +63,7 @@ export default function useChat(roomId: string) {
     }
     fetch('/api/socketio').finally(() => {
       socketRef.current = io({
-        query: { roomId, name: user.name, picture: user.picture },
+        query: { roomId, name: user.name, color: user.color },
       });
 
       socketRef.current.on('connect', () => {
