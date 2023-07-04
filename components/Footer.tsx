@@ -11,10 +11,10 @@ function Footer() {
 
   return (
     <div className='reqfooter'>
-      <span style={{ paddingRight: 10, color: 'white' }}>
+      <div style={{ color: 'white' }}>
         {t('all-right-reserved')} © 2022~2023 Gennia &nbsp;
         {t('open-source-team')}
-      </span>
+      </div>
       <a style={{ color: 'skyblue' }} href='https://beian.miit.gov.cn'>
         粤ICP备2022122081号-2
       </a>

@@ -3,7 +3,19 @@ export interface MapPosition {
   columnIndex: number;
 }
 
-export type TileProp = (number | boolean)[];
+enum TileType {
+  Base = 0,
+  Spawner = 1,
+  Fog = 2,
+  Army = 3,
+  Blank = 4,
+}
+
+// TileType
+// isRevealed {boolean}
+// playerId {number}
+// unitiesCount {number}
+export type TileProp = [TileType, boolean, number, number];
 
 export type TilesProp = TileProp[];
 

@@ -101,8 +101,14 @@ function GamingRoom() {
   const [readyNum, setReadyNum] = useState(0);
   const [shareLink, setShareLink] = useState('');
   const [players, setPlayers] = useState<Player[]>(demoPlayers);
-
+  const [roomName, setRoomName] = useState('');
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    {
+      setRoomName(localStorage.getItem('roomName') || 'Untitled Room');
+    }
+  }, []);
 
   const { t } = useTranslation();
 
@@ -157,9 +163,7 @@ function GamingRoom() {
             </IconButton>
           }
         >
-          <Typography variant='h5'>
-            {localStorage.getItem('roomName') || 'Untitled Room'}
-          </Typography>
+          <Typography variant='h5'>{roomName}</Typography>
         </Alert>
         <Snackbar
           open={open}
@@ -178,7 +182,7 @@ function GamingRoom() {
             onChange={handleChange}
             variant='fullWidth'
             indicatorColor='primary'
-            textColor='primary'
+            textColor='inherit'
             aria-label='game settings tabs'
           >
             <Tab label={t('game')} />
@@ -272,7 +276,7 @@ function GamingRoom() {
           <CardHeader
             avatar={<GroupIcon color='primary' />}
             title={
-              <Typography sx={{ color: '#90caf9' }}>{t('players')}</Typography>
+              <Typography sx={{ color: 'white' }}>{t('players')}</Typography>
             }
             sx={{ padding: 'sm' }}
           />
