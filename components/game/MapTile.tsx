@@ -100,7 +100,6 @@ function MapTile(props: MapTileProps) {
     if (isBlankType) {
       return blankFill;
     }
-    return '#363636'; // TODO
   }, [
     isOwned,
     playerColor,
@@ -140,8 +139,6 @@ function MapTile(props: MapTileProps) {
       onChangeSelectedMapPosition({ rowIndex, columnIndex });
     }
   }, [canMove, rowIndex, columnIndex, onChangeSelectedMapPosition]);
-
-  const highlight = isNextPossibleMove;
 
   const handleMouseEnter = useCallback(() => {
     if (canMove) {
@@ -237,7 +234,8 @@ function MapTile(props: MapTileProps) {
         </div>
       )}
 
-      {highlight && (
+      {/* higlight */}
+      {isNextPossibleMove && (
         <div
           style={{
             position: 'absolute',
