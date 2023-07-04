@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { PlayerProp, TileProp, MapPosition } from './types-new';
-import useMapTileState from '@/hooks/use-map-tile-state';
+import { usePlayerState, useTileState } from '@/hooks/index';
 
 interface MapTileProps {
-  zoom?: number;
-  imageZoom?: number;
-  size?: number;
+  zoom: number;
+  imageZoom: number;
+  size: number;
   fontSize?: number;
   onChangeSize?: (size: number) => void;
   tile: TileProp;
@@ -24,7 +24,13 @@ interface MapTileProps {
   restProps: any;
 }
 
-// function MapTile(props: MapTileProps) {
+const notRevealedFill = '#363636';
+const notOwnedArmyFill = '#D7D7D7';
+const notOwnedSpawnerFill = '#757575';
+const blankFill = '#B3B3B3';
+const selectedStroke = '#fff';
+const revealedStroke = '#000';
+
 function MapTile(props: MapTileProps) {
   const {
     zoom,
@@ -42,34 +48,112 @@ function MapTile(props: MapTileProps) {
   } = props;
   const [cursorStyle, setCursorStyle] = useState('default');
 
-  const { image, text, fill, stroke, canMove, onClick, highlight } =
-    useMapTileState({
-      players,
-      tile,
-      rowIndex,
-      columnIndex,
-      selectedMapPosition,
-      onChangeSelectedMapPosition,
-      possibleNextMapPositions,
+  const {
+    isOwned,
+    playerId,
+    typeImageUrl: image,
+    unitiesCount: text,
+    isRevealed,
+    isSpawnerType,
+    isBlankType,
+    isArmyType,
+  } = useTileState(tile);
+
+  const isNextPossibleMove = useMemo(() => {
+    const isNextPossibleMapPosition = Object.values(
+      possibleNextMapPositions
+    ).some((maybeNextMapPosition) => {
+      return (
+        maybeNextMapPosition &&
+        maybeNextMapPosition.rowIndex === rowIndex &&
+        maybeNextMapPosition.columnIndex === columnIndex
+      );
     });
 
-  const handleMouseEnter = useCallback(
-    (event) => {
-      if (canMove) {
-        setCursorStyle('pointer');
-      }
-    },
-    [canMove]
-  );
+    return isNextPossibleMapPosition && !isBlankType;
+  }, [possibleNextMapPositions, rowIndex, columnIndex, isBlankType]);
 
-  const handleMouseLeave = useCallback(
-    (event) => {
-      if (canMove) {
-        setCursorStyle('default');
-      }
-    },
-    [canMove]
-  );
+  const player = useMemo(() => {
+    if (isOwned) {
+      return players[playerId];
+    }
+  }, [isOwned, players, playerId]);
+
+  const { color: playerColor } = usePlayerState(player);
+  const fill = useMemo(() => {
+    if (isOwned) {
+      return playerColor;
+    }
+
+    if (!isRevealed) {
+      return notRevealedFill;
+    }
+
+    if (isArmyType) {
+      return notOwnedArmyFill;
+    }
+
+    if (isSpawnerType) {
+      return notOwnedSpawnerFill;
+    }
+
+    if (isBlankType) {
+      return blankFill;
+    }
+    return '#363636'; // TODO
+  }, [
+    isOwned,
+    playerColor,
+    isRevealed,
+    notRevealedFill,
+    isArmyType,
+    notOwnedArmyFill,
+    isSpawnerType,
+    notOwnedSpawnerFill,
+    isBlankType,
+    blankFill,
+  ]);
+
+  const isSelected = useMemo(() => {
+    return (
+      rowIndex === selectedMapPosition.rowIndex &&
+      columnIndex === selectedMapPosition.columnIndex
+    );
+  }, [selectedMapPosition, rowIndex, columnIndex]);
+
+  const stroke = useMemo(() => {
+    if (isSelected) {
+      return selectedStroke;
+    }
+
+    if (isRevealed) {
+      return revealedStroke;
+    }
+  }, [isSelected, selectedStroke, isRevealed, revealedStroke]);
+
+  const canMove = useMemo(() => {
+    return isOwned || isNextPossibleMove;
+  }, [isOwned, isNextPossibleMove]);
+
+  const handleClick = useCallback(() => {
+    if (canMove) {
+      onChangeSelectedMapPosition({ rowIndex, columnIndex });
+    }
+  }, [canMove, rowIndex, columnIndex, onChangeSelectedMapPosition]);
+
+  const highlight = isNextPossibleMove;
+
+  const handleMouseEnter = useCallback(() => {
+    if (canMove) {
+      setCursorStyle('pointer');
+    }
+  }, [canMove]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (canMove) {
+      setCursorStyle('default');
+    }
+  }, [canMove]);
 
   const zoomedSize = useMemo(() => size * zoom, [size, zoom]);
 
@@ -104,7 +188,7 @@ function MapTile(props: MapTileProps) {
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={onClick}
+      onClick={handleClick}
     >
       <div
         style={{
