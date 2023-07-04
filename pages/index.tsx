@@ -41,7 +41,7 @@ export default function Home() {
       {username && <Lobby />}
 
       {/* <ChatBox roomid="lobby" /> */}
-      {/* <Footer /> */}
+      <Footer />
     </ThemeProvider>
   );
 }

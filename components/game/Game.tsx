@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Box } from '@mui/material'
+import { Box } from '@mui/material';
 import classNames from 'classnames';
 import SurrenderDialog from './SurrenderDialog';
 import TurnsCount from './TurnsCount';

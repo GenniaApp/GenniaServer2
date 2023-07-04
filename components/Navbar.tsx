@@ -11,11 +11,9 @@ import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import Modal from '@mui/material/Modal';
 
 import { useState } from 'react';
 
-// import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import Router from 'next/router';
@@ -143,7 +141,12 @@ function Navbar() {
                 <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
                   Gennia Online
                 </Typography>
-                <Chip label='beta' variant='outlined' color='warning' size='small' />
+                <Chip
+                  label='beta'
+                  variant='outlined'
+                  color='warning'
+                  size='small'
+                />
               </Box>
             </Link>
 
@@ -201,16 +204,3 @@ function Navbar() {
   );
 }
 export default Navbar;
-/*
-export async function getStaticProps(context) {
-  // extract the locale identifier from the URL
-  const { locale } = context;
-
-  return {
-    props: {
-      // pass the translation props to the page component
-      ...(await serverSideTranslations(locale)),
-    },
-  };
-}
-*/

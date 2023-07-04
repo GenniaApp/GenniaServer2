@@ -52,7 +52,7 @@ export interface Room {
 
 export interface RoomInfo {
   id: string;
-  roomName: string
+  roomName: string;
   players: number;
   maxPlayers: number;
   gameStarted: boolean;

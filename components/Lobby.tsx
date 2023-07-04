@@ -14,7 +14,6 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { RoomInfo } from '@/lib/types';
-// import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
 function generateRandomString(length: number) {
@@ -165,16 +164,3 @@ function Lobby() {
 }
 
 export default Lobby;
-/*
-export async function getStaticProps(context) {
-  // extract the locale identifier from the URL
-  const { locale } = context;
-
-  return {
-    props: {
-      // pass the translation props to the page component
-      ...(await serverSideTranslations(locale)),
-    },
-  };
-}
-*/

@@ -1,6 +1,12 @@
 import { Server } from 'socket.io';
 import GameMap from '../../lib/map';
-import { gamerooms, getRoomsInfo, createRoom, leaveRoom, speedArr } from '../../lib/rooms';
+import {
+  gamerooms,
+  getRoomsInfo,
+  createRoom,
+  leaveRoom,
+  speedArr,
+} from '../../lib/rooms';
 import { Room, RoomInfo } from '../../lib/types';
 import Point from '../../lib/point';
 import Player from '../../lib/player';
