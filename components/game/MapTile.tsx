@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { PlayerProp, TileProp, MapPosition } from './types-new';
 import useMapTileState from '@/hooks/use-map-tile-state';
@@ -36,29 +36,40 @@ function MapTile(props: MapTileProps) {
     tile,
     players,
     selectedMapPosition,
-    onChangeSelectedMapPosition: handleChangeSelectedMapPosition,
+    onChangeSelectedMapPosition,
     possibleNextMapPositions,
     ...restProps
   } = props;
+  const [cursorStyle, setCursorStyle] = useState('default');
 
-  const {
-    image,
-    text,
-    fill,
-    stroke,
-    onMouseEnter,
-    onMouseLeave,
-    onClick,
-    highlight: isHighlight,
-  } = useMapTileState({
-    players,
-    tile,
-    rowIndex,
-    columnIndex,
-    selectedMapPosition,
-    onChangeSelectedMapPosition: handleChangeSelectedMapPosition,
-    possibleNextMapPositions,
-  });
+  const { image, text, fill, stroke, canMove, onClick, highlight } =
+    useMapTileState({
+      players,
+      tile,
+      rowIndex,
+      columnIndex,
+      selectedMapPosition,
+      onChangeSelectedMapPosition,
+      possibleNextMapPositions,
+    });
+
+  const handleMouseEnter = useCallback(
+    (event) => {
+      if (canMove) {
+        setCursorStyle('pointer');
+      }
+    },
+    [canMove]
+  );
+
+  const handleMouseLeave = useCallback(
+    (event) => {
+      if (canMove) {
+        setCursorStyle('default');
+      }
+    },
+    [canMove]
+  );
 
   const zoomedSize = useMemo(() => size * zoom, [size, zoom]);
 
@@ -88,8 +99,12 @@ function MapTile(props: MapTileProps) {
         top: tileY,
         width: zoomedSize,
         height: zoomedSize,
+        cursor: cursorStyle,
         ...restProps,
       }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
     >
       <div
         style={{
@@ -138,7 +153,7 @@ function MapTile(props: MapTileProps) {
         </div>
       )}
 
-      {isHighlight && (
+      {highlight && (
         <div
           style={{
             position: 'absolute',

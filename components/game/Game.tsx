@@ -32,7 +32,7 @@ function Game(props: GameProps) {
   }, []);
 
   return (
-    <Box className='menu-container' sx={{ mb: 2 }}>
+    <Box sx={{ mb: 2 }}>
       <div {...restProps} className={classNames('Game', className)}>
         <TurnsCount className='Game__TurnsCount' count={turnsCount} />
         <Map className='Game__Map' map={map} players={players} />

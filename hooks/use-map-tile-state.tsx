@@ -7,7 +7,7 @@ export default function useMapTileState({
   rowIndex,
   columnIndex,
   selectedMapPosition,
-  onChangeSelectedMapPosition: triggerChangeSelectedMapPosition,
+  onChangeSelectedMapPosition,
   possibleNextMapPositions,
   notRevealedFill = '#363636',
   notOwnedArmyFill = '#D7D7D7',
@@ -104,31 +104,11 @@ export default function useMapTileState({
     return isOwned || isNextPossibleMove;
   }, [isOwned, isNextPossibleMove]);
 
-  const handleMouseEnter = useCallback(
-    (event) => {
-      if (canMove) {
-        // const stage = getStageByEventTarget(event.currentTarget);
-        // stage.container().style.cursor = "pointer";
-      }
-    },
-    [canMove]
-  );
-
-  const handleMouseLeave = useCallback(
-    (event) => {
-      if (canMove) {
-        // const stage = getStageByEventTarget(event.currentTarget);
-        // stage.container().style.cursor = "default";
-      }
-    },
-    [canMove]
-  );
-
   const handleClick = useCallback(() => {
     if (canMove) {
-      triggerChangeSelectedMapPosition({ rowIndex, columnIndex });
+      onChangeSelectedMapPosition({ rowIndex, columnIndex });
     }
-  }, [canMove, rowIndex, columnIndex, triggerChangeSelectedMapPosition]);
+  }, [canMove, rowIndex, columnIndex, onChangeSelectedMapPosition]);
 
   const isHighlight = isNextPossibleMove;
 
@@ -137,8 +117,7 @@ export default function useMapTileState({
     text: unitiesCount,
     fill,
     stroke,
-    onMouseEnter: handleMouseEnter,
-    onMouseLeave: handleMouseLeave,
+    canMove,
     onClick: handleClick,
     highlight: isHighlight,
   };
