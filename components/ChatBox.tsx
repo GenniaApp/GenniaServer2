@@ -29,10 +29,7 @@ const ChatBoxContainer = styled('div')`
   }
   @media (max-width: 900px) {
     width: 100%;
-  }
-  @media (max-width: 900px) {
-    width: 100%;
-    height: 130px;
+    height: 200px;
   }
 `;
 
@@ -105,8 +102,13 @@ const ChatBox = ({
   setMessages,
 }: ChatBoxProp) => {
   const [inputValue, setInputValue] = useState('');
-  const [isExpand, setIsExpand] = useState(false);
+  const [isExpand, setIsExpand] = useState(true);
   const textFieldRef = useRef<any>(null);
+  const messagesEndRef = useRef<any>(null);
+
+  useEffect(() => {
+    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const { t } = useTranslation();
 
@@ -155,6 +157,7 @@ const ChatBox = ({
         {messages.map((message, index) => (
           <ChatBoxMessage key={index} message={message} />
         ))}
+        <div ref={messagesEndRef} />
       </ChatBoxMessages>
       <ChatBoxInput>
         <ChatBoxTextField

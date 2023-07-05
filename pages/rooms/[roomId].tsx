@@ -242,18 +242,18 @@ function GamingRoom() {
       });
 
       socket.on('disconnect', () => {
-        Swal.fire({
-          title: 'Disconnected from the server',
-          html: 'Please reflush the App.',
-          icon: 'error',
-          showDenyButton: false,
-          showCancelButton: false,
-          allowOutsideClick: false,
-          confirmButtonText: 'Quit',
-        }).then((result) => {
-          /* Read more about isConfirmed, isDenied below */
-          navToHome();
-        });
+        // Swal.fire({
+        //   title: 'Disconnected from the server',
+        //   html: 'Please reflush the App.',
+        //   icon: 'error',
+        //   showDenyButton: false,
+        //   showCancelButton: false,
+        //   allowOutsideClick: false,
+        //   confirmButtonText: 'Quit',
+        // }).then((result) => {
+        //   /* Read more about isConfirmed, isDenied below */
+        //   navToHome();
+        // });
         console.log('Disconnected from server.');
       });
 
@@ -356,7 +356,6 @@ function GamingRoom() {
   return (
     <ThemeProvider theme={theme}>
       <Navbar />
-      <ChatBox />
       <Box
         sx={{
           width: {

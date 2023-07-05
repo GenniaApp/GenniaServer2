@@ -6,6 +6,7 @@ interface SliderBoxProps {
   min?: number;
   max?: number;
   step?: number;
+  valueLabelDisplay?: any;
   marks?: { value: number; label: string }[];
   icon?: React.ReactNode;
   handleChange: any;
@@ -18,6 +19,7 @@ export default function SliderBox({
   min = 0,
   max = 1,
   step = 0.01,
+  valueLabelDisplay = 'on',
   marks,
   icon,
   handleChange,
@@ -33,7 +35,7 @@ export default function SliderBox({
         name={label}
         id={label}
         aria-labelledby={`${label}Label`}
-        valueLabelDisplay='on'
+        valueLabelDisplay={valueLabelDisplay}
         step={step}
         min={min}
         max={max}
