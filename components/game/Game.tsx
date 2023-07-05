@@ -34,9 +34,9 @@ function Game(props: GameProps) {
   return (
     <Box sx={{ mb: 2 }}>
       <div {...restProps} className={classNames('Game', className)}>
-        <TurnsCount className='Game__TurnsCount' count={turnsCount} />
+        <TurnsCount count={turnsCount} />
         <Map className='Game__Map' map={map} players={players} />
-        <Players className='Game__Players' players={players} />
+        <Players players={players} />
         <SurrenderDialog onSurrender={handleSurrender} />
         <OverDialog
           open={didOver}

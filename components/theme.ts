@@ -6,12 +6,14 @@ const theme = createTheme({
     primary: {
       main: '#d24396',
     },
+    secondary: {
+      main: '#757575'
+    }
   },
 
-  // typography: {
-  //   "fontFamily": `"Open Sans"`,
-  //   "fontWeightRegular": 300,
-  // }
+  typography: {
+    "fontFamily": `"Nunito", "Noto Sans FC"`
+  }
 });
 
 export default theme;

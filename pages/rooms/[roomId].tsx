@@ -25,11 +25,13 @@ import { ThemeProvider } from '@mui/material/styles';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 
-import ColorArr from '../../lib/colors';
+import ColorArr from '@/lib/colors';
+import theme from '@/components/theme';
+import Navbar from '@/components/Navbar';
+import ChatBox from '@/components/ChatBox';
+import Game from '@/components/game/Game';
 
-import theme from '../../components/theme';
-
-import Navbar from '../../components/Navbar';
+import { map, players } from '@/lib/static-demo-game-state'
 
 const socket = io('http://localhost:3000');
 
@@ -53,6 +55,7 @@ function PlayerTable({ players }: { players: Player[] }) {
             bgcolor: ColorArr[player.color],
             height: '30px',
             borderRadius: '20px',
+            boxShadow: 1,
             marginX: 1,
             mb: 1,
           }}
@@ -99,6 +102,7 @@ function GamingRoom() {
   const [city, setCity] = useState(0.5);
   const [swamp, setSwamp] = useState(0.5);
   const [readyNum, setReadyNum] = useState(0);
+  const [forceStart, setForceStart] = useState(false);
   const [shareLink, setShareLink] = useState('');
   const [players, setPlayers] = useState<Player[]>(demoPlayers);
   const [roomName, setRoomName] = useState('');
@@ -139,7 +143,8 @@ function GamingRoom() {
   return (
     <ThemeProvider theme={theme}>
       <Navbar />
-      <Box
+      <ChatBox />
+      {!forceStart ? <Box
         sx={{
           width: {
             xs: '90vw',
@@ -148,7 +153,7 @@ function GamingRoom() {
         }}
       >
         <Alert
-          color='info'
+          color='primary'
           icon={false}
           sx={{ backgroundColor: 'transparent', padding: 0 }}
           action={
@@ -194,6 +199,7 @@ function GamingRoom() {
               <SliderBox
                 label={t('game-speed')}
                 value={gameSpeed}
+                valueLabelDisplay='off'
                 min={0}
                 max={6}
                 marks={[
@@ -210,6 +216,7 @@ function GamingRoom() {
               <SliderBox
                 label={t('max-player-num')}
                 value={maxPlayerNum}
+                valueLabelDisplay='auto'
                 min={2}
                 max={12}
                 marks={Array.from({ length: 11 }, (_, i) => ({
@@ -225,6 +232,7 @@ function GamingRoom() {
               <SliderBox
                 label={t('width')}
                 value={mapWidth}
+                valueLabelDisplay='on'
                 min={0}
                 max={1}
                 step={0.01}
@@ -233,6 +241,7 @@ function GamingRoom() {
               <SliderBox
                 label={t('height')}
                 value={mapHeight}
+                valueLabelDisplay='on'
                 min={0}
                 max={1}
                 step={0.01}
@@ -245,6 +254,7 @@ function GamingRoom() {
               <SliderBox
                 label={t('mountain')}
                 value={mountain}
+                valueLabelDisplay='on'
                 min={0}
                 max={1}
                 step={0.01}
@@ -254,6 +264,7 @@ function GamingRoom() {
               <SliderBox
                 label={t('city')}
                 value={city}
+                valueLabelDisplay='on'
                 min={0}
                 max={1}
                 step={0.01}
@@ -263,6 +274,7 @@ function GamingRoom() {
               <SliderBox
                 label={t('swamp')}
                 value={swamp}
+                valueLabelDisplay='on'
                 min={0}
                 max={1}
                 step={0.01}
@@ -286,14 +298,14 @@ function GamingRoom() {
         </Card>
         <Button
           variant='contained'
-          color='primary'
+          color={forceStart ? 'primary' : 'secondary'}
           size='large'
-          sx={{ width: '100%' }}
-          onClick={() => {}}
+          sx={{ width: '100%', height: '60px', fontSize: '20px' }}
+          onClick={() => setForceStart(!forceStart)}
         >
           Force Start ({readyNum}/{forceStartOK[maxPlayerNum]})
         </Button>
-      </Box>
+      </Box> : <Game turnsCount={11} map={map} players={players} />}
     </ThemeProvider>
   );
 }
@@ -320,6 +332,7 @@ interface SliderBoxProps {
   min: number;
   max: number;
   step?: number;
+  valueLabelDisplay?: 'auto' | 'on' | 'off' | undefined;
   marks?: { value: number; label: string }[];
   icon?: React.ReactNode;
   handleChange: any;
@@ -331,6 +344,7 @@ const SliderBox = ({
   min,
   max,
   step = 1,
+  valueLabelDisplay,
   marks,
   icon,
   handleChange,
@@ -345,7 +359,7 @@ const SliderBox = ({
         name={label}
         id={label}
         aria-labelledby={`${label}Label`}
-        valueLabelDisplay='on'
+        valueLabelDisplay={valueLabelDisplay}
         step={step}
         min={min}
         max={max}

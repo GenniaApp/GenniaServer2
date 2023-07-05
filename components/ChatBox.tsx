@@ -1,31 +1,35 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import { useState, useEffect, useRef } from 'react';
-import { TextField, Button, Typography } from '@mui/material';
+import { TextField, Button, IconButton, Typography } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import { useTranslation } from 'next-i18next';
 import { text } from 'node:stream/consumers';
+
+import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
+import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded';
 
 const ChatBoxContainer = styled('div')`
   position: fixed;
   bottom: 0;
   right: 0;
   width: 300px;
-  height: 130x;
+  height: 500px;
+  overflow: auto;
   background-color: rgb(89, 105, 117, 70%) !important;
   /* border: 1px solid black; */
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  &.expand {
-    height: 500px;
-    overflow: hidden;
+  &.hidden {
+    height: min-content;
   }
 `;
 
 const ChatBoxHeader = styled('div')`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   color: white;
   padding: 10px;
   font-size: 20px;
@@ -37,6 +41,9 @@ const ChatBoxMessages = styled('div')`
   overflow-y: auto;
   padding: 10px;
   color: white;
+  &.hidden {
+    display: none;
+  }
 `;
 
 const ChatBoxInput = styled('div')`
@@ -94,30 +101,29 @@ const ChatBox = () => {
     }
   };
 
-  const handleContainerClick = () => {
-    setIsExpand(!isExpand);
-  };
-
   return (
-    <ChatBoxContainer
-      className={isExpand ? 'expand' : ''}
-      onClick={handleContainerClick}
-    >
+    <ChatBoxContainer className={isExpand ? '' : 'hidden'}>
       <ChatBoxHeader>
-        <ChatIcon color='primary' style={{ margin: 5 }} />
-        <Typography>{t('message-center')}</Typography>
+        <ChatIcon color='primary' />
+        <Typography>
+          {t('message-center')}
+        </Typography>
+        <IconButton onClick={() => setIsExpand(!isExpand)}>
+          {isExpand ? <UnfoldLessRoundedIcon /> : <UnfoldMoreRoundedIcon />}
+        </IconButton>
       </ChatBoxHeader>
-      <ChatBoxMessages>
+      <ChatBoxMessages className={isExpand ? '' : 'hidden'}>
         {messages.map((message, index) => (
           <div key={index}>{message}</div>
         ))}
       </ChatBoxMessages>
       <ChatBoxInput>
         <ChatBoxTextField
-          hiddenLabel
           autoFocus
-          label='Type a message, Enter to send'
-          variant='filled'
+          hiddenLabel
+          placeholder='Type a message, Enter to send'
+          variant='outlined'
+          size='small'
           value={inputValue}
           onChange={handleInputChange}
           inputRef={textFieldRef}
