@@ -16,13 +16,18 @@ const ChatBoxContainer = styled('div')`
   width: 300px;
   height: 500px;
   overflow: auto;
-  background-color: rgb(89, 105, 117, 70%) !important;
+  z-index: 1001;
+  backdrop-filter: blur(3px);
+  background-color: rgba(97, 122, 141, 0.7);
   /* border: 1px solid black; */
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   &.hidden {
     height: min-content;
+  };
+  @media (max-width: 900px) {
+    width: 100%
   }
 `;
 
@@ -49,7 +54,6 @@ const ChatBoxMessages = styled('div')`
 const ChatBoxInput = styled('div')`
   display: flex;
   align-items: center;
-  background-color: black;
   padding: 10px;
 `;
 

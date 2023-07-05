@@ -31,7 +31,7 @@ import Navbar from '@/components/Navbar';
 import ChatBox from '@/components/ChatBox';
 import Game from '@/components/game/Game';
 
-import { map, players } from '@/lib/static-demo-game-state'
+import { map, players } from '@/lib/static-demo-game-state';
 
 const socket = io('http://localhost:3000');
 
@@ -144,11 +144,11 @@ function GamingRoom() {
     <ThemeProvider theme={theme}>
       <Navbar />
       <ChatBox />
-      {!forceStart ? <Box
+      <Box
         sx={{
           width: {
             xs: '90vw',
-            md: '40vw',
+            md: '55vw',
           },
         }}
       >
@@ -305,7 +305,7 @@ function GamingRoom() {
         >
           Force Start ({readyNum}/{forceStartOK[maxPlayerNum]})
         </Button>
-      </Box> : <Game turnsCount={11} map={map} players={players} />}
+      </Box>
     </ThemeProvider>
   );
 }
