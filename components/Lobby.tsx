@@ -42,11 +42,13 @@ function Lobby() {
       setLoading(false);
     };
     fetchRooms();
-    setInterval(fetchRooms, 2000);
+    let fetchInterval = setInterval(fetchRooms, 2000);
+    return () => {
+      clearInterval(fetchInterval);
+    };
   }, []);
 
-  const handleRoomClick = (roomId: string, roomName: string) => {
-    localStorage.setItem('roomName', roomName);
+  const handleRoomClick = (roomId: string) => {
     router.push(`/rooms/${roomId}`);
   };
 
@@ -124,7 +126,7 @@ function Lobby() {
                   >
                     {room.id}
                   </TableCell>
-                  <TableCell>{room.roomName}</TableCell>
+                  <TableCell>{room.roomId}</TableCell>
                   <TableCell>{room.gameSpeed}</TableCell>
                   <TableCell>{`${room.players}/${room.maxPlayers}`}</TableCell>
                   <TableCell>
@@ -139,7 +141,7 @@ function Lobby() {
                     <Button
                       variant='contained'
                       color='primary'
-                      onClick={() => handleRoomClick(room.id, room.roomName)}
+                      onClick={() => handleRoomClick(room.roomId)}
                     >
                       {t('join')}
                     </Button>

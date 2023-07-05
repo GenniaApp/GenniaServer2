@@ -21,8 +21,12 @@
   "mountain": "山丘",
   "city": "城市",
   "swamp": "沼泽",
+  "anonymous": "匿名",
+  "force-start": "提前开始",
   "message-center": "消息中心",
   "send": "发送",
+  "reject_join": "拒绝加入",
+  "type-a-message": "点击聊天 Enter发送",
   "open-source-team": "开源团队",
   "all-right-reserved": "版权所有"
 }

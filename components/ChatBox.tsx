@@ -1,10 +1,11 @@
-import React from 'react';
 import { styled } from '@mui/material/styles';
 import { useState, useEffect, useRef } from 'react';
 import { TextField, Button, IconButton, Typography } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import { useTranslation } from 'next-i18next';
-import { text } from 'node:stream/consumers';
+import { Socket } from 'socket.io-client';
+import { Player, Message } from '@/lib/types';
+import ColorArr from '@/lib/colors';
 
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded';
@@ -25,9 +26,13 @@ const ChatBoxContainer = styled('div')`
   flex-direction: column;
   &.hidden {
     height: min-content;
-  };
+  }
   @media (max-width: 900px) {
-    width: 100%
+    width: 100%;
+  }
+  @media (max-width: 900px) {
+    width: 100%;
+    height: 130px;
   }
 `;
 
@@ -44,7 +49,7 @@ const ChatBoxHeader = styled('div')`
 const ChatBoxMessages = styled('div')`
   flex: 1;
   overflow-y: auto;
-  padding: 10px;
+  padding: 5px;
   color: white;
   &.hidden {
     display: none;
@@ -65,23 +70,54 @@ const ChatBoxButton = styled(Button)`
   margin-left: 10px;
 `;
 
-const ChatBox = () => {
-  const [messages, setMessages] = React.useState([]);
-  const [inputValue, setInputValue] = React.useState('');
-  const [isExpand, setIsExpand] = React.useState(true);
-  const textFieldRef = React.useRef(null);
+const ChatBoxMessage = ({ message }: { message: Message }) => {
+  return (
+    <div>
+      <span
+        style={{
+          paddingLeft: 10,
+          display: 'inline',
+          color: ColorArr[message.player.color],
+        }}
+      >
+        {message.player.username}
+      </span>
+      &nbsp;
+      <p style={{ display: 'inline' }}>{message.content}</p>
+      <br />
+    </div>
+  );
+};
+
+interface ChatBoxProp {
+  roomId: string;
+  player: Player;
+  socket: Socket;
+  messages: Message[];
+  setMessages: any;
+}
+
+const ChatBox = ({
+  roomId,
+  player,
+  socket,
+  messages,
+  setMessages,
+}: ChatBoxProp) => {
+  const [inputValue, setInputValue] = useState('');
+  const [isExpand, setIsExpand] = useState(false);
+  const textFieldRef = useRef<any>(null);
 
   const { t } = useTranslation();
 
-  const handleInputKeyDown = (event) => {
+  const handleInputKeyDown = (event: any) => {
     if (event.key === 'Enter') {
       handleSendMessage();
     }
   };
 
-  const handleGlobalKeyDown = (event) => {
-    //   Enter to focus
-    if (event.keyCode === 13 && textFieldRef.current) {
+  const handleGlobalKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Enter' && textFieldRef.current) {
       event.preventDefault();
       textFieldRef.current.focus();
     }
@@ -94,14 +130,15 @@ const ChatBox = () => {
     };
   }, []);
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: any) => {
     setInputValue(event.target.value);
   };
 
   const handleSendMessage = () => {
     if (inputValue.trim() !== '') {
-      setMessages([...messages, inputValue]);
+      // setMessages([...messages, new Message(player, inputValue)]);
       setInputValue('');
+      socket.emit('player_message', inputValue);
     }
   };
 
@@ -109,23 +146,21 @@ const ChatBox = () => {
     <ChatBoxContainer className={isExpand ? '' : 'hidden'}>
       <ChatBoxHeader>
         <ChatIcon color='primary' />
-        <Typography>
-          {t('message-center')}
-        </Typography>
+        <Typography>{t('message-center')}</Typography>
         <IconButton onClick={() => setIsExpand(!isExpand)}>
           {isExpand ? <UnfoldLessRoundedIcon /> : <UnfoldMoreRoundedIcon />}
         </IconButton>
       </ChatBoxHeader>
       <ChatBoxMessages className={isExpand ? '' : 'hidden'}>
         {messages.map((message, index) => (
-          <div key={index}>{message}</div>
+          <ChatBoxMessage key={index} message={message} />
         ))}
       </ChatBoxMessages>
       <ChatBoxInput>
         <ChatBoxTextField
           autoFocus
           hiddenLabel
-          placeholder='Type a message, Enter to send'
+          label={t('type-a-message')}
           variant='outlined'
           size='small'
           value={inputValue}

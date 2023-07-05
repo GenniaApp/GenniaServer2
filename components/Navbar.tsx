@@ -42,22 +42,13 @@ const navItems = [
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = useState(null);
 
-  const { locale, locales, push } = useRouter();
+  const router = useRouter();
 
-  const delay = (ms) => new Promise((res) => setTimeout(res, ms));
-
-  const handleClick = (l) => async () => {
-    if (l == 'en') {
-      push('/', undefined, { locale: l });
-    } else {
-      push('/', undefined, { locale: l });
-      // todo: why we need reload?
-      // await delay(1500);
-      // Router.reload();
-    }
+  const handleClick = (lang: string) => async () => {
+    router.push(router.asPath, undefined, { locale: lang });
   };
 
-  const handleOpenNavMenu = (event) => {
+  const handleOpenNavMenu = (event: any) => {
     setAnchorElNav(event.currentTarget);
   };
 
@@ -174,13 +165,18 @@ function Navbar() {
               <Select
                 color='secondary'
                 className='navbar-language-switch'
-                defaultValue={locale}
+                defaultValue={router.locale ?? 'en'}
               >
-                {locales.map((l) => (
-                  <MenuItem key={l} value={l} onClick={handleClick(l)}>
-                    {l}
-                  </MenuItem>
-                ))}
+                {router.locales &&
+                  router.locales.map((lang) => (
+                    <MenuItem
+                      key={lang}
+                      value={lang}
+                      onClick={handleClick(lang)}
+                    >
+                      {lang}
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
           </Box>

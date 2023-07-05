@@ -1,15 +1,9 @@
-import { Server } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 import GameMap from '../../lib/map';
-import {
-  gamerooms,
-  getRoomsInfo,
-  createRoom,
-  leaveRoom,
-  speedArr,
-} from '../../lib/rooms';
-import { Room, RoomInfo } from '../../lib/types';
-import Point from '../../lib/point';
-import Player from '../../lib/player';
+import { gamerooms, getRoomsInfo, createRoom, leaveRoom } from '@/lib/rooms';
+import { Room, RoomInfo } from '@/lib/types';
+import Point from '@/lib/point';
+import Player from '@/lib/player';
 import genniaserver from '../../package.json';
 import xss from 'xss';
 import crypto from 'crypto';
@@ -131,7 +125,7 @@ async function handleGame(room: Room, io: Server) {
       });
     }
 
-    let updTime = 500 / speedArr[room.gameConfig.gameSpeed];
+    let updTime = 500 / room.gameConfig.gameSpeed;
     room.gameLoop = setInterval(async () => {
       try {
         room.players.forEach(async (player) => {
@@ -209,6 +203,11 @@ async function handleGame(room: Room, io: Server) {
   }
 }
 
+function reject_join(socket: Socket, msg: string) {
+  socket.emit('reject_join', msg);
+  socket.disconnect();
+}
+
 function ioHandler(req: NextApiRequest, res: NextApiResponse) {
   if (!(res.socket as any).server.io) {
     console.log('*First use, starting socket.io');
@@ -216,44 +215,72 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
     const io = new Server((res.socket as any).server);
 
     io.on('connection', async (socket) => {
+      let room: Room;
+      let player: Player;
+
       console.log(`new ${socket.id} connected`);
-      socket.setMaxListeners(20);
 
-      const { roomId, name, color } = socket.handshake.query;
+      let { roomId, username } = socket.handshake.query;
 
-      console.log(
-        `Socket ${socket.id} has connected to room ${roomId} named ${name} color ${color}`
-      );
-
-      console.log(gamerooms);
-
-      if (!roomId || !gamerooms[roomId]) {
-        socket.emit('reject_join', 'Room id is invalid.');
-        socket.disconnect();
+      // validate roomId and username
+      if (Array.isArray(username) || !username) {
+        reject_join(socket, `username ${username} is invalid.`);
+        return;
+      }
+      username = xss(username);
+      if (!username.length) {
+        reject_join(socket, `Xss Username: ${username} is invalid`);
+        return;
+      }
+      if (Array.isArray(roomId) || !roomId || !gamerooms[roomId]) {
+        reject_join(socket, `Room id: ${roomId} is invalid.`);
         return;
       }
 
-      let room = gamerooms[roomId];
-
+      room = gamerooms[roomId];
+      // check room status
       if (room.players.length >= room.gameConfig.maxPlayers)
-        socket.emit('reject_join', 'The room is full.');
+        reject_join(socket, 'The room is full.');
       else {
         socket.join(roomId as string);
       }
+      if (room.gameStarted) {
+        socket.emit('reject_join', 'Game is already started');
+        return;
+      }
+      let playerId = crypto
+        .randomBytes(Math.ceil(10 / 2))
+        .toString('hex')
+        .slice(0, 10);
+      console.log(
+        `Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId}`
+      );
 
-      let player: Player;
+      player = new Player(playerId, socket.id, username, room.players.length);
 
-      socket.on('query_server_info', async () => {
-        socket.emit(
-          'server_info',
-          serverConfig.name,
-          genniaserver.version,
-          room.gameStarted,
-          room.players.length,
-          room.forceStartNum,
-          room.gameConfig.maxPlayers
-        );
-      });
+      if (room.players.length === 0) {
+        player.setRoomHost(true);
+      }
+
+      socket.emit('set_player', player.trans());
+
+      room.players.push(player);
+
+      // boardcast new player message to room
+      io.in(room.id).emit('room_message', player.trans(), 'joined the lobby.');
+      io.in(room.id).emit(
+        'players_changed',
+        room.players.map((player) => player.trans())
+      );
+
+      // Only emit to this player so it will get the latest status
+      socket.emit('force_start_changed', room.forceStartNum);
+
+      if (room.players.length >= room.gameConfig.maxPlayers) {
+        await handleGame(room, io);
+      }
+
+      // set up socket event listeners
       socket.on('reconnect', async (playerId) => {
         try {
           if (room.gameStarted) {
@@ -269,77 +296,17 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               );
             }
           }
-        } catch (e) {
+        } catch (err: any) {
           socket.emit(
             'error',
-            'An unknown error occurred: ' + e.message,
-            e.stack
+            'An unknown error occurred: ' + err.message,
+            err.stack
           );
-        }
-      });
-
-      socket.on('set_username', async (username) => {
-        try {
-          username = xss(username);
-          if (!username.length) {
-            socket.emit('reject_join', 'Username is invalid');
-            return;
-          }
-          if (room.gameStarted) {
-            socket.emit('reject_join', 'Game is already started');
-            return;
-          }
-          // This socket will be first called when the player connects the server
-          let playerId = crypto
-            .randomBytes(Math.ceil(10 / 2))
-            .toString('hex')
-            .slice(0, 10);
-          console.log('Player:', username, 'playerId:', playerId);
-          socket.emit('set_player_id', playerId);
-
-          player = new Player(
-            playerId,
-            socket.id,
-            username,
-            room.players.length
-          );
-
-          room.players.push(player);
-          let playerIndex = room.players.length - 1;
-
-          io.in(room.id).emit(
-            'room_message',
-            player.trans(),
-            'joined the lobby.'
-          );
-          io.in(room.id).emit(
-            'players_changed',
-            room.players.map((player) => player.trans())
-          );
-
-          if (room.players.length === 1) {
-            console.log(room.players[playerIndex]);
-            room.players[playerIndex].setRoomHost(true);
-          }
-          room.players[playerIndex].username = username;
-          io.in(room.id).emit(
-            'players_changed',
-            room.players.map((player) => player.trans())
-          );
-
-          // Only emit to this player so it will get the latest status
-          socket.emit('force_start_changed', room.forceStartNum);
-
-          if (room.players.length >= room.gameConfig.maxPlayers) {
-            await handleGame(room, io);
-          }
-        } catch (e) {
-          console.log(e.message);
         }
       });
 
       socket.on('get_game_settings', async () => {
-        socket.emit('push_game_settings', room.gameConfig);
+        socket.emit('game_config_changed', room.gameConfig);
       });
 
       socket.on('change_host', async (userId) => {
@@ -356,21 +323,22 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               );
             }
           }
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.message);
         }
       });
 
       socket.on('change_game_speed', async (value) => {
+        console.log('Temp: Changing game speed to ' + value + 'x');
         try {
           if (player.isRoomHost) {
-            console.log('Changing game speed to ' + speedArr[value] + 'x');
+            console.log('Changing game speed to ' + value + 'x');
             room.gameConfig.gameSpeed = value;
             io.in(room.id).emit('game_config_changed', room.gameConfig);
             io.in(room.id).emit(
               'room_message',
               player.trans(),
-              `changed the game speed to ${speedArr[value]}x.`
+              `changed the game speed to ${value}x.`
             );
           } else {
             socket.emit(

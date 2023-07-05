@@ -50,12 +50,13 @@ class GameMap {
     if (mountain + city === 0) {
       this.mountain = this.city = 0;
     } else {
-      this.mountain = (((this.width * this.height) / 4) * mountain) / (mountain + city)
-        ;
+      this.mountain =
+        (((this.width * this.height) / 4) * mountain) / (mountain + city);
       this.city = (((this.width * this.height) / 6) * city) / (mountain + city);
       console.log('mountains', this.mountain, 'cities', this.city);
     }
-    this.swamp = ((this.width * this.height - this.mountain - this.city) / 3) * swamp;
+    this.swamp =
+      ((this.width * this.height - this.mountain - this.city) / 3) * swamp;
     this.kings = kings;
     this.map = Array.from(Array(this.width), () =>
       Array(this.height).fill(null)
@@ -79,9 +80,10 @@ class GameMap {
     return block.type === 'Plain';
   }
 
-
   checkConnection(obstacleCount: number) {
-    const conn = new Array(this.width * this.height).fill(null).map((_, i) => i);
+    const conn = new Array(this.width * this.height)
+      .fill(null)
+      .map((_, i) => i);
     const size = new Array(this.width * this.height).fill(1);
     let connected = false;
 
@@ -95,7 +97,10 @@ class GameMap {
           ];
           for (const neighbor of neighbors) {
             const { x, y } = neighbor;
-            if (this.withinMap(new Point(x, y)) && !this.isObstacle(this.map[x][y])) {
+            if (
+              this.withinMap(new Point(x, y)) &&
+              !this.isObstacle(this.map[x][y])
+            ) {
               const lastPoint = x * this.height + y;
               const curFather = this.getFather(conn, curPoint);
               const lastFather = this.getFather(conn, lastPoint);
@@ -318,8 +323,7 @@ class GameMap {
 
   commandable(player: any, focus: Point, newFocus: Point): boolean {
     const isOwner = this.ownBlock(player, focus);
-    const possibleMove =
-      this.withinMap(focus) && this.withinMap(newFocus);
+    const possibleMove = this.withinMap(focus) && this.withinMap(newFocus);
     const notMountain = this.getBlock(newFocus).type !== 'Mountain';
     return isOwner && possibleMove && notMountain;
   }
@@ -387,8 +391,6 @@ class GameMap {
       resolve(viewPlayer);
     });
   }
-
-
 }
 
 export default GameMap;
