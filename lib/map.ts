@@ -45,8 +45,8 @@ class GameMap {
     kings: Player[]
   ) {
     this.id = mapid;
-    this.width = kings.length * 5 + 6 * width;
-    this.height = kings.length * 5 + 6 * height;
+    this.width = Math.sqrt(kings.length) * 5 + 6 * width;
+    this.height = Math.sqrt(kings.length) * 5 + 6 * height;
     if (mountain + city === 0) {
       this.mountain = this.city = 0;
     } else {
