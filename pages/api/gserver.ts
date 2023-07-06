@@ -34,7 +34,6 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
         }
       }
     }
-    io.in(room.id).emit('force_start_changed', room.forceStartNum);
     room.players = newPlayers;
     if (room.players.length > 0) room.players[0].setRoomHost(true);
     // todo : fixed
@@ -261,9 +260,6 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
       // boardcast new player message to room
       io.in(room.id).emit('room_message', player, 'joined the lobby.');
       io.in(room.id).emit('room_info_update', room);
-
-      // Only emit to this player so it will get the latest status
-      socket.emit('force_start_changed', room.forceStartNum);
 
       if (room.players.length >= room.maxPlayers) {
         await handleGame(room, io);
@@ -520,7 +516,6 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
             ++room.forceStartNum;
           }
           io.in(room.id).emit('room_info_update', room);
-          io.in(room.id).emit('force_start_changed', room.forceStartNum);
 
           if (room.forceStartNum >= forceStartOK[room.players.length]) {
             await handleGame(room, io);

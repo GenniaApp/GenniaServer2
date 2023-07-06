@@ -184,9 +184,6 @@ function GamingRoom() {
         setMyself(player);
       });
       socket.on('room_info_update', updateRoomInfo);
-      socket.on('force_start_changed', (num: number) => {
-        setForceStartNum(num);
-      });
       // todo 服务端 和 客户端都需要改成一个通用的格式
       socket.on('error', () => {
         setErrorOpen(true);
