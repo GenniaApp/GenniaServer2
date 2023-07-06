@@ -252,7 +252,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         player.setRoomHost(true);
       }
 
-      socket.emit('set_player', player);
+      socket.emit('set_player_id', player.id);
 
       room.players.push(player);
 

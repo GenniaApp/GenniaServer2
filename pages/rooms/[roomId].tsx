@@ -81,6 +81,7 @@ function PlayerTable({
     </Box>
   );
 }
+
 function GamingRoom() {
   const { t } = useTranslation();
   // todo 考虑合并所有状态到 roomInfo 并使用 useReducer 更新
@@ -97,43 +98,48 @@ function GamingRoom() {
   const [forceStart, setForceStart] = useState(false);
   const [shareLink, setShareLink] = useState('');
   const [players, setPlayers] = useState<Player[]>([]);
-  const [copyOpen, setCopyOpen] = useState(false);
-  const [errorOpen, setErrorOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [username, setUsername] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
-  const [myself, setMyself] = useState<Player>();
+  const [myPlayerId, setMyPlayerId] = useState<string>('');
+
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState('');
   const socketRef = useRef<any>();
 
   const router = useRouter();
   const roomId = router.query.roomId as string;
 
   const disabled_ui = useMemo(() => {
-    if (myself) {
-      return !myself.isRoomHost;
-    } else {
-      return true;
+    if (myPlayerId && players) {
+      for (let i = 0; i < players.length; ++i) {
+        if (players[i].id === myPlayerId) {
+          return !players[i].isRoomHost;
+        }
+      }
     }
-  }, [myself]);
+    return true;
+  }, [myPlayerId]);
 
   useEffect(() => {
     setUsername(localStorage.getItem('username') || t('anonymous'));
   }, []);
 
-  const handleClose = () => {
-    setCopyOpen(false);
-  };
-
   useEffect(() => {
     setShareLink(window.location.href);
   }, []);
+
+  const handleSnackMessage = (message: string) => {
+    setSnackMessage(message);
+    setSnackOpen(true);
+  };
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
   const handleChangeHost = (playerId: string, username: string) => {
-    console.log(`change host to ${username}`);
+    console.log(`change host to ${username}, id ${playerId}`);
     socketRef.current.emit('change_host', playerId);
   };
 
@@ -184,13 +190,12 @@ function GamingRoom() {
       socket.on('connect', () => {
         console.log(`socket client connect to server: ${socket.id}`);
       });
-      socket.on('set_player', (player: Player) => {
-        setMyself(player);
+      socket.on('set_player_id', (id: string) => {
+        setMyPlayerId(id);
       });
       socket.on('room_info_update', updateRoomInfo);
-      // todo 服务端 和 客户端都需要改成一个通用的格式
-      socket.on('error', () => {
-        setErrorOpen(true);
+      socket.on('error', (title: string, message: string) => {
+        handleSnackMessage(`${title}:${message}`);
       });
 
       socket.on('room_message', (player: Player, content: string) => {
@@ -241,7 +246,7 @@ function GamingRoom() {
       });
 
       socket.on('disconnect', () => {
-        // Swal.fire({
+        handleSnackMessage('Disconnect');
         //   title: 'Disconnected from the server',
         //   html: 'Please reflush the App.',
         //   icon: 'error',
@@ -258,8 +263,8 @@ function GamingRoom() {
 
       socket.on('reconnect', () => {
         console.log('Reconnected to server.');
-        if (gameStarted && myself) {
-          socket.emit('reconnect', myself.id);
+        if (gameStarted && myPlayerId) {
+          socket.emit('reconnect', myPlayerId.id);
         } else {
           socket.emit('get_game_settings');
         }
@@ -372,7 +377,7 @@ function GamingRoom() {
               color='primary'
               onClick={() => {
                 navigator.clipboard.writeText(shareLink);
-                setCopyOpen(true);
+                handleSnackMessage(t('copied'));
               }}
             >
               <ShareIcon />
@@ -384,20 +389,12 @@ function GamingRoom() {
           </Typography>
         </Alert>
         <Snackbar
-          open={copyOpen}
+          open={snackOpen}
           autoHideDuration={1000}
           onClose={() => {
-            setCopyOpen(!copyOpen);
+            setSnackOpen(!snackOpen);
           }}
-          message='Copied!'
-        />
-        <Snackbar
-          open={errorOpen}
-          autoHideDuration={1000}
-          onClose={() => {
-            setErrorOpen(!errorOpen);
-          }}
-          message='Error: You are not the host!'
+          message={snackMessage}
         />
         <Box
           className='menu-container'
