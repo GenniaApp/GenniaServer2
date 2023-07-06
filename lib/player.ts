@@ -1,35 +1,21 @@
 import Block from './block';
 
 class Player {
-  id: string;
-  socket_id: string;
-  username: string;
-  color: number; // see colors.ts
-  isRoomHost: boolean = false;
-  forceStart: boolean = false; // if ready
-  isDead: boolean = false;
-  operatedTurn: number = 0;
-  land: Block[] = [];
-  king?: Block;
-
-  constructor(id: string, socket_id: string, username: string, color: number) {
-    this.id = id;
-    this.socket_id = socket_id;
-    this.username = username;
-    this.color = color;
-  }
-
-  trans(): any {
-    return {
-      id: this.id,
-      socket_id: this.socket_id,
-      username: this.username,
-      color: this.color,
-      isRoomHost: this.isRoomHost,
-      forceStart: this.forceStart,
-      isDead: this.isDead,
-      operatedTurn: this.operatedTurn,
-    };
+  constructor(
+    public id: string,
+    public socket_id: string,
+    public username: string,
+    public color: number, // see lib/colors
+    public isRoomHost: boolean = false,
+    public forceStart: boolean = false, // if ready
+    public isDead: boolean = false,
+    public operatedTurn: number = 0,
+    public land: Block[] = [],
+    public king?: Block,
+  ) { }
+  toJSON() {
+    const { land, king, ...json } = this;
+    return json;
   }
 
   setRoomHost(value: boolean): void {
