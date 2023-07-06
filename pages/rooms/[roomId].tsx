@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import {
   Snackbar,
@@ -18,6 +18,7 @@ import TerrainIcon from '@mui/icons-material/Terrain';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
 import WaterIcon from '@mui/icons-material/Water';
 import GroupIcon from '@mui/icons-material/Group';
+import ManIcon from '@mui/icons-material/Man';
 
 import SliderBox from '@/components/SliderBox';
 import { io } from 'socket.io-client';
@@ -29,19 +30,28 @@ import Footer from '@/components/Footer';
 import Swal from 'sweetalert2';
 
 import ColorArr from '@/lib/colors';
-import { GameConfig, Message, Player } from '@/lib/types';
+import { Room, Message, Player } from '@/lib/types';
 import Point from '@/lib/point';
 import theme from '@/components/theme';
 import Navbar from '@/components/Navbar';
 
-const socket = io('http://localhost:3000');
+import { Radio, RadioGroup, FormControlLabel } from '@mui/material';
+
+const SpeedOptions = [
+  { value: 0.5, label: '0.5x' },
+  { value: 0.75, label: '0.75x' },
+  { value: 1, label: '1x' },
+  { value: 2, label: '2x' },
+  { value: 3, label: '3x' },
+  { value: 4, label: '4x' },
+];
 
 function PlayerTable({ players }: { players: Player[] }) {
   return (
     <Box sx={{ display: 'flex' }}>
       {players.map((player) => (
         <Box
-          key={player.username}
+          key={player.id}
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -55,6 +65,7 @@ function PlayerTable({ players }: { players: Player[] }) {
             mb: 1,
           }}
         >
+          {player.isRoomHost && <ManIcon />}
           <Typography
             variant='body2'
             sx={{
@@ -69,27 +80,11 @@ function PlayerTable({ players }: { players: Player[] }) {
     </Box>
   );
 }
-const demoPlayers: Player[] = [
-  {
-    username: 'Player 1',
-    color: 0,
-    forceStart: true,
-  },
-  {
-    username: 'Player 2',
-    color: 1,
-    forceStart: false,
-  },
-  {
-    username: 'Player 3',
-    color: 2,
-    forceStart: true,
-  },
-];
-
 function GamingRoom() {
   const { t } = useTranslation();
+  // todo 考虑合并所有状态到 roomInfo 并使用 useReducer 更新
   const [value, setValue] = useState(0);
+  const [roomName, setRoomName] = useState<string>('');
   const [gameSpeed, setGameSpeed] = useState(3);
   const [maxPlayerNum, setMaxPlayerNum] = useState(2);
   const [mapWidth, setMapWidth] = useState(0.5);
@@ -97,21 +92,28 @@ function GamingRoom() {
   const [mountain, setMountain] = useState(0.5);
   const [city, setCity] = useState(0.5);
   const [swamp, setSwamp] = useState(0.5);
-  const [readyNum, setReadyNum] = useState(0);
+  const [forceStartNum, setForceStartNum] = useState(0);
   const [forceStart, setForceStart] = useState(false);
   const [shareLink, setShareLink] = useState('');
-  const [players, setPlayers] = useState<Player[]>(demoPlayers);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [copyOpen, setCopyOpen] = useState(false);
   const [errorOpen, setErrorOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [username, setUsername] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
-  const [playerId, setPlayerId] = useState(null);
-  const [player, setPlayer] = useState<Player>(null);
+  const [myself, setMyself] = useState<Player>();
   const socketRef = useRef<any>();
 
   const router = useRouter();
   const roomId = router.query.roomId as string;
+
+  const disabled_ui = useMemo(() => {
+    if (myself) {
+      return !myself.isRoomHost;
+    } else {
+      return true;
+    }
+  }, [myself]);
 
   useEffect(() => {
     setUsername(localStorage.getItem('username') || t('anonymous'));
@@ -131,7 +133,12 @@ function GamingRoom() {
     setValue(newValue);
   };
 
-  const handleSliderChange =
+  const handleClickForceStart = () => {
+    setForceStart(!forceStart);
+    socketRef.current.emit('force_start');
+  };
+
+  const handleSettingChange =
     (setter: (value: number) => void, emit_name: string) =>
     (event: Event, newValue: number) => {
       setter(newValue);
@@ -143,41 +150,42 @@ function GamingRoom() {
     router.push(`/`);
   };
 
-  const changeSetting = (gameConfig: GameConfig) => {
-    console.log(`gameConfig: ${JSON.stringify(gameConfig)}`);
-    setGameSpeed(gameConfig.gameSpeed);
-    setMapWidth(gameConfig.mapWidth);
-    setMapHeight(gameConfig.mapHeight);
-    setMountain(gameConfig.mountain);
-    setCity(gameConfig.city);
-    setSwamp(gameConfig.swamp);
-    setMaxPlayerNum(gameConfig.maxPlayers);
+  const updateRoomInfo = (room: Room) => {
+    console.log(`room: ${JSON.stringify(room)}`);
+
+    setRoomName(room.roomName);
+    setGameStarted(room.gameStarted);
+    setForceStartNum(room.forceStartNum);
+
+    setMaxPlayerNum(room.maxPlayers);
+    setGameSpeed(room.gameSpeed);
+    setMapWidth(room.mapWidth);
+    setMapHeight(room.mapHeight);
+    setMountain(room.mountain);
+    setCity(room.city);
+    setSwamp(room.swamp);
+
+    setPlayers(room.players);
   };
 
   useEffect(() => {
     if (!roomId) return;
     if (!username) return;
     fetch('/api/gserver').finally(() => {
-      socketRef.current = io({
-        query: { roomId: roomId, username: username }, // , color: user.color  todo
-      });
-
+      socketRef.current = io({ query: { roomId: roomId, username: username } });
       let socket = socketRef.current;
+      socket.emit('get_room_info');
 
+      // set up socket event listeners
       socket.on('connect', () => {
         console.log(`socket client connect to server: ${socket.id}`);
       });
-
-      socket.emit('get_game_setting');
-
-      // set up event listeners
       socket.on('set_player', (player: Player) => {
-        console.log(player);
-        setPlayer(player);
+        setMyself(player);
       });
-      socket.on('game_config_changed', changeSetting);
+      socket.on('room_info_update', updateRoomInfo);
       socket.on('force_start_changed', (num: number) => {
-        setReadyNum(num);
+        setForceStartNum(num);
       });
       // todo 服务端 和 客户端都需要改成一个通用的格式
       socket.on('error', () => {
@@ -249,8 +257,8 @@ function GamingRoom() {
 
       socket.on('reconnect', () => {
         console.log('Reconnected to server.');
-        if (gameStarted) {
-          socket.emit('reconnect', playerId);
+        if (gameStarted && myself) {
+          socket.emit('reconnect', myself.id);
         } else {
           socket.emit('get_game_settings');
         }
@@ -370,7 +378,9 @@ function GamingRoom() {
             </IconButton>
           }
         >
-          <Typography variant='h5'>Room : {roomId}</Typography>
+          <Typography variant='h5'>
+            {roomId} : {roomName}{' '}
+          </Typography>
         </Alert>
         <Snackbar
           open={copyOpen}
@@ -408,31 +418,37 @@ function GamingRoom() {
           </Tabs>
           <TabPanel value={value} index={0}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <SliderBox
-                label={t('game-speed')}
-                value={gameSpeed}
-                valueLabelDisplay='off'
-                min={0}
-                max={6}
-                step={1}
-                marks={[
-                  { value: 0, label: '0.25x' },
-                  { value: 1, label: '0.5x' },
-                  { value: 2, label: '0.75x' },
-                  { value: 3, label: '1x' },
-                  { value: 4, label: '2x' },
-                  { value: 5, label: '3x' },
-                  { value: 6, label: '4x' },
-                ]}
-                handleChange={handleSliderChange(
-                  setGameSpeed,
-                  'change_game_speed'
-                )}
-              />
+              <Box sx={{ display: 'flex', alignItems: 'center', my: 2.5 }}>
+                <Typography sx={{ mr: 2, whiteSpace: 'nowrap' }}>
+                  {t('game-speed')}
+                </Typography>
+
+                <RadioGroup
+                  aria-label='game-speed'
+                  name='game-speed'
+                  value={gameSpeed}
+                  row
+                  onChange={handleSettingChange(
+                    setGameSpeed,
+                    'change_game_speed'
+                  )}
+                >
+                  {SpeedOptions.map((option) => (
+                    <FormControlLabel
+                      key={option.value}
+                      value={option.value}
+                      control={<Radio />}
+                      label={option.label}
+                      disabled={disabled_ui}
+                    />
+                  ))}
+                </RadioGroup>
+              </Box>
               <SliderBox
                 label={t('max-player-num')}
                 value={maxPlayerNum}
                 valueLabelDisplay='auto'
+                disabled={disabled_ui}
                 min={2}
                 max={12}
                 step={1}
@@ -440,7 +456,7 @@ function GamingRoom() {
                   value: i + 2,
                   label: `${i + 2}`,
                 }))}
-                handleChange={handleSliderChange(
+                handleChange={handleSettingChange(
                   setMaxPlayerNum,
                   'change_max_player_num'
                 )}
@@ -452,7 +468,8 @@ function GamingRoom() {
               <SliderBox
                 label={t('width')}
                 value={mapWidth}
-                handleChange={handleSliderChange(
+                disabled={disabled_ui}
+                handleChange={handleSettingChange(
                   setMapWidth,
                   'change_map_width'
                 )}
@@ -460,7 +477,8 @@ function GamingRoom() {
               <SliderBox
                 label={t('height')}
                 value={mapHeight}
-                handleChange={handleSliderChange(
+                disabled={disabled_ui}
+                handleChange={handleSettingChange(
                   setMapHeight,
                   'change_map_height'
                 )}
@@ -472,7 +490,8 @@ function GamingRoom() {
               <SliderBox
                 label={t('mountain')}
                 value={mountain}
-                handleChange={handleSliderChange(
+                disabled={disabled_ui}
+                handleChange={handleSettingChange(
                   setMountain,
                   'change_mountain'
                 )}
@@ -481,13 +500,15 @@ function GamingRoom() {
               <SliderBox
                 label={t('city')}
                 value={city}
-                handleChange={handleSliderChange(setCity, 'change_city')}
+                disabled={disabled_ui}
+                handleChange={handleSettingChange(setCity, 'change_city')}
                 icon={<LocationCityIcon />}
               />
               <SliderBox
                 label={t('swamp')}
                 value={swamp}
-                handleChange={handleSliderChange(setSwamp, 'change_swamp')}
+                disabled={disabled_ui}
+                handleChange={handleSettingChange(setSwamp, 'change_swamp')}
                 icon={<WaterIcon />}
               />
             </Box>
@@ -510,13 +531,12 @@ function GamingRoom() {
           color={forceStart ? 'primary' : 'secondary'}
           size='large'
           sx={{ width: '100%', height: '60px', fontSize: '20px' }}
-          onClick={() => setForceStart(!forceStart)}
+          onClick={handleClickForceStart}
         >
-          {t('force-start')}({readyNum}/{forceStartOK[maxPlayerNum]})
+          {t('force-start')}({forceStartNum}/{forceStartOK[maxPlayerNum]})
         </Button>
       </Box>
       <ChatBox
-        player={player}
         socket={socketRef.current}
         messages={messages}
         setMessages={setMessages}

@@ -25,26 +25,19 @@ function getRandomInt(min: number, max: number): number {
 }
 
 class GameMap {
-  id: number;
-  width: number;
-  height: number;
-  mountain: number;
-  city: number;
-  swamp: number;
-  kings: Player[];
   map: Block[][];
   turn: number;
 
   constructor(
-    mapid: number,
-    width: number,
-    height: number,
-    mountain: number,
-    city: number,
-    swamp: number,
-    kings: Player[]
+    public id: string,
+    public name: string,
+    public width: number,
+    public height: number,
+    public mountain: number,
+    public city: number,
+    public swamp: number,
+    public kings: Player[]
   ) {
-    this.id = mapid;
     this.width = Math.sqrt(kings.length) * 5 + 6 * width;
     this.height = Math.sqrt(kings.length) * 5 + 6 * height;
     if (mountain + city === 0) {
@@ -132,7 +125,7 @@ class GameMap {
     return connected;
   }
 
-  generate() {
+  generate(): Promise<Player[]> {
     console.log('Width:', this.width, 'Height:', this.height);
     for (let i = 0; i < this.width; i++) {
       for (let j = 0; j < this.height; j++) {

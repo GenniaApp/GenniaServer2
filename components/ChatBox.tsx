@@ -4,7 +4,7 @@ import { TextField, Button, IconButton, Typography } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import { useTranslation } from 'next-i18next';
 import { Socket } from 'socket.io-client';
-import { Player, Message } from '@/lib/types';
+import { Message } from '@/lib/types';
 import ColorArr from '@/lib/colors';
 
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
@@ -87,13 +87,12 @@ const ChatBoxMessage = ({ message }: { message: Message }) => {
 };
 
 interface ChatBoxProp {
-  player: Player;
   socket: Socket;
   messages: Message[];
   setMessages: any;
 }
 
-const ChatBox = ({ player, socket, messages, setMessages }: ChatBoxProp) => {
+const ChatBox = ({ socket, messages, setMessages }: ChatBoxProp) => {
   const [inputValue, setInputValue] = useState('');
   const [isExpand, setIsExpand] = useState(true);
   const textFieldRef = useRef<any>(null);

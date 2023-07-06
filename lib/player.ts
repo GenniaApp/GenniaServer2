@@ -11,8 +11,8 @@ class Player {
     public isDead: boolean = false,
     public operatedTurn: number = 0,
     public land: Block[] = [],
-    public king?: Block,
-  ) { }
+    public king?: Block
+  ) {}
   toJSON() {
     const { land, king, ...json } = this;
     return json;

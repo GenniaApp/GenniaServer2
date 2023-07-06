@@ -1,9 +1,9 @@
 import { Socket, Server } from 'socket.io';
-import GameMap from '../../lib/map';
-import { gamerooms, getRoomsInfo, createRoom, leaveRoom } from '@/lib/rooms';
-import { Room } from '@/lib/types';
+import { roomPool, getRoomsInfo, createRoom, leaveRoom } from '@/lib/room-pool';
+import { Room, LeaderBoardData } from '@/lib/types';
 import Point from '@/lib/point';
 import Player from '@/lib/player';
+import GameMap from '@/lib/map';
 import xss from 'xss';
 import crypto from 'crypto';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -37,10 +37,8 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
     io.in(room.id).emit('force_start_changed', room.forceStartNum);
     room.players = newPlayers;
     if (room.players.length > 0) room.players[0].setRoomHost(true);
-    io.in(room.id).emit(
-      'players_changed',
-      room.players.map((player) => player)
-    );
+    // todo : fixed
+    io.in(room.id).emit('room_info_update', room);
   } catch (e: any) {
     console.log(e.message);
   }
@@ -76,12 +74,13 @@ async function handleGame(room: Room, io: Server) {
     room.gameStarted = true;
 
     room.map = new GameMap(
-      'random',
-      room.gameConfig.mapWidth,
-      room.gameConfig.mapHeight,
-      room.gameConfig.mountain,
-      room.gameConfig.city,
-      room.gameConfig.swamp,
+      'random_map_id',
+      'random_map_name',
+      room.mapWidth,
+      room.mapHeight,
+      room.mountain,
+      room.city,
+      room.swamp,
       room.players
     );
     room.players = await room.map.generate();
@@ -114,7 +113,7 @@ async function handleGame(room: Room, io: Server) {
       });
     }
 
-    let updTime = 500 / room.gameConfig.gameSpeed;
+    let updTime = 500 / room.gameSpeed;
     room.gameLoop = setInterval(async () => {
       try {
         room.players.forEach(async (player) => {
@@ -124,11 +123,7 @@ async function handleGame(room: Room, io: Server) {
           if (blockPlayerIndex !== -1) {
             if (block.player !== player && player.isDead === false) {
               console.log(block.player.username, 'captured', player.username);
-              io.in(room.id).emit(
-                'captured',
-                block.player,
-                player
-              );
+              io.in(room.id).emit('captured', block.player, player);
               io.sockets.sockets
                 .get(player.socket_id)
                 .emit('game_over', block.player);
@@ -154,7 +149,7 @@ async function handleGame(room: Room, io: Server) {
           clearInterval(room.gameLoop);
         }
 
-        let leaderBoard = room.players
+        let leaderBoard: LeaderBoardData = room.players
           .map((player) => {
             let data = room.map.getTotal(player);
             return {
@@ -229,14 +224,14 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         return;
       }
 
-      if (!gamerooms[roomId]) {
+      if (!roomPool[roomId]) {
         reject_join(socket, `Room id: ${roomId} is not existed.`);
         return;
       }
 
-      room = gamerooms[roomId];
+      room = roomPool[roomId];
       // check room status
-      if (room.players.length >= room.gameConfig.maxPlayers)
+      if (room.players.length >= room.maxPlayers)
         reject_join(socket, 'The room is full.');
       else {
         socket.join(roomId as string);
@@ -265,15 +260,12 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
 
       // boardcast new player message to room
       io.in(room.id).emit('room_message', player, 'joined the lobby.');
-      io.in(room.id).emit(
-        'players_changed',
-        room.players.map((player) => player)
-      );
+      io.in(room.id).emit('room_info_update', room);
 
       // Only emit to this player so it will get the latest status
       socket.emit('force_start_changed', room.forceStartNum);
 
-      if (room.players.length >= room.gameConfig.maxPlayers) {
+      if (room.players.length >= room.maxPlayers) {
         await handleGame(room, io);
       }
 
@@ -304,8 +296,8 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         }
       });
 
-      socket.on('get_game_settings', async () => {
-        socket.emit('game_config_changed', room.gameConfig);
+      socket.on('get_room_info', async () => {
+        socket.emit('room_info_update', room);
       });
 
       socket.on('change_host', async (userId) => {
@@ -316,9 +308,11 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
             if (newHost !== -1) {
               room.players[currentHost].setRoomHost(false);
               room.players[newHost].setRoomHost(true);
+              io.in(room.id).emit('room_info_update', room);
               io.in(room.id).emit(
-                'players_changed',
-                room.players.map((player) => player)
+                'room_message',
+                player,
+                `transfer host to ${room.players[newHost].username}.`
               );
             }
           }
@@ -332,8 +326,8 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         try {
           if (player.isRoomHost) {
             console.log('Changing game speed to ' + value + 'x');
-            room.gameConfig.gameSpeed = value;
-            io.in(room.id).emit('game_config_changed', room.gameConfig);
+            room.gameSpeed = value;
+            io.in(room.id).emit('room_info_update', room);
             io.in(room.id).emit(
               'room_message',
               player,
@@ -355,8 +349,8 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         try {
           if (player.isRoomHost) {
             console.log('Changing map width to' + value);
-            room.gameConfig.mapWidth = value;
-            io.in(room.id).emit('game_config_changed', room.gameConfig);
+            room.mapWidth = value;
+            io.in(room.id).emit('room_info_update', room);
             io.in(room.id).emit(
               'room_message',
               player,
@@ -378,8 +372,8 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         try {
           if (player.isRoomHost) {
             console.log('Changing map height to' + value);
-            room.gameConfig.mapHeight = value;
-            io.in(room.id).emit('game_config_changed', room.gameConfig);
+            room.mapHeight = value;
+            io.in(room.id).emit('room_info_update', room);
             io.in(room.id).emit(
               'room_message',
               player,
@@ -401,8 +395,8 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         try {
           if (player.isRoomHost) {
             console.log('Changing mountain to' + value);
-            room.gameConfig.mountain = value;
-            io.in(room.id).emit('game_config_changed', room.gameConfig);
+            room.mountain = value;
+            io.in(room.id).emit('room_info_update', room);
             io.in(room.id).emit(
               'room_message',
               player,
@@ -424,8 +418,8 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         try {
           if (player.isRoomHost) {
             console.log('Changing city to' + value);
-            room.gameConfig.city = value;
-            io.in(room.id).emit('game_config_changed', room.gameConfig);
+            room.city = value;
+            io.in(room.id).emit('room_info_update', room);
             io.in(room.id).emit(
               'room_message',
               player,
@@ -447,8 +441,8 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         try {
           if (player.isRoomHost) {
             console.log('Changing swamp to' + value);
-            room.gameConfig.swamp = value;
-            io.in(room.id).emit('game_config_changed', room.gameConfig);
+            room.swamp = value;
+            io.in(room.id).emit('room_info_update', room);
             io.in(room.id).emit(
               'room_message',
               player,
@@ -478,8 +472,8 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               return;
             }
             console.log('Changing max players to' + value);
-            room.gameConfig.maxPlayers = value;
-            io.in(room.id).emit('game_config_changed', room.gameConfig);
+            room.maxPlayers = value;
+            io.in(room.id).emit('room_info_update', room);
             io.in(room.id).emit(
               'room_message',
               player,
@@ -525,10 +519,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
             room.players[playerIndex].forceStart = true;
             ++room.forceStartNum;
           }
-          io.in(room.id).emit(
-            'players_changed',
-            room.players.map((player) => player)
-          );
+          io.in(room.id).emit('room_info_update', room);
           io.in(room.id).emit('force_start_changed', room.forceStartNum);
 
           if (room.forceStartNum >= forceStartOK[room.players.length]) {

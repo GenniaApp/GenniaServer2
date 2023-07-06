@@ -10,6 +10,7 @@ interface SliderBoxProps {
   marks?: { value: number; label: string }[];
   icon?: React.ReactNode;
   handleChange: any;
+  disabled: boolean;
   restProps?: any;
 }
 
@@ -23,6 +24,7 @@ export default function SliderBox({
   marks,
   icon,
   handleChange,
+  disabled = false,
   ...restProps
 }: SliderBoxProps) {
   return (
@@ -43,6 +45,7 @@ export default function SliderBox({
         value={value}
         marks={marks}
         onChange={handleChange}
+        disabled={disabled}
         {...restProps}
       />
     </Box>
