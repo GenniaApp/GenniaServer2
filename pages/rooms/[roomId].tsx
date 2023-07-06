@@ -29,22 +29,13 @@ import ChatBox from '@/components/ChatBox';
 import Footer from '@/components/Footer';
 import Swal from 'sweetalert2';
 
-import ColorArr from '@/lib/colors';
+import { ColorArr, forceStartOK, SpeedOptions } from '@/lib/constants';
 import { Room, Message, Player } from '@/lib/types';
 import Point from '@/lib/point';
 import theme from '@/components/theme';
 import Navbar from '@/components/Navbar';
 
 import { Radio, RadioGroup, FormControlLabel } from '@mui/material';
-
-const SpeedOptions = [
-  { value: 0.5, label: '0.5x' },
-  { value: 0.75, label: '0.75x' },
-  { value: 1, label: '1x' },
-  { value: 2, label: '2x' },
-  { value: 3, label: '3x' },
-  { value: 4, label: '4x' },
-];
 
 function PlayerTable({ players }: { players: Player[] }) {
   return (
@@ -123,8 +114,6 @@ function GamingRoom() {
     setCopyOpen(false);
   };
 
-  const forceStartOK = [1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8];
-  //                    0  1  2  3  4  5  6  7  8  9 10 11 12
   useEffect(() => {
     setShareLink(window.location.href);
   }, []);
@@ -430,12 +419,12 @@ function GamingRoom() {
                     'change_game_speed'
                   )}
                 >
-                  {SpeedOptions.map((option) => (
+                  {SpeedOptions.map((value) => (
                     <FormControlLabel
-                      key={option.value}
-                      value={option.value}
+                      key={value}
+                      value={value}
                       control={<Radio />}
-                      label={option.label}
+                      label={`${value}x`}
                       disabled={disabled_ui}
                     />
                   ))}

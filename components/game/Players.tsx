@@ -9,7 +9,7 @@ import {
   TableRow,
 } from '@mui/material';
 import { PlayersProp } from './types-new';
-import ColorArr from '@/lib/colors';
+import {ColorArr} from '@/lib/constants';
 
 export default function Players(players: PlayersProp) {
   const playerList = useMemo(() => {

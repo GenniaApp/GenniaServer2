@@ -15,7 +15,7 @@
   "game": "Game",
   "map": "Map",
   "terrain": "Terrain",
-  "max-player-num": "Max Player Num",
+  "max-player-num": "Max Players",
   "width": "Width",
   "height": "Height",
   "mountain": "Mountain",

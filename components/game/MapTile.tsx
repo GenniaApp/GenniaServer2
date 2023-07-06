@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { PlayersProp, TileProp, MapPosition } from './types-new';
 import { usePlayerState, useTileState } from '@/hooks/index';
-import ColorArr from '@/lib/colors';
+import {ColorArr} from '@/lib/constants';
 
 interface MapTileProps {
   zoom: number;

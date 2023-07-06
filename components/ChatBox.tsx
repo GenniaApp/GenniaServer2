@@ -5,7 +5,7 @@ import ChatIcon from '@mui/icons-material/Chat';
 import { useTranslation } from 'next-i18next';
 import { Socket } from 'socket.io-client';
 import { Message } from '@/lib/types';
-import ColorArr from '@/lib/colors';
+import { ColorArr } from '@/lib/constants';
 
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded';

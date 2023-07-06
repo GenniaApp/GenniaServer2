@@ -1,5 +1,6 @@
 import { Socket, Server } from 'socket.io';
-import { roomPool, getRoomsInfo, createRoom, leaveRoom } from '@/lib/room-pool';
+import { forceStartOK } from '@/lib/constants';
+import { roomPool, createRoom, leaveRoom } from '@/lib/room-pool';
 import { Room, LeaderBoardData } from '@/lib/types';
 import Point from '@/lib/point';
 import Player from '@/lib/player';
@@ -8,8 +9,6 @@ import xss from 'xss';
 import crypto from 'crypto';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const forceStartOK: number[] = [1, 2, 2, 3, 3, 4, 5, 5, 6];
-//                    0  1  2  3  4  5  6  7  8
 
 async function handleDisconnectInGame(room: Room, player: Player, io: Server) {
   try {
