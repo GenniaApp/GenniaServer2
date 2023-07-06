@@ -1,7 +1,7 @@
 import { Socket, Server } from 'socket.io';
 import GameMap from '../../lib/map';
 import { gamerooms, getRoomsInfo, createRoom, leaveRoom } from '@/lib/rooms';
-import { Room, RoomInfo } from '@/lib/types';
+import { Room } from '@/lib/types';
 import Point from '@/lib/point';
 import Player from '@/lib/player';
 import genniaserver from '../../package.json';
@@ -215,6 +215,9 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
     const io = new Server((res.socket as any).server);
 
     io.on('connection', async (socket) => {
+      // ====================================
+      // init
+      // ====================================
       let room: Room;
       let player: Player;
 
@@ -232,8 +235,13 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         reject_join(socket, `Xss Username: ${username} is invalid`);
         return;
       }
-      if (Array.isArray(roomId) || !roomId || !gamerooms[roomId]) {
+      if (Array.isArray(roomId) || !roomId) {
         reject_join(socket, `Room id: ${roomId} is invalid.`);
+        return;
+      }
+
+      if (!gamerooms[roomId]) {
+        reject_join(socket, `Room id: ${roomId} is not existed.`);
         return;
       }
 
@@ -280,7 +288,9 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         await handleGame(room, io);
       }
 
+      // ====================================
       // set up socket event listeners
+      // ====================================
       socket.on('reconnect', async (playerId) => {
         try {
           if (room.gameStarted) {

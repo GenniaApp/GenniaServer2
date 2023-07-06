@@ -87,20 +87,13 @@ const ChatBoxMessage = ({ message }: { message: Message }) => {
 };
 
 interface ChatBoxProp {
-  roomId: string;
   player: Player;
   socket: Socket;
   messages: Message[];
   setMessages: any;
 }
 
-const ChatBox = ({
-  roomId,
-  player,
-  socket,
-  messages,
-  setMessages,
-}: ChatBoxProp) => {
+const ChatBox = ({ player, socket, messages, setMessages }: ChatBoxProp) => {
   const [inputValue, setInputValue] = useState('');
   const [isExpand, setIsExpand] = useState(true);
   const textFieldRef = useRef<any>(null);
@@ -138,7 +131,6 @@ const ChatBox = ({
 
   const handleSendMessage = () => {
     if (inputValue.trim() !== '') {
-      // setMessages([...messages, new Message(player, inputValue)]);
       setInputValue('');
       socket.emit('player_message', inputValue);
     }

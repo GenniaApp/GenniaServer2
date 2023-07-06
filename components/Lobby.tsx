@@ -48,8 +48,8 @@ function Lobby() {
     };
   }, []);
 
-  const handleRoomClick = (roomId: string) => {
-    router.push(`/rooms/${roomId}`);
+  const handleRoomClick = (roomName: string) => {
+    router.push(`/rooms/${roomName}`);
   };
 
   const handleCreateRoomClick = async () => {
@@ -126,7 +126,7 @@ function Lobby() {
                   >
                     {room.id}
                   </TableCell>
-                  <TableCell>{room.roomId}</TableCell>
+                  <TableCell>{room.roomName}</TableCell>
                   <TableCell>{room.gameSpeed}</TableCell>
                   <TableCell>{`${room.players}/${room.maxPlayers}`}</TableCell>
                   <TableCell>
@@ -141,7 +141,7 @@ function Lobby() {
                     <Button
                       variant='contained'
                       color='primary'
-                      onClick={() => handleRoomClick(room.roomId)}
+                      onClick={() => handleRoomClick(room.id)}
                     >
                       {t('join')}
                     </Button>

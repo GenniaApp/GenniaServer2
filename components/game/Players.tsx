@@ -28,7 +28,10 @@ export default function Players(players: PlayersProp) {
         </TableHead>
         <TableBody>
           {playerList.map((player, index) => (
-            <TableRow key={index} sx={{backgroundColor: ColorArr[player.color]}}>
+            <TableRow
+              key={index}
+              sx={{ backgroundColor: ColorArr[player.color] }}
+            >
               <TableCell>{player.name}</TableCell>
               <TableCell>{player.armiesCount}</TableCell>
               <TableCell>{player.unitiesCount}</TableCell>

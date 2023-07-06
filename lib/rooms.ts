@@ -4,7 +4,7 @@ import Player from './player';
 
 export const gamerooms: { [key: string]: Room } = {};
 
-const MAX_ROOM_COUNT = 5;
+const MAX_ROOM_COUNT = 15;
 const MAX_ROOM_NAME_LENGTH = 10;
 var roomCount = 0;
 
@@ -21,7 +21,7 @@ export async function getRoomsInfo(): Promise<RoomInfo[]> {
   return Object.values(gamerooms).map((room) => {
     return {
       id: room.id,
-      roomId: room.roomId,
+      roomName: room.roomName,
       players: room.players.length,
       maxPlayers: room.gameConfig.maxPlayers,
       gameStarted: room.gameStarted,
@@ -36,15 +36,15 @@ export async function leaveRoom(roomId: string) {
   } catch (_) {}
 }
 
-export async function createRoom(roomId: string) {
+export async function createRoom(roomName: string) {
   try {
     if (roomCount > MAX_ROOM_COUNT) throw new Error('Room count exceeded');
-    if (roomId.length > 0 && roomId.length < MAX_ROOM_NAME_LENGTH)
-      throw new Error('Room name is invalid');
+    if (roomName.length > 0 && roomName.length < MAX_ROOM_NAME_LENGTH)
+      throw new Error('Room name is invalid, length must be between 0 and 10');
     ++roomCount;
-    gamerooms[roomCount] = {
+    gamerooms[String(roomCount)] = {
       id: String(roomCount),
-      roomId: roomId,
+      roomName: roomName,
       gameStarted: false,
       map: null,
       gameLoop: null,

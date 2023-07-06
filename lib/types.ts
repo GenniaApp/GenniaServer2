@@ -10,7 +10,10 @@ export interface UserData {
 }
 
 export class Message {
-  constructor(public player: Player, public content: string) {}
+  constructor(
+    public player: Player,
+    public content: string
+  ) {}
 }
 
 export interface GameConfig {
@@ -25,7 +28,7 @@ export interface GameConfig {
 
 export interface Room {
   id: string;
-  roomId: string;
+  roomName: string;
   gameStarted: boolean;
   map: GameMap | null;
   gameLoop: any;
@@ -38,7 +41,7 @@ export interface Room {
 
 export interface RoomInfo {
   id: string;
-  roomId: string;
+  roomName: string;
   players: number;
   maxPlayers: number;
   gameStarted: boolean;

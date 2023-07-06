@@ -6,17 +6,17 @@ import MapTile from './MapTile';
 
 interface MapProps {
   className?: string;
-  gameMap: MapProp;
+  mapData: MapProp;
   players: PlayersProp;
 }
 
 function GameMap(props: MapProps) {
-  const { className, gameMap, players } = props;
-  const numberOfRows = useMemo(() => gameMap.length, [gameMap]);
+  const { className, mapData, players } = props;
+  const numberOfRows = useMemo(() => mapData.length, [mapData]);
   const numberOfColumns = useMemo(() => {
-    const firstRow = gameMap[0];
+    const firstRow = mapData[0];
     return firstRow.length;
-  }, [gameMap]);
+  }, [mapData]);
 
   const [zoom, setZoom] = useState(1);
   const [tileSize, setTileSize] = useState(50);
@@ -36,7 +36,7 @@ function GameMap(props: MapProps) {
   });
 
   const possibleNextMapPositions = usePossibleNextMapPositions({
-    gameMap,
+    mapData,
     selectedMapPosition,
   });
 
@@ -71,7 +71,7 @@ function GameMap(props: MapProps) {
       }}
       className={classNames('GameMap', className)}
     >
-      {gameMap.map((tiles, rowIndex) => {
+      {mapData.map((tiles, rowIndex) => {
         return tiles.map((tile, columnIndex) => {
           return (
             <MapTile

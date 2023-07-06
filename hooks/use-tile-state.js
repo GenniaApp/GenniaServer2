@@ -39,7 +39,7 @@ export default function useTileState(tile) {
         SPAWNER: '/img/city.png',
         FOG: '/img/mountain.png',
         BLANK: '/img/mountain.png',
-      }[typeValue]),
+      })[typeValue],
     [typeValue]
   );
 

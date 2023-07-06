@@ -87,16 +87,6 @@ const demoPlayers: Player[] = [
   },
 ];
 
-const mapper: { [key: string]: string } = {
-  setGameSpeed: 'change_game_speed',
-  setMaxPlayerNum: 'change_max_player_num',
-  setMapWidth: 'change_map_width',
-  setMapHeight: 'change_map_height',
-  setMountain: 'change_mountain',
-  setCity: 'change_city',
-  setSwamp: 'change_swamp',
-};
-
 function GamingRoom() {
   const { t } = useTranslation();
   const [value, setValue] = useState(0);
@@ -526,7 +516,6 @@ function GamingRoom() {
         </Button>
       </Box>
       <ChatBox
-        roomId={roomId}
         player={player}
         socket={socketRef.current}
         messages={messages}

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 export default function usePossibleNextMapPositions({
-  gameMap,
+  mapData,
   selectedMapPosition,
 }) {
   const isMapSelected = useMemo(() => {
@@ -14,17 +14,17 @@ export default function usePossibleNextMapPositions({
   }, []);
 
   const maxMapRowIndex = useMemo(() => {
-    return gameMap.length - 1;
-  }, [gameMap]);
+    return mapData.length - 1;
+  }, [mapData]);
 
   const minMapColumnIndex = useMemo(() => {
     return 0;
   }, []);
 
   const maxMapColumnIndex = useMemo(() => {
-    const [tilesOfFirstRow] = gameMap;
+    const [tilesOfFirstRow] = mapData;
     return tilesOfFirstRow.length - 1;
-  }, [gameMap]);
+  }, [mapData]);
 
   const topMovePosition = useMemo(() => {
     if (!isMapSelected) {

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useIsValidHexColor, useIsValidPositiveInteger } from '@/hooks/index';
+import { useIsValidPositiveInteger } from '@/hooks/index';
 
 export default function usePlayerStateValidation(player) {
   const isStateDefined = useMemo(
@@ -36,7 +36,7 @@ export default function usePlayerStateValidation(player) {
     throw new Error('Player name is not valid');
   }
 
-  const isValidColor = useIsValidHexColor(color);
+  const isValidColor = useIsValidPositiveInteger(color);
 
   if (isStateDefined && !isValidColor) {
     throw new Error('Player color is not valid');
