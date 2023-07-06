@@ -23,7 +23,7 @@ class Point {
     return `Point (${this.x}, ${this.y})`;
   }
 
-  toObject(): { x: number, y: number } {
+  toObject(): { x: number; y: number } {
     return { x: this.x, y: this.y };
   }
 }

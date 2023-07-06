@@ -335,8 +335,12 @@ svg {
   border-radius: 0.28571429rem;
   -webkit-box-shadow: 0 0 0 0 transparent inset;
   box-shadow: 0 0 0 0 transparent inset;
-  -webkit-transition: color 0.1s ease, border-color 0.1s ease;
-  transition: color 0.1s ease, border-color 0.1s ease;
+  -webkit-transition:
+    color 0.1s ease,
+    border-color 0.1s ease;
+  transition:
+    color 0.1s ease,
+    border-color 0.1s ease;
 }
 
 .reqmessageboard.expand {
@@ -473,9 +477,19 @@ h4,
 h5 {
   color: #000;
   /* color: #000; */
-  font-family: fwzc, Lato, -apple-system, 'PingFang SC', 'Source Han Sans SC',
-    'Noto Sans CJK SC', 'Microsoft Yahei', 'Lantinghei SC', 'Hiragino Sans GB',
-    'Microsoft Sans Serif', 'WenQuanYi Micro Hei', sans-serif;
+  font-family:
+    fwzc,
+    Lato,
+    -apple-system,
+    'PingFang SC',
+    'Source Han Sans SC',
+    'Noto Sans CJK SC',
+    'Microsoft Yahei',
+    'Lantinghei SC',
+    'Hiragino Sans GB',
+    'Microsoft Sans Serif',
+    'WenQuanYi Micro Hei',
+    sans-serif;
 }
 
 body {

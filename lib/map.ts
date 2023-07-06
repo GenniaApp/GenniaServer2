@@ -25,37 +25,31 @@ function getRandomInt(min: number, max: number): number {
 }
 
 class GameMap {
-  id: number;
-  width: number;
-  height: number;
-  mountain: number;
-  city: number;
-  swamp: number;
-  kings: Player[];
   map: Block[][];
   turn: number;
 
   constructor(
-    mapid: number,
-    width: number,
-    height: number,
-    mountain: number,
-    city: number,
-    swamp: number,
-    kings: Player[]
+    public id: string,
+    public name: string,
+    public width: number,
+    public height: number,
+    public mountain: number,
+    public city: number,
+    public swamp: number,
+    public kings: Player[]
   ) {
-    this.id = mapid;
-    this.width = kings.length * 5 + 6 * width;
-    this.height = kings.length * 5 + 6 * height;
+    this.width = Math.sqrt(kings.length) * 5 + 6 * width;
+    this.height = Math.sqrt(kings.length) * 5 + 6 * height;
     if (mountain + city === 0) {
       this.mountain = this.city = 0;
     } else {
-      this.mountain = (((this.width * this.height) / 4) * mountain) / (mountain + city)
-        ;
+      this.mountain =
+        (((this.width * this.height) / 4) * mountain) / (mountain + city);
       this.city = (((this.width * this.height) / 6) * city) / (mountain + city);
       console.log('mountains', this.mountain, 'cities', this.city);
     }
-    this.swamp = ((this.width * this.height - this.mountain - this.city) / 3) * swamp;
+    this.swamp =
+      ((this.width * this.height - this.mountain - this.city) / 3) * swamp;
     this.kings = kings;
     this.map = Array.from(Array(this.width), () =>
       Array(this.height).fill(null)
@@ -79,9 +73,10 @@ class GameMap {
     return block.type === 'Plain';
   }
 
-
   checkConnection(obstacleCount: number) {
-    const conn = new Array(this.width * this.height).fill(null).map((_, i) => i);
+    const conn = new Array(this.width * this.height)
+      .fill(null)
+      .map((_, i) => i);
     const size = new Array(this.width * this.height).fill(1);
     let connected = false;
 
@@ -95,7 +90,10 @@ class GameMap {
           ];
           for (const neighbor of neighbors) {
             const { x, y } = neighbor;
-            if (this.withinMap(new Point(x, y)) && !this.isObstacle(this.map[x][y])) {
+            if (
+              this.withinMap(new Point(x, y)) &&
+              !this.isObstacle(this.map[x][y])
+            ) {
               const lastPoint = x * this.height + y;
               const curFather = this.getFather(conn, curPoint);
               const lastFather = this.getFather(conn, lastPoint);
@@ -127,7 +125,7 @@ class GameMap {
     return connected;
   }
 
-  generate() {
+  generate(): Promise<Player[]> {
     console.log('Width:', this.width, 'Height:', this.height);
     for (let i = 0; i < this.width; i++) {
       for (let j = 0; j < this.height; j++) {
@@ -318,8 +316,7 @@ class GameMap {
 
   commandable(player: any, focus: Point, newFocus: Point): boolean {
     const isOwner = this.ownBlock(player, focus);
-    const possibleMove =
-      this.withinMap(focus) && this.withinMap(newFocus);
+    const possibleMove = this.withinMap(focus) && this.withinMap(newFocus);
     const notMountain = this.getBlock(newFocus).type !== 'Mountain';
     return isOwner && possibleMove && notMountain;
   }
@@ -387,8 +384,6 @@ class GameMap {
       resolve(viewPlayer);
     });
   }
-
-
 }
 
 export default GameMap;

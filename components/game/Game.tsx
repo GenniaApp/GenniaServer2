@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 import classNames from 'classnames';
 import SurrenderDialog from './SurrenderDialog';
 import TurnsCount from './TurnsCount';
-import Map from './Map';
+import GameMap from './GameMap';
 import Players from './Players';
 import OverDialog from './OverDialog';
 import { MapProp, PlayersProp } from './types-new';
@@ -11,13 +11,14 @@ import { MapProp, PlayersProp } from './types-new';
 interface GameProps {
   className?: string;
   turnsCount: number;
-  map: MapProp;
+  mapData: MapProp;
   players: PlayersProp;
-  roomId: string;
+  roomName: string;
 }
 
 function Game(props: GameProps) {
-  const { className, turnsCount, map, players, roomId, ...restProps } = props;
+  const { className, turnsCount, mapData, players, roomName, ...restProps } =
+    props;
   const [didOver, setDidOver] = useState(false);
   const [didWin, setDidWin] = useState(false);
   const handleOverDialogClose = useCallback(() => {
@@ -35,14 +36,14 @@ function Game(props: GameProps) {
     <Box sx={{ mb: 2 }}>
       <div {...restProps} className={classNames('Game', className)}>
         <TurnsCount count={turnsCount} />
-        <Map className='Game__Map' map={map} players={players} />
+        <GameMap className='Game__Map' mapData={mapData} players={players} />
         <Players players={players} />
         <SurrenderDialog onSurrender={handleSurrender} />
         <OverDialog
           open={didOver}
           didWin={didWin}
           onClose={handleOverDialogClose}
-          roomId={roomId}
+          roomName={roomName}
         />
       </div>
     </Box>

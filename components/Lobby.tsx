@@ -13,7 +13,7 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import { RoomInfo } from '@/lib/types';
+import { Room, RoomPool } from '@/lib/types';
 import { useTranslation } from 'next-i18next';
 
 function generateRandomString(length: number) {
@@ -26,7 +26,7 @@ function generateRandomString(length: number) {
 }
 
 function Lobby() {
-  const [rooms, setRooms] = useState<RoomInfo[]>([]);
+  const [rooms, setRooms] = useState<RoomPool>({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -34,20 +34,20 @@ function Lobby() {
 
   useEffect(() => {
     const fetchRooms = async () => {
-      // setLoading(true);
       const res = await fetch('/api/rooms');
       const rooms = await res.json();
-      console.log(rooms);
-      setRooms(rooms.room_info);
+      setRooms(rooms);
       setLoading(false);
     };
     fetchRooms();
-    setInterval(fetchRooms, 2000);
+    let fetchInterval = setInterval(fetchRooms, 2000);
+    return () => {
+      clearInterval(fetchInterval);
+    };
   }, []);
 
-  const handleRoomClick = (roomId: string, roomName: string) => {
-    localStorage.setItem('roomName', roomName);
-    router.push(`/rooms/${roomId}`);
+  const handleRoomClick = (roomName: string) => {
+    router.push(`/rooms/${roomName}`);
   };
 
   const handleCreateRoomClick = async () => {
@@ -107,14 +107,14 @@ function Lobby() {
                   <CircularProgress />
                 </TableCell>
               </TableRow>
-            ) : rooms.length === 0 ? (
+            ) : Object.keys(rooms).length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align='center'>
                   No rooms available
                 </TableCell>
               </TableRow>
             ) : (
-              rooms.map((room) => (
+              Object.values(rooms).map((room: Room) => (
                 <TableRow key={room.id}>
                   <TableCell
                     component='th'
@@ -126,7 +126,7 @@ function Lobby() {
                   </TableCell>
                   <TableCell>{room.roomName}</TableCell>
                   <TableCell>{room.gameSpeed}</TableCell>
-                  <TableCell>{`${room.players}/${room.maxPlayers}`}</TableCell>
+                  <TableCell>{`${room.players.length}/${room.maxPlayers}`}</TableCell>
                   <TableCell>
                     <Typography
                       variant='body2'
@@ -139,7 +139,7 @@ function Lobby() {
                     <Button
                       variant='contained'
                       color='primary'
-                      onClick={() => handleRoomClick(room.id, room.roomName)}
+                      onClick={() => handleRoomClick(room.id)}
                     >
                       {t('join')}
                     </Button>

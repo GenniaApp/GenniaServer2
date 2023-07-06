@@ -10,7 +10,7 @@
 // unitiesCount {number}
 const [BASE, SPAWNER, FOG, ARMY, BLANK] = [0, 1, 2, 3, 4];
 
-const map = [
+const mapData = [
   [
     [ARMY, false, null, null],
     [ARMY, true, null, null],
@@ -114,8 +114,8 @@ const map = [
 
 // playersState Object<[id, name, color, unitiesCount, landsCount]>
 const players = {
-  1: [1, 'dh', '#ff0000', 1736, 43],
-  2: [2, 'IDK', '#4700fb', 896, 25],
+  1: [1, 'dh', 0, 1736, 43],
+  2: [2, 'IDK', 1, 896, 25],
 };
 
-export { map, players };
+export { mapData, players };

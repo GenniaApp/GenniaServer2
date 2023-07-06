@@ -1,82 +1,68 @@
 import Block from './block';
 
 class Player {
-    id: number;
-    socket_id: string;
-    username: string;
-    color: string;
-    isRoomHost: boolean = false;
-    forceStart: boolean = false;
-    isDead: boolean = false;
-    operatedTurn: number = 0;
-    land: Block[] = [];
-    king?: Block;
+  constructor(
+    public id: string,
+    public socket_id: string,
+    public username: string,
+    public color: number, // see lib/colors
+    public isRoomHost: boolean = false,
+    public forceStart: boolean = false, // if ready
+    public isDead: boolean = false,
+    public operatedTurn: number = 0,
+    public land: Block[] = [],
+    public king?: Block
+  ) {}
+  toJSON() {
+    const { land, king, ...json } = this;
+    return json;
+  }
 
-    constructor(id: number, socket_id: string, username: string, color: string) {
-        this.id = id;
-        this.socket_id = socket_id;
-        this.username = username;
-        this.color = color;
-    }
+  setRoomHost(value: boolean): void {
+    this.isRoomHost = value;
+  }
 
-    trans(): any {
-        return {
-            id: this.id,
-            socket_id: this.socket_id,
-            username: this.username,
-            color: this.color,
-            isRoomHost: this.isRoomHost,
-            forceStart: this.forceStart,
-            isDead: this.isDead,
-            operatedTurn: this.operatedTurn,
-        };
-    }
+  initKing(block: Block): void {
+    this.king = block;
+    this.winLand(block);
+  }
 
-    setRoomHost(value: boolean): void {
-        this.isRoomHost = value;
-    }
+  getNumberOfLand(): number {
+    return this.land.length;
+  }
 
-    initKing(block: Block): void {
-        this.king = block;
-        this.winLand(block);
-    }
+  winLand(block: Block): void {
+    this.land.push(block);
+    block.player = this;
+  }
 
-    getNumberOfLand(): number {
-        return this.land.length;
+  loseLand(block: Block): void {
+    const pos = this.land.indexOf(block);
+    if (pos !== -1) {
+      this.land.splice(pos, 1);
     }
+  }
 
-    winLand(block: Block): void {
-        this.land.push(block);
-        block.player = this;
-    }
+  getTotalUnit(): number {
+    const reducer = (value: number, land: Block) => value + land.unit;
+    return this.land.reduce(reducer, 0);
+  }
 
-    loseLand(block: Block): void {
-        const pos = this.land.indexOf(block);
-        if (pos !== -1) {
-            this.land.splice(pos, 1);
-        }
+  beDominated(): void {
+    if (!this.king) {
+      throw new Error('King is not initialized');
     }
+    this.king.setType('City');
+    this.land.forEach((block) => {
+      this.king && this.king.player.winLand(block);
+    });
+  }
 
-    getTotalUnit(): number {
-        const reducer = (value: number, land: Block) => value + land.unit;
-        return this.land.reduce(reducer, 0);
-    }
-
-    beDominated(): void {
-        if (!this.king) {
-            throw new Error('King is not initialized');
-        }
-        this.king.setType('City');
-        this.land.forEach((block) => {
-            this.king && this.king.player.winLand(block);
-        });
-    }
-
-    beNeutralized(): void {
-        this.land.forEach((block) => {
-            block.beNeutralized();
-        });
-    }
+  beNeutralized(): void {
+    this.land.forEach((block) => {
+      block.beNeutralized();
+    });
+  }
 }
 
 export default Player;

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
-import { PlayerProp, TileProp, MapPosition } from './types-new';
+import { PlayersProp, TileProp, MapPosition } from './types-new';
 import { usePlayerState, useTileState } from '@/hooks/index';
+import {ColorArr} from '@/lib/constants';
 
 interface MapTileProps {
   zoom: number;
@@ -10,7 +11,7 @@ interface MapTileProps {
   fontSize?: number;
   onChangeSize?: (size: number) => void;
   tile: TileProp;
-  players: PlayerProp[];
+  players: PlayersProp;
   rowIndex: number;
   columnIndex: number;
   selectedMapPosition: MapPosition;
@@ -82,7 +83,7 @@ function MapTile(props: MapTileProps) {
   const { color: playerColor } = usePlayerState(player);
   const fill = useMemo(() => {
     if (isOwned) {
-      return playerColor;
+      return ColorArr[playerColor];
     }
 
     if (!isRevealed) {

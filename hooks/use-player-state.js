@@ -8,14 +8,14 @@ import { usePlayerStateValidation } from '@/hooks/index';
  * player Array<[id, name, color, unitiesCount, landsCount]>
  *    id {number}
  *    name {string}
- *    color {string}
+ *    color {number}
  *    unitiesCount {number}
  *    landsCount {number}
  *
  * @returns {object}
  *    id:           {number}
  *    name:         {string}
- *    color:        {string}
+ *    color:        {number}
  *    unitiesCount: {number}
  *    landsCount:   {number}
  */
