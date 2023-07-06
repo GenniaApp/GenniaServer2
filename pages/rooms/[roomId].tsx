@@ -37,12 +37,22 @@ import Navbar from '@/components/Navbar';
 
 import { Radio, RadioGroup, FormControlLabel } from '@mui/material';
 
-function PlayerTable({ players }: { players: Player[] }) {
+function PlayerTable({
+  players,
+  handleChangeHost,
+}: {
+  players: Player[];
+  handleChangeHost: any;
+}) {
   return (
     <Box sx={{ display: 'flex' }}>
       {players.map((player) => (
-        <Box
+        <Button
+          variant='text'
           key={player.id}
+          onClick={() => {
+            handleChangeHost(player.id, player.username);
+          }}
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -66,7 +76,7 @@ function PlayerTable({ players }: { players: Player[] }) {
           >
             {player.username}
           </Typography>
-        </Box>
+        </Button>
       ))}
     </Box>
   );
@@ -120,6 +130,11 @@ function GamingRoom() {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+  };
+
+  const handleChangeHost = (playerId: string, username: string) => {
+    console.log(`change host to ${username}`);
+    socketRef.current.emit('change_host', playerId);
   };
 
   const handleClickForceStart = () => {
@@ -509,7 +524,10 @@ function GamingRoom() {
             sx={{ padding: 'sm' }}
           />
           <CardContent sx={{ padding: 'sm' }}>
-            <PlayerTable players={players} />
+            <PlayerTable
+              players={players}
+              handleChangeHost={handleChangeHost}
+            />
           </CardContent>
         </Card>
         <Button
