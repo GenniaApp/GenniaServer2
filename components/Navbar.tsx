@@ -91,9 +91,15 @@ function Navbar() {
                 height={32}
                 alt='favicon'
               />
-              <Typography variant='h6' sx={{ marginLeft: 1 }}>
-                Gennia v1.0
+              <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
+                Gennia Online
               </Typography>
+              <Chip
+                label='beta'
+                variant='outlined'
+                color='warning'
+                size='small'
+              />
             </Box>
             <Menu
               id='menu-appbar'

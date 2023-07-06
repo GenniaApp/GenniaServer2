@@ -150,10 +150,11 @@ function Lobby() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Box marginTop={2}>
+      <Box marginTop={2} sx={{ width: '100%' }}>
         <Button
           variant='contained'
           color='primary'
+          sx={{ width: '100%', height: '60px', fontSize: '20px' }}
           onClick={handleCreateRoomClick}
         >
           {t('create-room')}
