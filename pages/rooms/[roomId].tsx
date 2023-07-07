@@ -49,13 +49,15 @@ const PlayerTable: React.FC<PlayerTableProps> = (props) => {
     <Box sx={{ display: 'flex' }}>
       {players.map((player) => (
         <Button
-          variant={player.id === myPlayerId ? 'contained' : 'outlined'}
+          variant='outlined'
           key={player.id}
           onClick={() => {
             handleChangeHost(player.id, player.username);
           }}
           sx={{
-            color: ColorArr[player.color],
+            borderColor: ColorArr[player.color],
+            backgroundColor:
+              player.id === myPlayerId ? ColorArr[player.color] : 'transparent',
             textTransform: 'none',
             display: 'flex',
             justifyContent: 'space-between',
@@ -525,6 +527,7 @@ function GamingRoom() {
           />
           <CardContent sx={{ padding: 'sm' }}>
             <PlayerTable
+              myPlayerId={myPlayerId}
               players={players}
               handleChangeHost={handleChangeHost}
             />
