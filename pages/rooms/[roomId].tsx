@@ -41,16 +41,18 @@ interface PlayerTableProps {
   myPlayerId: string;
   players: Player[];
   handleChangeHost: any;
+  disabled_ui: boolean;
 }
 
-const PlayerTable: React.FC<PlayerTableProps> = (props) => {
-  const { myPlayerId, players, handleChangeHost } = props;
+function PlayerTable(props: PlayerTableProps) {
+  const { myPlayerId, players, handleChangeHost, disabled_ui } = props;
   return (
     <Box sx={{ display: 'flex' }}>
       {players.map((player) => (
         <Button
           variant='outlined'
           key={player.id}
+          disabled={disabled_ui}
           onClick={() => {
             handleChangeHost(player.id, player.username);
           }}
@@ -70,7 +72,14 @@ const PlayerTable: React.FC<PlayerTableProps> = (props) => {
             mb: 1,
           }}
         >
-          {player.isRoomHost && <StarsRoundedIcon sx={{ color: player.id === myPlayerId ? '#fff' : ColorArr[player.color] }} />}
+          {player.isRoomHost && (
+            <StarsRoundedIcon
+              sx={{
+                color:
+                  player.id === myPlayerId ? '#fff' : ColorArr[player.color],
+              }}
+            />
+          )}
           <Typography
             variant='body2'
             sx={{
@@ -84,7 +93,7 @@ const PlayerTable: React.FC<PlayerTableProps> = (props) => {
       ))}
     </Box>
   );
-};
+}
 
 function GamingRoom() {
   const { t } = useTranslation();
@@ -144,6 +153,16 @@ function GamingRoom() {
     setValue(newValue);
   };
 
+  const navToHome = () => {
+    router.push(`/`);
+  };
+
+  const handleLeaveRoom = () => {
+    socketRef.current.emit('leave_game');
+    socketRef.current.disconnect();
+    navToHome();
+  };
+
   const handleChangeHost = (playerId: string, username: string) => {
     console.log(`change host to ${username}, id ${playerId}`);
     socketRef.current.emit('change_host', playerId);
@@ -161,10 +180,6 @@ function GamingRoom() {
       console.log(`socket emit name: ${emit_name}, ${newValue}`);
       socketRef.current.emit(emit_name, newValue);
     };
-
-  const navToHome = () => {
-    router.push(`/`);
-  };
 
   const updateRoomInfo = (room: Room) => {
     console.log(`room: ${JSON.stringify(room)}`);
@@ -207,7 +222,7 @@ function GamingRoom() {
       socket.on('delete_local_reconnect', () => {
         localStorage.removeItem('playerId');
         router.reload();
-      })
+      });
       socket.on('room_info_update', updateRoomInfo);
       socket.on('error', (title: string, message: string) => {
         handleSnackMessage(title, message);
@@ -231,7 +246,7 @@ function GamingRoom() {
 
       socket.on('reject_join', (message: string) => {
         Swal.fire({
-          title: t('reject_join'),
+          title: t('reject-join'),
           text: message,
           icon: 'error',
           showDenyButton: false,
@@ -246,7 +261,7 @@ function GamingRoom() {
       socket.on('connect_error', (error: Error) => {
         console.log('\nConnection Failed: ' + error);
         socket.emit('leave_game');
-        socket.close();
+        socket.disconnect();
         Swal.fire({
           title: "Can't connect to the server",
           text: 'Please reflush the App.',
@@ -286,6 +301,7 @@ function GamingRoom() {
       });
 
       return () => {
+        console.log('use effect leave room');
         socket.emit('leave_game');
         socket.disconnect();
       };
@@ -541,6 +557,7 @@ function GamingRoom() {
               myPlayerId={myPlayerId}
               players={players}
               handleChangeHost={handleChangeHost}
+              disabled_ui={disabled_ui}
             />
           </CardContent>
         </Card>
@@ -553,6 +570,22 @@ function GamingRoom() {
         >
           {t('force-start')}({forceStartNum}/{forceStartOK[maxPlayerNum]})
         </Button>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Button
+            variant='contained'
+            size='large'
+            sx={{ mt: 2, height: '60px', fontSize: '20px' }}
+            onClick={handleLeaveRoom}
+          >
+            {t('leave-room')}
+          </Button>
+        </Box>
       </Box>
       <ChatBox
         socket={socketRef.current}

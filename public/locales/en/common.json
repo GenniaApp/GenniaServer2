@@ -26,7 +26,8 @@
   "force-start": "Force Start",
   "message-center": "Message Center",
   "send": "Send",
-  "reject_join": "Reject Join",
+  "reject-join": "Reject Join",
+  "leave-room": "Leave Room",
   "type-a-message": "Click to Chat, Enter to send",
   "open-source-team": "Open Source Team",
   "all-right-reserved": "All Rights Reserved"
