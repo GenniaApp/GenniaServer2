@@ -269,13 +269,15 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
       socket.on('reconnect', async (playerId) => {
         try {
           // Allow to reconnect
-          room.players = room.players.filter(p => p !== player);
           let playerIndex = await getPlayerIndex(room, playerId);
-          if (playerIndex !== -1) {
+          if (playerIndex !== -1 && playerId !== player.id) {
+            room.players = room.players.filter(p => p !== player);
             player = room.players[playerIndex];
             room.players[playerIndex].socket_id = socket.id;
             io.in(room.id).emit('room_message', player, 're-joined the lobby.');
             io.in(room.id).emit('room_info_update', room);
+          } else {
+            socket.emit('delete_local_reconnect');
           }
         } catch (err: any) {
           socket.emit(

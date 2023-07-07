@@ -204,6 +204,10 @@ function GamingRoom() {
           localStorage.setItem('playerId', id);
         }
       });
+      socket.on('delete_local_reconnect', () => {
+        localStorage.removeItem('playerId');
+        router.reload();
+      })
       socket.on('room_info_update', updateRoomInfo);
       socket.on('error', (title: string, message: string) => {
         handleSnackMessage(title, message);
