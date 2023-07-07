@@ -9,7 +9,6 @@ import xss from 'xss';
 import crypto from 'crypto';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-
 async function handleDisconnectInGame(room: Room, player: Player, io: Server) {
   try {
     io.in(room.id).emit('room_message', player, 'quit.');
@@ -269,18 +268,13 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
       // ====================================
       socket.on('reconnect', async (playerId) => {
         try {
-          if (room.gameStarted) {
-            // Allow to reconnect
-            let playerIndex = await getPlayerIndex(room, playerId);
-            if (playerIndex !== -1) {
-              player = room.players[playerIndex];
-              room.players[playerIndex].socket_id = socket.id;
-              io.in(room.id).emit(
-                'room_message',
-                player,
-                're-joined the lobby.'
-              );
-            }
+          // Allow to reconnect
+          let playerIndex = await getPlayerIndex(room, playerId);
+          if (playerIndex !== -1) {
+            player = room.players[playerIndex];
+            room.players[playerIndex].socket_id = socket.id;
+            io.in(room.id).emit('room_message', player, 're-joined the lobby.');
+            io.in(room.id).emit('room_info_update', room);
           }
         } catch (err: any) {
           socket.emit(
@@ -297,22 +291,26 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
 
       socket.on('change_host', async (userId) => {
         try {
-          if (player.isRoomHost) {
-            let currentHost = await getPlayerIndex(room, player.id);
-            let newHost = await getPlayerIndex(room, userId);
-            if (newHost !== -1) {
-              room.players[currentHost].setRoomHost(false);
-              room.players[newHost].setRoomHost(true);
-              io.in(room.id).emit('room_info_update', room);
-              io.in(room.id).emit(
-                'room_message',
-                player,
-                `transfer host to ${room.players[newHost].username}.`
-              );
-            }
+          if (!player.isRoomHost) {
+            throw new Error('You are not the room host.');
+          }
+          let currentHost = await getPlayerIndex(room, player.id);
+          let newHost = await getPlayerIndex(room, userId);
+          if (newHost !== -1) {
+            room.players[currentHost].setRoomHost(false);
+            room.players[newHost].setRoomHost(true);
+            io.in(room.id).emit('room_info_update', room);
+            io.in(room.id).emit(
+              'room_message',
+              player,
+              `transfer host to ${room.players[newHost].username}.`
+            );
+          } else {
+            throw new Error('Target player not found.');
           }
         } catch (e: any) {
           console.log(e.message);
+          socket.emit('error', 'Host changement failed', e.message);
         }
       });
 

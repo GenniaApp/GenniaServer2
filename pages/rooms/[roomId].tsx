@@ -16,9 +16,9 @@ import {
 import ShareIcon from '@mui/icons-material/Share';
 import TerrainIcon from '@mui/icons-material/Terrain';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
+import StarsRoundedIcon from '@mui/icons-material/StarsRounded';
 import WaterIcon from '@mui/icons-material/Water';
 import GroupIcon from '@mui/icons-material/Group';
-import ManIcon from '@mui/icons-material/Man';
 
 import SliderBox from '@/components/SliderBox';
 import { io } from 'socket.io-client';
@@ -37,28 +37,30 @@ import Navbar from '@/components/Navbar';
 
 import { Radio, RadioGroup, FormControlLabel } from '@mui/material';
 
-function PlayerTable({
-  players,
-  handleChangeHost,
-}: {
+interface PlayerTableProps {
+  myPlayerId: string;
   players: Player[];
   handleChangeHost: any;
-}) {
+}
+
+const PlayerTable: React.FC<PlayerTableProps> = (props) => {
+  const { myPlayerId, players, handleChangeHost } = props;
   return (
     <Box sx={{ display: 'flex' }}>
       {players.map((player) => (
         <Button
-          variant='text'
+          variant={player.id === myPlayerId ? 'contained' : 'outlined'}
           key={player.id}
           onClick={() => {
             handleChangeHost(player.id, player.username);
           }}
           sx={{
+            color: ColorArr[player.color],
+            textTransform: 'none',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             p: 1,
-            bgcolor: ColorArr[player.color],
             height: '30px',
             borderRadius: '20px',
             boxShadow: 1,
@@ -66,7 +68,7 @@ function PlayerTable({
             mb: 1,
           }}
         >
-          {player.isRoomHost && <ManIcon />}
+          {player.isRoomHost && <StarsRoundedIcon sx={{ color: '#fff' }} />}
           <Typography
             variant='body2'
             sx={{
@@ -80,7 +82,7 @@ function PlayerTable({
       ))}
     </Box>
   );
-}
+};
 
 function GamingRoom() {
   const { t } = useTranslation();
@@ -259,6 +261,7 @@ function GamingRoom() {
         //   navToHome();
         // });
         console.log('Disconnected from server.');
+        router.reload();
       });
 
       socket.on('reconnect', () => {
