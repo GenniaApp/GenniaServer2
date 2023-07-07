@@ -119,7 +119,7 @@ function GamingRoom() {
       }
     }
     return true;
-  }, [myPlayerId]);
+  }, [myPlayerId, players]);
 
   useEffect(() => {
     setUsername(localStorage.getItem('username') || t('anonymous'));
