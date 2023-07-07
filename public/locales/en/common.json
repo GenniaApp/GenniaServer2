@@ -3,6 +3,7 @@
   "wiki": "Wiki",
   "bot-api": "Bot API",
   "welcome": "Login to Gennia",
+  "username-placeholder": "\"Anonymous\" by default, within 15 characters",
   "play": "Play",
   "room-id": "Room Id",
   "room-name": "Room Name",

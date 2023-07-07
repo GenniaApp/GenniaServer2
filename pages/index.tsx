@@ -25,7 +25,7 @@ export default function Home() {
     }
   }, []);
 
-  const handlePlayClick = (username) => {
+  const handlePlayClick = (username: string) => {
     setUsername(username);
     if (typeof window !== 'undefined') {
       localStorage.setItem('username', username);

@@ -1,15 +1,21 @@
-import { Box, Typography, Button, TextField } from '@mui/material';
+import { Avatar, Box, Typography, Button, TextField } from '@mui/material';
 import Image from 'next/image';
 
 import { useTranslation } from 'next-i18next';
 
 import { useState } from 'react';
 
-function Login({ username, handlePlayClick }) {
+interface LoginProps {
+  username: string;
+  handlePlayClick: (username: string) => void;
+}
+
+const Login: React.FC<LoginProps> = (props) => {
+  const { username, handlePlayClick } = props;
   const { t } = useTranslation();
   const [inputname, setInputName] = useState(username);
 
-  const handleUsernameChange = (event) => {
+  const handleUsernameChange = (event: any) => {
     setInputName(event.target.value);
   };
 
@@ -24,7 +30,16 @@ function Login({ username, handlePlayClick }) {
           height: '16vh',
         }}
       >
-        <Image src='/img/favicon.png' width={100} height={100} alt='logo' />
+        <Avatar
+          src='/img/favicon.png'
+          sx={{
+            width: 150,
+            height: 150,
+            borderRadius: 5,
+            boxShadow: 2,
+            zIndex: 100,
+          }}
+        />
         <Box
           className='menu-container'
           sx={{
@@ -33,18 +48,22 @@ function Login({ username, handlePlayClick }) {
             alignItems: 'center',
             justifyContent: 'center',
             width: { xs: '80vw', md: '40vw' },
+            marginTop: '-40px !important',
+            zIndex: '10 !important'
           }}
         >
           <Typography variant='h4' color='white' sx={{ padding: 4 }}>
             {t('welcome')}
           </Typography>
           <TextField
+            sx={{ width: '100%' }}
             id='outlined-basic'
-            label='UserName'
+            placeholder={t('username-placeholder')}
             value={inputname}
             color='primary'
             focused
             variant='filled'
+            hiddenLabel
             onChange={handleUsernameChange}
           />
           {/* todo 临时解决 tailwindcss 和 mui 冲突 */}
@@ -52,7 +71,7 @@ function Login({ username, handlePlayClick }) {
             className='bg-[#d24396]'
             variant='contained'
             onClick={() => handlePlayClick(inputname)}
-            sx={{ margin: 2 }}
+            sx={{ margin: 2, width: '100%', height: '40px', fontSize: '15px' }}
           >
             {t('play')}
           </Button>
@@ -60,6 +79,6 @@ function Login({ username, handlePlayClick }) {
       </Box>
     </>
   );
-}
+};
 
 export default Login;
