@@ -269,6 +269,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
       socket.on('reconnect', async (playerId) => {
         try {
           // Allow to reconnect
+          room.players = room.players.filter(p => p !== player);
           let playerIndex = await getPlayerIndex(room, playerId);
           if (playerIndex !== -1) {
             player = room.players[playerIndex];

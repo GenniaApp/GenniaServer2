@@ -29,6 +29,7 @@ export default function Home() {
     setUsername(username);
     if (typeof window !== 'undefined') {
       localStorage.setItem('username', username);
+      localStorage.removeItem('playerId');
     }
   };
 

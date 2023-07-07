@@ -70,11 +70,11 @@ const PlayerTable: React.FC<PlayerTableProps> = (props) => {
             mb: 1,
           }}
         >
-          {player.isRoomHost && <StarsRoundedIcon sx={{ color: '#fff' }} />}
+          {player.isRoomHost && <StarsRoundedIcon sx={{ color: player.id === myPlayerId ? '#fff' : ColorArr[player.color] }} />}
           <Typography
             variant='body2'
             sx={{
-              color: '#fff',
+              color: player.id === myPlayerId ? '#fff' : ColorArr[player.color],
               textDecoration: player.forceStart ? 'underline' : 'none',
             }}
           >
@@ -108,6 +108,7 @@ function GamingRoom() {
   const [myPlayerId, setMyPlayerId] = useState<string>('');
 
   const [snackOpen, setSnackOpen] = useState(false);
+  const [snackTitle, setSnackTitle] = useState('');
   const [snackMessage, setSnackMessage] = useState('');
   const socketRef = useRef<any>();
 
@@ -133,7 +134,8 @@ function GamingRoom() {
     setShareLink(window.location.href);
   }, []);
 
-  const handleSnackMessage = (message: string) => {
+  const handleSnackMessage = (title: string, message: string) => {
+    setSnackTitle(title);
     setSnackMessage(message);
     setSnackOpen(true);
   };
@@ -193,13 +195,18 @@ function GamingRoom() {
       // set up socket event listeners
       socket.on('connect', () => {
         console.log(`socket client connect to server: ${socket.id}`);
+        if (localStorage.getItem('playerId'))
+          socket.emit('reconnect', myPlayerId);
       });
       socket.on('set_player_id', (id: string) => {
-        setMyPlayerId(id);
+        if (!localStorage.getItem('playerId')) {
+          setMyPlayerId(id);
+          localStorage.setItem('playerId', id);
+        }
       });
       socket.on('room_info_update', updateRoomInfo);
       socket.on('error', (title: string, message: string) => {
-        handleSnackMessage(`${title}:${message}`);
+        handleSnackMessage(title, message);
       });
 
       socket.on('room_message', (player: Player, content: string) => {
@@ -250,7 +257,7 @@ function GamingRoom() {
       });
 
       socket.on('disconnect', () => {
-        handleSnackMessage('Disconnect');
+        handleSnackMessage('Reconnecting...', 'Disconnected from the server');
         //   title: 'Disconnected from the server',
         //   html: 'Please reflush the App.',
         //   icon: 'error',
@@ -263,15 +270,14 @@ function GamingRoom() {
         //   navToHome();
         // });
         console.log('Disconnected from server.');
-        router.reload();
       });
 
       socket.on('reconnect', () => {
         console.log('Reconnected to server.');
         if (gameStarted && myPlayerId) {
-          socket.emit('reconnect', myPlayerId.id);
+          socket.emit('reconnect', myPlayerId);
         } else {
-          socket.emit('get_game_settings');
+          socket.emit('get_room_info');
         }
       });
 
@@ -399,6 +405,7 @@ function GamingRoom() {
           onClose={() => {
             setSnackOpen(!snackOpen);
           }}
+          title={snackTitle}
           message={snackMessage}
         />
         <Box
