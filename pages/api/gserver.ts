@@ -114,6 +114,7 @@ async function handleGame(room: Room, io: Server) {
     room.gameLoop = setInterval(async () => {
       try {
         room.players.forEach(async (player) => {
+          if (!room.map) throw new Error('king is null');
           let block = room.map.getBlock(player.king);
 
           let blockPlayerIndex = await getPlayerIndex(room, block.player.id);
@@ -121,12 +122,16 @@ async function handleGame(room: Room, io: Server) {
             if (block.player !== player && player.isDead === false) {
               console.log(block.player.username, 'captured', player.username);
               io.in(room.id).emit('captured', block.player, player);
-              io.sockets.sockets
-                .get(player.socket_id)
-                .emit('game_over', block.player);
+              let player_socket = io.sockets.sockets.get(player.socket_id);
+              if (player_socket) {
+                player_socket.emit('game_over', block.player);
+              } else {
+                throw new Error('socket is null');
+              }
               player.isDead = true;
               room.map.getBlock(player.king).kingBeDominated();
               player.land.forEach((block) => {
+                if (!room.map) throw new Error('map is null');
                 room.map.transferBlock(block, room.players[blockPlayerIndex]);
                 room.players[blockPlayerIndex].winLand(block);
               });
@@ -139,13 +144,13 @@ async function handleGame(room: Room, io: Server) {
         for (let a of room.players)
           if (!a.isDead) (alivePlayer = a), ++countAlive;
         if (countAlive === 1) {
+          if (!alivePlayer) throw new Error('alivePlayer is null');
           io.in(room.id).emit('game_ended', alivePlayer.id);
           room.gameStarted = false;
           room.forceStartNum = 0;
           console.log('Game ended');
           clearInterval(room.gameLoop);
         }
-
 
         let leaderBoard: LeaderBoardData = room.players
           .map((player) => {
@@ -162,14 +167,18 @@ async function handleGame(room: Room, io: Server) {
             return b.armyCount - a.armyCount || b.landsCount - a.landsCount;
           });
 
+        if (!room.map) throw new Error('Map is not generated');
+
         for (let [id, socket] of io.sockets.sockets) {
           let playerIndex = await getPlayerIndexBySocket(room, id);
           if (playerIndex !== -1) {
-            let view = await room.map.getViewPlayer(room.players[playerIndex]);
-            view = JSON.stringify(view);
+            let mapData = await room.map.getViewPlayer(
+              room.players[playerIndex]
+            );
+
             socket.emit(
               'game_update',
-              view,
+              JSON.stringify(mapData), //todo
               room.map.width,
               room.map.height,
               room.map.turn,
@@ -179,8 +188,8 @@ async function handleGame(room: Room, io: Server) {
         }
         room.map.updateTurn();
         room.map.updateUnit();
-      } catch (e) {
-        console.log(e);
+      } catch (e: any) {
+        console.log(e.message);
       }
     }, updTime);
   }
@@ -261,7 +270,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
       io.in(room.id).emit('room_message', player, 'joined the lobby.');
       io.in(room.id).emit('room_info_update', room);
       console.log(player.username, 'joined the room.');
-      console.log(`room ${room.roomName} has ${room.players.length} players`)
+      console.log(`room ${room.roomName} has ${room.players.length} players`);
       // console.log(room)
 
       if (room.players.length >= room.maxPlayers) {
@@ -276,7 +285,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
           // Allow to reconnect
           let playerIndex = await getPlayerIndex(room, playerId);
           if (playerIndex !== -1 && playerId !== player.id) {
-            room.players = room.players.filter(p => p !== player);
+            room.players = room.players.filter((p) => p !== player);
             player = room.players[playerIndex];
             room.players[playerIndex].socket_id = socket.id;
             io.in(room.id).emit('room_message', player, 're-joined the lobby.');
@@ -341,7 +350,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               'You are not the game host.'
             );
           }
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.message);
         }
       });
@@ -364,7 +373,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               'You are not the game host.'
             );
           }
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.message);
         }
       });
@@ -387,7 +396,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               'You are not the game host.'
             );
           }
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.message);
         }
       });
@@ -410,7 +419,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               'You are not the game host.'
             );
           }
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.message);
         }
       });
@@ -433,7 +442,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               'You are not the game host.'
             );
           }
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.message);
         }
       });
@@ -456,7 +465,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               'You are not the game host.'
             );
           }
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.message);
         }
       });
@@ -487,7 +496,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
               'You are not the game host.'
             );
           }
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.message);
         }
       });
@@ -505,7 +514,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
         try {
           socket.disconnect();
           await handleDisconnectInGame(room, player, io);
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.message);
         }
       });
@@ -525,7 +534,7 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
           if (room.forceStartNum >= forceStartOK[room.players.length]) {
             await handleGame(room, io);
           }
-        } catch (e) {
+        } catch (e: any) {
           console.log(e.message);
         }
       });

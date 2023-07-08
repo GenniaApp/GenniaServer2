@@ -1,28 +1,32 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
-import { TileProp, MapPosition, PlayersProp } from '@/lib/types';
-import { useTileState } from '@/hooks/index';
+import {
+  TileType,
+  TileProp,
+  Position,
+  Player,
+  TileType2Image,
+} from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 
 interface MapTileProps {
   zoom: number;
-  imageZoom: number;
+  imageZoom?: number;
   size: number;
   fontSize?: number;
   onChangeSize?: (size: number) => void;
   tile: TileProp;
-  players: PlayersProp;
-  rowIndex: number;
-  columnIndex: number;
-  selectedMapPosition: MapPosition;
-  onChangeSelectedMapPosition: (mapPosition: MapPosition) => void;
+  players: Player[];
+  x: number;
+  y: number;
+  selectedMapPosition: Position;
+  onChangeSelectedMapPosition: (position: Position) => void;
   possibleNextMapPositions: {
-    top: MapPosition;
-    right: MapPosition;
-    bottom: MapPosition;
-    left: MapPosition;
+    top?: Position;
+    right?: Position;
+    bottom?: Position;
+    left?: Position;
   };
-  restProps: any;
 }
 
 const notRevealedFill = '#363636';
@@ -32,33 +36,29 @@ const blankFill = '#B3B3B3';
 const selectedStroke = '#fff';
 const revealedStroke = '#000';
 
-function MapTile(props: MapTileProps) {
+export default function MapTile(props: MapTileProps) {
   const {
     zoom,
     imageZoom = 0.8,
     size,
     fontSize = 20,
-    rowIndex,
-    columnIndex,
+    x,
+    y,
     tile,
-    players,
+    players, // todo 没用上
     selectedMapPosition,
     onChangeSelectedMapPosition,
     possibleNextMapPositions,
-    ...restProps
   } = props;
   const [cursorStyle, setCursorStyle] = useState('default');
 
-  const {
-    isOwned,
-    playerId,
-    typeImageUrl: image,
-    unitiesCount: text,
-    isRevealed,
-    isSpawnerType,
-    isBlankType,
-    isArmyType,
-  } = useTileState(tile);
+  const [tileType, color, unitCount] = tile;
+
+  const image = TileType2Image[tileType];
+  const isBlankType = useMemo(() => tileType === TileType.Plain, [tileType]);
+
+  // todo 判断是否是当前玩家的地盘，由于game_update只返回了颜色信息，需要传入玩家颜色进行对比，但是这样的逻辑有点奇怪
+  const isOwned = true;
 
   const isNextPossibleMove = useMemo(() => {
     const isNextPossibleMapPosition = Object.values(
@@ -66,72 +66,27 @@ function MapTile(props: MapTileProps) {
     ).some((maybeNextMapPosition) => {
       return (
         maybeNextMapPosition &&
-        maybeNextMapPosition.rowIndex === rowIndex &&
-        maybeNextMapPosition.columnIndex === columnIndex
+        maybeNextMapPosition.x === x &&
+        maybeNextMapPosition.y === y
       );
     });
 
     return isNextPossibleMapPosition && !isBlankType;
-  }, [possibleNextMapPositions, rowIndex, columnIndex, isBlankType]);
-
-  const player = useMemo(() => {
-    if (isOwned) {
-      return players[playerId];
-    }
-  }, [isOwned, players, playerId]);
-
-  // todo: refactor player type
-  const playerColor = player ? player[2] : undefined;
-
-  const fill = useMemo(() => {
-    if (isOwned && playerColor) {
-      return ColorArr[playerColor];
-    }
-
-    if (!isRevealed) {
-      return notRevealedFill;
-    }
-
-    if (isArmyType) {
-      return notOwnedArmyFill;
-    }
-
-    if (isSpawnerType) {
-      return notOwnedSpawnerFill;
-    }
-
-    if (isBlankType) {
-      return blankFill;
-    }
-  }, [
-    isOwned,
-    playerColor,
-    isRevealed,
-    notRevealedFill,
-    isArmyType,
-    notOwnedArmyFill,
-    isSpawnerType,
-    notOwnedSpawnerFill,
-    isBlankType,
-    blankFill,
-  ]);
+  }, [possibleNextMapPositions, x, y, isBlankType]);
 
   const isSelected = useMemo(() => {
-    return (
-      rowIndex === selectedMapPosition.rowIndex &&
-      columnIndex === selectedMapPosition.columnIndex
-    );
-  }, [selectedMapPosition, rowIndex, columnIndex]);
+    return x === selectedMapPosition.x && y === selectedMapPosition.y;
+  }, [selectedMapPosition, x, y]);
 
   const stroke = useMemo(() => {
     if (isSelected) {
       return selectedStroke;
     }
 
-    if (isRevealed) {
+    if (tileType === TileType.Fog) {
       return revealedStroke;
     }
-  }, [isSelected, selectedStroke, isRevealed, revealedStroke]);
+  }, [isSelected, selectedStroke, tileType]);
 
   const canMove = useMemo(() => {
     return isOwned || isNextPossibleMove;
@@ -139,9 +94,9 @@ function MapTile(props: MapTileProps) {
 
   const handleClick = useCallback(() => {
     if (canMove) {
-      onChangeSelectedMapPosition({ rowIndex, columnIndex });
+      onChangeSelectedMapPosition({ x, y });
     }
-  }, [canMove, rowIndex, columnIndex, onChangeSelectedMapPosition]);
+  }, [canMove, x, y, onChangeSelectedMapPosition]);
 
   const handleMouseEnter = useCallback(() => {
     if (canMove) {
@@ -156,14 +111,9 @@ function MapTile(props: MapTileProps) {
   }, [canMove]);
 
   const zoomedSize = useMemo(() => size * zoom, [size, zoom]);
-
   const zoomedFontSize = useMemo(() => fontSize * zoom, [fontSize, zoom]);
-  const tileX = useMemo(
-    () => zoomedSize * columnIndex,
-    [zoomedSize, columnIndex]
-  );
-
-  const tileY = useMemo(() => zoomedSize * rowIndex, [zoomedSize, rowIndex]);
+  const tileX = useMemo(() => zoomedSize * y, [zoomedSize, y]);
+  const tileY = useMemo(() => zoomedSize * x, [zoomedSize, x]);
 
   const zoomedImageSize = useMemo(
     () => zoomedSize * imageZoom,
@@ -175,6 +125,14 @@ function MapTile(props: MapTileProps) {
     [zoomedSize, zoomedImageSize]
   );
 
+  // todo fix
+  const bgcolor = useMemo(() => {
+    if (tileType === TileType.Fog) {
+      return notRevealedFill;
+    }
+    return color ? ColorArr[color] : blankFill;
+  }, [tileType, color]);
+
   return (
     <div
       style={{
@@ -184,7 +142,6 @@ function MapTile(props: MapTileProps) {
         width: zoomedSize,
         height: zoomedSize,
         cursor: cursorStyle,
-        ...restProps,
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -197,7 +154,7 @@ function MapTile(props: MapTileProps) {
           top: 0,
           width: zoomedSize,
           height: zoomedSize,
-          backgroundColor: fill,
+          backgroundColor: bgcolor,
           border: `${stroke} solid 1px`,
         }}
       />
@@ -212,10 +169,10 @@ function MapTile(props: MapTileProps) {
             top: imageXY,
             opacity: 0.8,
           }}
-          alt={`tile-${rowIndex}-${columnIndex}`}
+          alt={`tile-${x}-${y}`}
         />
       )}
-      {text && (
+      {unitCount && (
         <div
           style={{
             position: 'absolute',
@@ -233,11 +190,11 @@ function MapTile(props: MapTileProps) {
             textShadow: '0 0 2px #000',
           }}
         >
-          {text}
+          {unitCount}
         </div>
       )}
 
-      {/* higlight */}
+      {/* higlight when select*/}
       {isNextPossibleMove && (
         <div
           style={{
@@ -254,5 +211,3 @@ function MapTile(props: MapTileProps) {
     </div>
   );
 }
-
-export default MapTile;

@@ -1,6 +1,7 @@
 import Block from '@/lib/block';
 import Point from '@/lib/point';
 import Player from '@/lib/player';
+import { MapDataProp, TileType } from '@/lib/types';
 
 const directions = [
   new Point(-1, -1),
@@ -66,11 +67,11 @@ class GameMap {
   }
 
   isObstacle(block: Block): boolean {
-    return block.type === 'Mountain' || block.type === 'City';
+    return block.type === TileType.Mountain || block.type === TileType.City;
   }
 
   isPlain(block: Block): boolean {
-    return block.type === 'Plain';
+    return block.type === TileType.Plain;
   }
 
   checkConnection(obstacleCount: number) {
@@ -129,7 +130,7 @@ class GameMap {
     console.log('Width:', this.width, 'Height:', this.height);
     for (let i = 0; i < this.width; i++) {
       for (let j = 0; j < this.height; j++) {
-        this.map[i][j] = new Block(i, j, 'Plain');
+        this.map[i][j] = new Block(i, j, TileType.Plain);
       }
     }
     // Generate the king
@@ -140,10 +141,15 @@ class GameMap {
         let y = getRandomInt(0, this.height);
         pos = new Point(x, y);
         let block = this.getBlock(pos);
-        if (block.type !== 'King') {
+        if (block.type !== TileType.King) {
           let flag = true;
           for (let j = 0; j < i; ++j)
-            if (calcDistance(this.kings[j].king, new Point(x, y)) <= 6) {
+            if (
+              calcDistance(
+                new Point(this.kings[j].king.x, this.kings[j].king.y),
+                new Point(x, y)
+              ) <= 6
+            ) {
               flag = false;
               break;
             }
@@ -165,12 +171,12 @@ class GameMap {
           y = getRandomInt(0, this.height);
           if (this.isPlain(this.map[x][y])) break;
         }
-        this.map[x][y].type = 'Mountain';
+        this.map[x][y].type = TileType.Mountain;
         if (this.checkConnection(i)) {
           generated = true;
           break;
         } else {
-          this.map[x][y].type = 'Plain';
+          this.map[x][y].type = TileType.Plain;
         }
       }
       if (!generated) {
@@ -189,13 +195,13 @@ class GameMap {
           y = getRandomInt(0, this.height);
           if (this.isPlain(this.map[x][y])) break;
         }
-        this.map[x][y].type = 'City';
+        this.map[x][y].type = TileType.City;
         if (this.checkConnection(i + this.mountain)) {
           generated = true;
           this.map[x][y].unit = getRandomInt(35, 55);
           break;
         } else {
-          this.map[x][y].type = 'Plain';
+          this.map[x][y].type = TileType.Plain;
         }
       }
       if (!generated) {
@@ -212,7 +218,7 @@ class GameMap {
         y = getRandomInt(0, this.height);
         if (this.isPlain(this.map[x][y])) break;
       }
-      this.map[x][y].type = 'Swamp';
+      this.map[x][y].type = TileType.Swamp;
     }
     console.log('Swamps generated successfully');
     let kings = this.kings;
@@ -268,18 +274,18 @@ class GameMap {
     for (let i = 0; i < this.width; i++) {
       for (let j = 0; j < this.height; j++) {
         switch (this.map[i][j].type) {
-          case 'Plain':
+          case TileType.Plain:
             if (this.map[i][j].player && this.turn % 50 === 0)
               ++this.map[i][j].unit;
             break;
-          case 'King':
+          case TileType.King:
             if (this.turn % 2 === 0) ++this.map[i][j].unit;
             break;
-          case 'City':
+          case TileType.City:
             if (this.map[i][j].player && this.turn % 2 === 0)
               ++this.map[i][j].unit;
             break;
-          case 'Swamp':
+          case TileType.Swamp:
             if (this.map[i][j].player && this.turn % 2 === 0)
               --this.map[i][j].unit;
             if (this.map[i][j].unit === 0) this.map[i][j].player = null;
@@ -317,7 +323,7 @@ class GameMap {
   commandable(player: any, focus: Point, newFocus: Point): boolean {
     const isOwner = this.ownBlock(player, focus);
     const possibleMove = this.withinMap(focus) && this.withinMap(newFocus);
-    const notMountain = this.getBlock(newFocus).type !== 'Mountain';
+    const notMountain = this.getBlock(newFocus).type !== TileType.Mountain;
     return isOwner && possibleMove && notMountain;
   }
 
@@ -337,21 +343,21 @@ class GameMap {
     this.getBlock(newFocus).enterUnit(player, unit);
   }
 
-  getViewPlayer(player: any): Promise<Block[][]> {
+  getViewPlayer(player: any): Promise<MapDataProp> {
     // Get the view of the player from the whole map
     console.log('Player is', player.username);
-    const viewPlayer = Array.from(Array(this.width), () =>
-      Array(this.height).fill(null)
+    const mapDataForPlayer: MapDataProp = Array.from(Array(this.width), () =>
+      Array(this.height).fill([TileType.Fog, null, null])
     );
 
     for (let i = 0; i < this.width; i++) {
       for (let j = 0; j < this.height; j++) {
         const point = new Point(i, j);
         const block = this.getBlock(point);
-        if (block.type === 'Mountain' || block.type === 'City') {
-          viewPlayer[i][j] = { type: 'Obstacle', color: null, unit: null };
+        if (block.type === TileType.Mountain || block.type === TileType.City) {
+          mapDataForPlayer[i][j] = [TileType.Obstacle, null, null];
         } else {
-          viewPlayer[i][j] = { type: 'Fog', color: null, unit: null };
+          mapDataForPlayer[i][j] = [TileType.Fog, null, null];
         }
       }
     }
@@ -359,21 +365,21 @@ class GameMap {
       for (let j = 0; j < this.height; j++) {
         const point = new Point(i, j);
         if (this.ownBlock(player, point)) {
-          viewPlayer[point.x][point.y] = {
-            type: this.map[point.x][point.y].type,
-            color: player.color,
-            unit: this.map[point.x][point.y].unit,
-          };
+          mapDataForPlayer[point.x][point.y] = [
+            this.map[point.x][point.y].type,
+            player.color,
+            this.map[point.x][point.y].unit,
+          ];
           directions.forEach((dir) => {
             const newPoint = point.move(dir);
             if (this.withinMap(newPoint)) {
-              viewPlayer[newPoint.x][newPoint.y] = {
-                type: this.map[newPoint.x][newPoint.y].type,
-                color: this.map[newPoint.x][newPoint.y].player
+              mapDataForPlayer[newPoint.x][newPoint.y] = [
+                this.map[newPoint.x][newPoint.y].type,
+                this.map[newPoint.x][newPoint.y].player
                   ? this.map[newPoint.x][newPoint.y].player.color
                   : null,
-                unit: this.map[newPoint.x][newPoint.y].unit,
-              };
+                this.map[newPoint.x][newPoint.y].unit,
+              ];
             }
           });
         }
@@ -381,7 +387,7 @@ class GameMap {
     }
     return new Promise(function (resolve, reject) {
       console.log('View of player generated successfully');
-      resolve(viewPlayer);
+      resolve(mapDataForPlayer);
     });
   }
 }

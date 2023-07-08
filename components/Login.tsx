@@ -49,7 +49,7 @@ const Login: React.FC<LoginProps> = (props) => {
             justifyContent: 'center',
             width: { xs: '80vw', md: '40vw' },
             marginTop: '-40px !important',
-            zIndex: '10 !important'
+            zIndex: '10 !important',
           }}
         >
           <Typography variant='h4' color='white' sx={{ padding: 4 }}>

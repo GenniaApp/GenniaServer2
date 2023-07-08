@@ -308,86 +308,6 @@ function GamingRoom() {
     });
   }, [roomId, username]);
 
-  function handleKeyDown(event: KeyboardEvent) {
-    const withinMap = (point: Point) => {
-      // Check if point is within game map boundaries
-      return (
-        point.x >= 0 &&
-        point.x < gameMap.length &&
-        point.y >= 0 &&
-        point.y < gameMap[0].length
-      );
-    };
-
-    const handleMove = (direction) => {
-      let newPoint;
-      if (direction === 'left') {
-        newPoint = { x: selectedTd.x, y: selectedTd.y - 1 };
-      } else if (direction === 'up') {
-        newPoint = { x: selectedTd.x - 1, y: selectedTd.y };
-      } else if (direction === 'right') {
-        newPoint = { x: selectedTd.x, y: selectedTd.y + 1 };
-      } else if (direction === 'down') {
-        newPoint = { x: selectedTd.x + 1, y: selectedTd.y };
-      }
-
-      if (withinMap(newPoint)) {
-        setQueue([
-          ...queue,
-          {
-            from: selectedTd,
-            to: newPoint,
-            half: selectedTd.half,
-          },
-        ]);
-        setSelectedTd(newPoint);
-      }
-    };
-
-    switch (event.key) {
-      case 'a':
-      case 'ArrowLeft':
-        handleMove('left');
-        break;
-      case 'w':
-      case 'ArrowUp':
-        handleMove('up');
-        break;
-      case 'd':
-      case 'ArrowRight':
-        handleMove('right');
-        break;
-      case 's':
-      case 'ArrowDown':
-        handleMove('down');
-        break;
-      default:
-        break;
-    }
-  }
-
-  function handleAttackFailure(from, to) {
-    setQueue((prevQueue) => {
-      // Remove last item from queue
-      const newQueue = [...prevQueue];
-      newQueue.pop();
-
-      // Remove any items in queue that have the same 'to' point as the failed attack
-      let lastPoint = to;
-      while (newQueue.length > 0) {
-        const point = newQueue[newQueue.length - 1].from;
-        if (point.x === lastPoint.x && point.y === lastPoint.y) {
-          newQueue.pop();
-          lastPoint = point;
-        } else {
-          break;
-        }
-      }
-
-      return newQueue;
-    });
-  }
-
   return (
     <ThemeProvider theme={theme}>
       <Navbar />
@@ -400,7 +320,6 @@ function GamingRoom() {
         }}
       >
         <Alert
-          color='primary'
           icon={false}
           sx={{ backgroundColor: 'transparent', padding: 0 }}
           action={
@@ -408,7 +327,7 @@ function GamingRoom() {
               color='primary'
               onClick={() => {
                 navigator.clipboard.writeText(shareLink);
-                handleSnackMessage(t('copied'));
+                handleSnackMessage(t('copied'), '');
               }}
             >
               <ShareIcon />
@@ -458,6 +377,7 @@ function GamingRoom() {
                   name='game-speed'
                   value={gameSpeed}
                   row
+                  // @ts-ignore
                   onChange={handleSettingChange(
                     setGameSpeed,
                     'change_game_speed'
@@ -615,7 +535,7 @@ function TabPanel(props: any) {
 
 export default GamingRoom;
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context: any) {
   // extract the locale identifier from the URL
   const { locale } = context;
 

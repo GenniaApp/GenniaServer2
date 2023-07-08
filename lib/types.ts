@@ -4,6 +4,10 @@ import GameMap from './map';
 
 export { Point, Player, GameMap };
 
+export interface Position {
+  x: number;
+  y: number;
+}
 
 export type LeaderBoardData = {
   color: number;
@@ -21,7 +25,7 @@ export class Message {
   constructor(
     public player: Player,
     public content: string
-  ) { }
+  ) {}
 }
 
 export class Room {
@@ -43,7 +47,7 @@ export class Room {
     public gameLoop: any = null, // gameLoop function
     public players: Player[] = new Array<Player>(),
     public generals: Point[] = new Array<Point>()
-  ) { }
+  ) {}
 
   toJSON() {
     const { map, gameLoop, generals, ...json } = this;
@@ -53,32 +57,31 @@ export class Room {
 
 export type RoomPool = { [key: string]: Room };
 
-
-export interface MapPosition {
-  rowIndex: number;
-  columnIndex: number;
-}
-
-enum TileType {
-  Base = 0,
-  Spawner = 1,
-  Fog = 2,
-  Army = 3,
-  Blank = 4,
+export enum TileType {
+  King = 0, // base
+  City = 1, // spawner
+  Fog = 2, // it's color unit = null
+  Obstacle = 3, // Either City or Mountain, which is unknown, it's color unit = null
+  Plain = 4, // blank , plain, Neutral, 有数值时，即是army
+  Mountain = 5,
+  Swamp = 6,
 }
 
 // TileType
-// isRevealed {boolean}
-// playerId {number}
-// unitiesCount {number}
-export type TileProp = [TileType, boolean, number, number];
+// color: when color == null 表示什么？ todo
+// unitsCount: number
+export type TileProp = [TileType, number | null, number | null];
 
 export type TilesProp = TileProp[];
 
-export type MapProp = TilesProp[];
+export type MapDataProp = TilesProp[];
 
-// todo remove these type
-// id, name, color
-export type PlayerProp = [number, string, number];
-
-export type PlayersProp = Record<number, PlayerProp>;
+export const TileType2Image: Record<TileType, string> = {
+  [TileType.King]: '/img/king.png',
+  [TileType.City]: '/img/city.png',
+  [TileType.Fog]: '',
+  [TileType.Obstacle]: '/img/mountain.png',
+  [TileType.Plain]: '',
+  [TileType.Mountain]: '/img/mountain.png',
+  [TileType.Swamp]: '/img/swamp.png',
+};

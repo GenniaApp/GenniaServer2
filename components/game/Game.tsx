@@ -6,13 +6,13 @@ import TurnsCount from './TurnsCount';
 import GameMap from './GameMap';
 import LeaderBoard from './LeaderBoard';
 import OverDialog from './OverDialog';
-import { LeaderBoardData, MapProp, PlayersProp } from '@/lib/types';
+import { LeaderBoardData, MapDataProp, Player } from '@/lib/types';
 
 interface GameProps {
   className?: string;
   turnsCount: number;
-  mapData: MapProp;
-  players: PlayersProp;
+  mapData: MapDataProp;
+  players: Player[];
   roomName: string;
   leaderBoardData: LeaderBoardData;
 }

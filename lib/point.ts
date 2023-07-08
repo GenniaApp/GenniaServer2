@@ -1,11 +1,8 @@
-class Point {
-  x: number;
-  y: number;
-
-  constructor(x: number, y: number) {
-    this.x = x;
-    this.y = y;
-  }
+export default class Point {
+  constructor(
+    public x: number,
+    public y: number
+  ) {}
 
   move(direction: Point): Point {
     return new Point(this.x + direction.x, this.y + direction.y);
@@ -22,10 +19,4 @@ class Point {
   toString(): string {
     return `Point (${this.x}, ${this.y})`;
   }
-
-  toObject(): { x: number; y: number } {
-    return { x: this.x, y: this.y };
-  }
 }
-
-export default Point;

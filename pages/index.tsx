@@ -47,7 +47,7 @@ export default function Home() {
   );
 }
 
-export async function getStaticProps(context) {
+export async function getStaticProps(context: any) {
   // extract the locale identifier from the URL
   const { locale } = context;
 

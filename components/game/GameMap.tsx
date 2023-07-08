@@ -1,13 +1,13 @@
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import classNames from 'classnames';
-import { LeaderBoardData, MapProp, PlayersProp } from '@/lib/types';
-import { usePossibleNextMapPositions } from '@/hooks/index';
+import { MapDataProp, Player } from '@/lib/types';
+import usePossibleNextMapPositions from '@/lib/use-possible-next-map-positions';
 import MapTile from './MapTile';
 
 interface GameMapProps {
   className?: string;
-  mapData: MapProp;
-  players: PlayersProp;
+  mapData: MapDataProp;
+  players: Player[];
 }
 
 function GameMap(props: GameMapProps) {
@@ -31,8 +31,8 @@ function GameMap(props: GameMapProps) {
   );
 
   const [selectedMapPosition, setSelectedMapPosition] = useState({
-    rowIndex: null,
-    columnIndex: null,
+    x: -1,
+    y: -1,
   });
 
   const possibleNextMapPositions = usePossibleNextMapPositions({
@@ -71,15 +71,15 @@ function GameMap(props: GameMapProps) {
       }}
       className={classNames('GameMap', className)}
     >
-      {mapData.map((tiles, rowIndex) => {
-        return tiles.map((tile, columnIndex) => {
+      {mapData.map((tiles, x) => {
+        return tiles.map((tile, y) => {
           return (
             <MapTile
-              key={`${rowIndex}/${columnIndex}`}
+              key={`${x}/${y}`}
               zoom={zoom}
               size={tileSize}
-              rowIndex={rowIndex}
-              columnIndex={columnIndex}
+              x={x}
+              y={y}
               tile={tile}
               players={players}
               selectedMapPosition={selectedMapPosition}

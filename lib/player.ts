@@ -1,4 +1,5 @@
 import Block from './block';
+import { TileType } from './types';
 
 class Player {
   constructor(
@@ -11,7 +12,7 @@ class Player {
     public isDead: boolean = false,
     public operatedTurn: number = 0,
     public land: Block[] = [],
-    public king?: Block
+    public king: Block = new Block(0, 0, TileType.King)
   ) {}
   toJSON() {
     const { land, king, ...json } = this;
@@ -52,7 +53,7 @@ class Player {
     if (!this.king) {
       throw new Error('King is not initialized');
     }
-    this.king.setType('City');
+    this.king.setType(TileType.City);
     this.land.forEach((block) => {
       this.king && this.king.player.winLand(block);
     });

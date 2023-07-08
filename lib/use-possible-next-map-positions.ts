@@ -1,12 +1,18 @@
 import { useMemo } from 'react';
+import { MapDataProp, Position } from '@/lib/types';
+
+interface UsePossibleNextMapPositionsProps {
+  mapData: MapDataProp;
+  selectedMapPosition: Position;
+}
 
 export default function usePossibleNextMapPositions({
   mapData,
   selectedMapPosition,
-}) {
+}: UsePossibleNextMapPositionsProps) {
   const isMapSelected = useMemo(() => {
-    const { rowIndex, columnIndex } = selectedMapPosition;
-    return rowIndex !== null && columnIndex !== null;
+    const { x, y } = selectedMapPosition;
+    return x !== -1 && y !== -1;
   }, [selectedMapPosition]);
 
   const minMapRowIndex = useMemo(() => {
@@ -31,14 +37,14 @@ export default function usePossibleNextMapPositions({
       return;
     }
 
-    const { rowIndex, columnIndex: topColumnIndex } = selectedMapPosition;
-    const topRowIndex = rowIndex - 1;
+    const { x, y: topColumnIndex } = selectedMapPosition;
+    const topRowIndex = x - 1;
 
     if (topRowIndex < minMapRowIndex) {
       return;
     }
 
-    return { rowIndex: topRowIndex, columnIndex: topColumnIndex };
+    return { x: topRowIndex, y: topColumnIndex };
   }, [isMapSelected, selectedMapPosition, minMapRowIndex]);
 
   const bottomMovePosition = useMemo(() => {
@@ -46,16 +52,16 @@ export default function usePossibleNextMapPositions({
       return;
     }
 
-    const { rowIndex, columnIndex: bottomColumnIndex } = selectedMapPosition;
-    const bottomRowIndex = rowIndex + 1;
+    const { x, y: bottomColumnIndex } = selectedMapPosition;
+    const bottomRowIndex = x + 1;
 
     if (bottomRowIndex > maxMapRowIndex) {
       return;
     }
 
     return {
-      rowIndex: bottomRowIndex,
-      columnIndex: bottomColumnIndex,
+      x: bottomRowIndex,
+      y: bottomColumnIndex,
     };
   }, [isMapSelected, selectedMapPosition, maxMapRowIndex]);
 
@@ -64,16 +70,16 @@ export default function usePossibleNextMapPositions({
       return;
     }
 
-    const { rowIndex: leftRowIndex, columnIndex } = selectedMapPosition;
-    const leftColumnIndex = columnIndex - 1;
+    const { x: leftRowIndex, y } = selectedMapPosition;
+    const leftColumnIndex = y - 1;
 
     if (leftColumnIndex < minMapColumnIndex) {
       return;
     }
 
     return {
-      rowIndex: leftRowIndex,
-      columnIndex: leftColumnIndex,
+      x: leftRowIndex,
+      y: leftColumnIndex,
     };
   }, [isMapSelected, selectedMapPosition, minMapColumnIndex]);
 
@@ -82,16 +88,16 @@ export default function usePossibleNextMapPositions({
       return;
     }
 
-    const { rowIndex: rightRowIndex, columnIndex } = selectedMapPosition;
-    const rightColumnIndex = columnIndex + 1;
+    const { x: rightRowIndex, y } = selectedMapPosition;
+    const rightColumnIndex = y + 1;
 
     if (rightColumnIndex > maxMapColumnIndex) {
       return;
     }
 
     return {
-      rowIndex: rightRowIndex,
-      columnIndex: rightColumnIndex,
+      x: rightRowIndex,
+      y: rightColumnIndex,
     };
   }, [isMapSelected, selectedMapPosition, maxMapColumnIndex]);
 

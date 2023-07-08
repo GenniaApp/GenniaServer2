@@ -1,17 +1,17 @@
 // import Player from "@/lib/Player";
 // 循环引用..
+import { TileType, Point } from '@/lib/types';
 
-class Block {
-  x: number;
-  y: number;
-  type: string;
+class Block extends Point {
   unit: number;
   player?: any;
 
-  constructor(x: number, y: number, type: string) {
-    this.x = x;
-    this.y = y;
-    this.type = type;
+  constructor(
+    public x: number,
+    public y: number,
+    public type: TileType
+  ) {
+    super(x, y);
     this.unit = 0;
     this.player = null;
   }
@@ -20,12 +20,12 @@ class Block {
     this.unit = unit;
   }
 
-  setType(type: string): void {
+  setType(type: TileType): void {
     this.type = type;
   }
 
   kingBeDominated(): void {
-    this.type = 'c'; // City
+    this.type = TileType.City;
   }
 
   beDominated(player: any, unit: number): void {
@@ -35,7 +35,7 @@ class Block {
   }
 
   initKing(player: any): void {
-    this.type = 'k'; // King
+    this.type = TileType.King;
     this.unit = 1;
     this.player = player;
   }
@@ -60,7 +60,7 @@ class Block {
     return Math.max(this.unit - 1, 0);
   }
 
-  getView(): { type: string; unit: number; player: any } {
+  getView(): { type: TileType; unit: number; player: any } {
     return {
       type: this.type,
       unit: this.unit,
@@ -68,7 +68,6 @@ class Block {
     };
   }
   beNeutralized(): void {
-    this.type = 'n'; // Neutral todo 中立之后 type 应该是什么?
     this.player = null;
   }
 }
