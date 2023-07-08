@@ -6,8 +6,7 @@ import TurnsCount from './TurnsCount';
 import GameMap from './GameMap';
 import LeaderBoard from './LeaderBoard';
 import OverDialog from './OverDialog';
-import { MapProp, PlayersProp } from './types-new';
-import { LeaderBoardData } from '@/lib/types';
+import { LeaderBoardData, MapProp, PlayersProp } from '@/lib/types';
 
 interface GameProps {
   className?: string;

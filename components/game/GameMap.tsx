@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState, useEffect } from 'react';
 import classNames from 'classnames';
-import { PlayersProp, MapProp } from './types-new';
+import { LeaderBoardData, MapProp, PlayersProp } from '@/lib/types';
 import { usePossibleNextMapPositions } from '@/hooks/index';
 import MapTile from './MapTile';
 

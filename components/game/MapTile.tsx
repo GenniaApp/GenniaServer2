@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
-import { PlayersProp, TileProp, MapPosition } from './types-new';
+import { TileProp, MapPosition, PlayersProp } from '@/lib/types';
 import { useTileState } from '@/hooks/index';
 import { ColorArr } from '@/lib/constants';
 
