@@ -1,4 +1,4 @@
-import { Room, RoomPool } from '@/lib/types';
+import { Room, RoomPool } from './types';
 
 export const roomPool: RoomPool = {};
 
@@ -11,7 +11,7 @@ createRoom('Test Room 1');
 export async function leaveRoom(roomId: string) {
   try {
     delete roomPool[roomId];
-  } catch (_) {}
+  } catch (_) { }
 }
 
 export async function createRoom(roomName: string) {

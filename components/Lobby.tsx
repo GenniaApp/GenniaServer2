@@ -34,7 +34,7 @@ function Lobby() {
 
   useEffect(() => {
     const fetchRooms = async () => {
-      const res = await fetch('/api/rooms');
+      const res = await fetch('http://127.0.0.1:3001/get_rooms');
       const rooms = await res.json();
       setRooms(rooms);
       setLoading(false);

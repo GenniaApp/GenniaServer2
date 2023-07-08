@@ -1,7 +1,7 @@
-import Block from '@/lib/block';
-import Point from '@/lib/point';
-import Player from '@/lib/player';
-import { MapDataProp, TileType } from '@/lib/types';
+import Block from './block';
+import Point from './point';
+import Player from './player';
+import { MapDataProp, TileType } from './types';
 
 const directions = [
   new Point(-1, -1),

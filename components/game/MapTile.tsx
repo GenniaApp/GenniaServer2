@@ -31,7 +31,7 @@ interface MapTileProps {
 
 const notRevealedFill = '#363636';
 const notOwnedArmyFill = '#D7D7D7';
-const notOwnedSpawnerFill = '#757575';
+const notOwnedCityFill = '#757575';
 const blankFill = '#B3B3B3';
 const selectedStroke = '#fff';
 const revealedStroke = '#000';
@@ -130,8 +130,18 @@ export default function MapTile(props: MapTileProps) {
     if (tileType === TileType.Fog) {
       return notRevealedFill;
     }
-    return color ? ColorArr[color] : blankFill;
-  }, [tileType, color]);
+
+    if (tileType === TileType.Swamp) {
+      return notRevealedFill;
+    }
+    if (color) {
+      return ColorArr[color];
+    } else {
+      if (tileType === TileType.Obstacle) return notOwnedCityFill;
+      return notOwnedArmyFill;
+    }
+    // return blankFill;
+  }, [tileType, color, unitCount]);
 
   return (
     <div

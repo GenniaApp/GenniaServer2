@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socket tutorial</title>
+  </head>
+  <body>
+    <input type="text" placeholder="Room number" id="roomId" />
+    <button onclick="functionToExecute()">Join</button>
+
+    <script
+      src="https://cdn.socket.io/3.1.3/socket.io.min.js"
+      integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      let isConnectionEstablished = false;
+
+      function functionToExecute() {
+        if (isConnectionEstablished) {
+          return;
+        }
+        isConnectionEstablished = true;
+
+        const socketIo = io('http://localhost:3000', {
+          auth: {
+            token: 'json-web-token',
+          },
+          query: {
+            roomNumber: document.getElementById('roomId').value,
+          },
+        });
+
+        socketIo.on('connect', function () {
+          console.log('Made socket connection', socketIo.id);
+        });
+
+        socketIo.on('message_from_server', function (data) {
+          console.log('message_from_server data: ', data);
+        });
+
+        socketIo.on('disconnect', function () {
+          console.log('disconnect');
+        });
+
+        // Send a message to the server 3 seconds after initial connection.
+        setTimeout(function () {
+          socketIo.emit('message_from_client', 'Sent an event from the client!');
+        }, 3000);
+
+        socketIo.on('connect_error', function (err) {
+          console.log('connection errror', err);
+        });
+
+        socketIo.on('room-userId', function (data) {
+          console.log('Message for room: ', data);
+        });
+      }
+    </script>
+  </body>
+</html>

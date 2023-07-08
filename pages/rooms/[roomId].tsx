@@ -202,110 +202,110 @@ function GamingRoom() {
   useEffect(() => {
     if (!roomId) return;
     if (!username) return;
-    fetch('/api/gserver').finally(() => {
-      socketRef.current = io({ query: { roomId: roomId, username: username } });
-      let socket = socketRef.current;
-      socket.emit('get_room_info');
-
-      // set up socket event listeners
-      socket.on('connect', () => {
-        console.log(`socket client connect to server: ${socket.id}`);
-        if (localStorage.getItem('playerId'))
-          socket.emit('reconnect', myPlayerId);
-      });
-      socket.on('set_player_id', (id: string) => {
-        if (!localStorage.getItem('playerId')) {
-          setMyPlayerId(id);
-          localStorage.setItem('playerId', id);
-        }
-      });
-      socket.on('delete_local_reconnect', () => {
-        localStorage.removeItem('playerId');
-        router.reload();
-      });
-      socket.on('room_info_update', updateRoomInfo);
-      socket.on('error', (title: string, message: string) => {
-        handleSnackMessage(title, message);
-      });
-
-      socket.on('room_message', (player: Player, content: string) => {
-        console.log(`room_message: ${content}`);
-        setMessages((messages) => [...messages, new Message(player, content)]);
-      });
-
-      // socket.on('game_update', (gameMap, width, height, turn, leaderBoard) => {
-      //   // Update game map state
-      //   setGameMap(JSON.parse(gameMap)); // todo
-      //   console.log(gameMap);
-      //   console.log(`width ${width}`);
-      //   console.log(`height ${height}`);
-      //   console.log(`leaderBoard ${leaderBoard}`);
-      // });
-
-      // todo 设置颜色
-
-      socket.on('reject_join', (message: string) => {
-        Swal.fire({
-          title: t('reject-join'),
-          text: message,
-          icon: 'error',
-          showDenyButton: false,
-          showCancelButton: false,
-          allowOutsideClick: false,
-          confirmButtonText: 'OK',
-        }).then((result) => {
-          navToHome();
-        });
-      });
-
-      socket.on('connect_error', (error: Error) => {
-        console.log('\nConnection Failed: ' + error);
-        socket.emit('leave_game');
-        socket.disconnect();
-        Swal.fire({
-          title: "Can't connect to the server",
-          text: 'Please reflush the App.',
-          icon: 'error',
-          showDenyButton: false,
-          showCancelButton: false,
-          allowOutsideClick: false,
-          confirmButtonText: 'OK',
-        }).then((result) => {
-          navToHome();
-        });
-      });
-
-      socket.on('disconnect', () => {
-        handleSnackMessage('Reconnecting...', 'Disconnected from the server');
-        //   title: 'Disconnected from the server',
-        //   html: 'Please reflush the App.',
-        //   icon: 'error',
-        //   showDenyButton: false,
-        //   showCancelButton: false,
-        //   allowOutsideClick: false,
-        //   confirmButtonText: 'Quit',
-        // }).then((result) => {
-        //   /* Read more about isConfirmed, isDenied below */
-        //   navToHome();
-        // });
-        console.log('Disconnected from server.');
-      });
-
-      socket.on('reconnect', () => {
-        console.log('Reconnected to server.');
-        if (gameStarted && myPlayerId) {
-          socket.emit('reconnect', myPlayerId);
-        } else {
-          socket.emit('get_room_info');
-        }
-      });
-
-      return () => {
-        console.log('use effect leave room');
-        socket.emit('leave_game');
-        socket.disconnect();
-      };
+    socketRef.current = io('localhost:3001', {
+      query: { roomId: roomId, username: username },
     });
+    let socket = socketRef.current;
+    socket.emit('get_room_info');
+
+    // set up socket event listeners
+    socket.on('connect', () => {
+      console.log(`socket client connect to server: ${socket.id}`);
+      if (localStorage.getItem('playerId'))
+        socket.emit('reconnect', myPlayerId);
+    });
+    socket.on('set_player_id', (id: string) => {
+      if (!localStorage.getItem('playerId')) {
+        setMyPlayerId(id);
+        localStorage.setItem('playerId', id);
+      }
+    });
+    socket.on('delete_local_reconnect', () => {
+      localStorage.removeItem('playerId');
+      router.reload();
+    });
+    socket.on('room_info_update', updateRoomInfo);
+    socket.on('error', (title: string, message: string) => {
+      handleSnackMessage(title, message);
+    });
+
+    socket.on('room_message', (player: Player, content: string) => {
+      console.log(`room_message: ${content}`);
+      setMessages((messages) => [...messages, new Message(player, content)]);
+    });
+
+    // socket.on('game_update', (gameMap, width, height, turn, leaderBoard) => {
+    //   // Update game map state
+    //   setGameMap(JSON.parse(gameMap)); // todo
+    //   console.log(gameMap);
+    //   console.log(`width ${width}`);
+    //   console.log(`height ${height}`);
+    //   console.log(`leaderBoard ${leaderBoard}`);
+    // });
+
+    // todo 设置颜色
+
+    socket.on('reject_join', (message: string) => {
+      Swal.fire({
+        title: t('reject-join'),
+        text: message,
+        icon: 'error',
+        showDenyButton: false,
+        showCancelButton: false,
+        allowOutsideClick: false,
+        confirmButtonText: 'OK',
+      }).then((result) => {
+        navToHome();
+      });
+    });
+
+    socket.on('connect_error', (error: Error) => {
+      console.log('\nConnection Failed: ' + error);
+      socket.emit('leave_game');
+      socket.disconnect();
+      Swal.fire({
+        title: "Can't connect to the server",
+        text: 'Please reflush the App.',
+        icon: 'error',
+        showDenyButton: false,
+        showCancelButton: false,
+        allowOutsideClick: false,
+        confirmButtonText: 'OK',
+      }).then((result) => {
+        navToHome();
+      });
+    });
+
+    socket.on('disconnect', () => {
+      handleSnackMessage('Reconnecting...', 'Disconnected from the server');
+      //   title: 'Disconnected from the server',
+      //   html: 'Please reflush the App.',
+      //   icon: 'error',
+      //   showDenyButton: false,
+      //   showCancelButton: false,
+      //   allowOutsideClick: false,
+      //   confirmButtonText: 'Quit',
+      // }).then((result) => {
+      //   /* Read more about isConfirmed, isDenied below */
+      //   navToHome();
+      // });
+      console.log('Disconnected from server.');
+    });
+
+    socket.on('reconnect', () => {
+      console.log('Reconnected to server.');
+      if (gameStarted && myPlayerId) {
+        socket.emit('reconnect', myPlayerId);
+      } else {
+        socket.emit('get_room_info');
+      }
+    });
+
+    return () => {
+      console.log('use effect leave room');
+      socketRef.current.emit('leave_game');
+      socketRef.current.disconnect();
+    };
   }, [roomId, username]);
 
   return (

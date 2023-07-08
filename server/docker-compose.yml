@@ -1,0 +1,10 @@
+version: '3.3'
+
+services:
+  mongo:
+    container_name: mongo
+    image: mongo:5
+    ports:
+      - 27017:27017
+    expose:
+      - 27017

@@ -14,14 +14,26 @@ WIP
 
 ## Development
 
+### web: nextjs
+
 First, run the development server:
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+### server: express + socket.io
+
+ps: server side code init from [template](https://github.com/nisicadmir/nodejs-typescript/tree/master/tutorial-5)
+
+```bash
+cd server
+pnpm install
+pnpm run start
+```
 
 ## License
 

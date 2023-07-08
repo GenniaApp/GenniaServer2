@@ -1,6 +1,6 @@
 // import Player from "@/lib/Player";
 // 循环引用..
-import { TileType, Point } from '@/lib/types';
+import { TileType, Point } from './types';
 
 class Block extends Point {
   unit: number;
