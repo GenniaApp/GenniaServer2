@@ -1,8 +1,16 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 
-function Dialog(props) {
+interface DialogProps {
+  className?: string;
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  children?: React.ReactNode;
+  open: boolean;
+  onClose: () => void;
+}
+
+function Dialog(props: DialogProps) {
   const {
     className,
     title,
@@ -13,10 +21,10 @@ function Dialog(props) {
     ...restProps
   } = props;
 
-  const contentRef = useRef();
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const handleKeydown = useCallback(
-    (event) => {
+    (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
         triggerClose();
       }
@@ -33,14 +41,16 @@ function Dialog(props) {
   }, [handleKeydown]);
 
   const handleClick = useCallback(
-    (event) => {
-      const didClickOnContent = contentRef.current.contains(event.target);
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const didClickOnContent = contentRef.current?.contains(
+        event.target as Node
+      );
 
       if (!didClickOnContent) {
         triggerClose();
       }
     },
-    [triggerClose]
+    [contentRef, triggerClose]
   );
 
   if (isOpen) {
@@ -61,14 +71,5 @@ function Dialog(props) {
 
   return null;
 }
-
-Dialog.propTypes = {
-  className: PropTypes.string,
-  title: PropTypes.node,
-  subtitle: PropTypes.node,
-  children: PropTypes.node,
-  open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-};
 
 export default Dialog;

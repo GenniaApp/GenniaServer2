@@ -84,7 +84,7 @@ function MapTile(props: MapTileProps) {
   const playerColor = player ? player[2] : undefined;
 
   const fill = useMemo(() => {
-    if (isOwned) {
+    if (isOwned && playerColor) {
       return ColorArr[playerColor];
     }
 

@@ -1,13 +1,19 @@
 import React from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 import Dialog from './Dialog';
-import DialogButtons from './DialogButtons';
 import Button from './Button';
 import Router from 'next/router';
 
-function OverDialog(props) {
-  const { className, didWin, roomName, ...restProps } = props;
+interface OverDialogProps {
+  className?: string;
+  didWin: boolean;
+  roomName: string;
+  open: boolean;
+  onClose: () => void;
+}
+
+function OverDialog(props: OverDialogProps) {
+  const { className, didWin, roomName, open, onClose } = props;
 
   const handleExit = () => {
     Router.push('/');
@@ -21,24 +27,21 @@ function OverDialog(props) {
 
   return (
     <Dialog
-      {...restProps}
+      open={open}
+      onClose={onClose}
       className={classNames('OverDialog', className)}
       title={<h1 className='OverDialog__Title'>{dialogTitile}</h1>}
     >
-      <DialogButtons>
+      <div className='DialogButtons'>
         <Button variant='primary' onClick={handleBackRoom}>
           Play Again
         </Button>
         <Button variant='primary' size='big' onClick={handleExit}>
           Exit
         </Button>
-      </DialogButtons>
+      </div>
     </Dialog>
   );
 }
-
-OverDialog.propTypes = {
-  className: PropTypes.string,
-};
 
 export default OverDialog;

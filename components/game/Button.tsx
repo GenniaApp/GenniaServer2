@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { ButtonHTMLAttributes } from 'react';
 import classNames from 'classnames';
-import PropTypes from 'prop-types';
 
-function Button(props) {
-  const { className, children, size, variant, ...restProps } = props;
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  className?: string;
+  size?: 'small' | 'regular' | 'big';
+  variant?: 'blank' | 'primary';
+}
 
+function Button({
+  className,
+  children,
+  size = 'regular',
+  variant = 'blank',
+  ...restProps
+}: ButtonProps) {
   return (
     <button
       {...restProps}
@@ -21,17 +30,5 @@ function Button(props) {
     </button>
   );
 }
-
-Button.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node,
-  size: PropTypes.oneOf(['small', 'regular', 'big']).isRequired,
-  variant: PropTypes.oneOf(['blank', 'primary']).isRequired,
-};
-
-Button.defaultProps = {
-  size: 'regular',
-  variant: 'blank',
-};
 
 export default Button;
