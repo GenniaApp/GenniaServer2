@@ -4,13 +4,13 @@ import GameMap from './map';
 
 export { Point, Player, GameMap };
 
-export interface LeaderBoardData {
+
+export type LeaderBoardData = {
   color: number;
   username: string;
-  army: number;
-  land: number;
-}
-[];
+  armyCount: number;
+  landsCount: number;
+}[];
 
 export interface UserData {
   name: string;
@@ -21,7 +21,7 @@ export class Message {
   constructor(
     public player: Player,
     public content: string
-  ) {}
+  ) { }
 }
 
 export class Room {
@@ -43,7 +43,7 @@ export class Room {
     public gameLoop: any = null, // gameLoop function
     public players: Player[] = new Array<Player>(),
     public generals: Point[] = new Array<Point>()
-  ) {}
+  ) { }
 
   toJSON() {
     const { map, gameLoop, generals, ...json } = this;
@@ -52,3 +52,4 @@ export class Room {
 }
 
 export type RoomPool = { [key: string]: Room };
+

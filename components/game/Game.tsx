@@ -4,9 +4,10 @@ import classNames from 'classnames';
 import SurrenderDialog from './SurrenderDialog';
 import TurnsCount from './TurnsCount';
 import GameMap from './GameMap';
-import Players from './Players';
+import LeaderBoard from './LeaderBoard';
 import OverDialog from './OverDialog';
 import { MapProp, PlayersProp } from './types-new';
+import { LeaderBoardData } from '@/lib/types';
 
 interface GameProps {
   className?: string;
@@ -14,11 +15,19 @@ interface GameProps {
   mapData: MapProp;
   players: PlayersProp;
   roomName: string;
+  leaderBoardData: LeaderBoardData;
 }
 
 function Game(props: GameProps) {
-  const { className, turnsCount, mapData, players, roomName, ...restProps } =
-    props;
+  const {
+    className,
+    turnsCount,
+    mapData,
+    players,
+    roomName,
+    leaderBoardData,
+    ...restProps
+  } = props;
   const [didOver, setDidOver] = useState(false);
   const [didWin, setDidWin] = useState(false);
   const handleOverDialogClose = useCallback(() => {
@@ -37,7 +46,7 @@ function Game(props: GameProps) {
       <div {...restProps} className={classNames('Game', className)}>
         <TurnsCount count={turnsCount} />
         <GameMap className='Game__Map' mapData={mapData} players={players} />
-        <Players players={players} />
+        <LeaderBoard leaderBoardData={leaderBoardData} />
         <SurrenderDialog onSurrender={handleSurrender} />
         <OverDialog
           open={didOver}

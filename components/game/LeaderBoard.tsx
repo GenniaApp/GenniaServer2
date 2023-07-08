@@ -1,6 +1,4 @@
-import React, { useMemo } from 'react';
 import {
-  Box,
   TableContainer,
   Table,
   TableCell,
@@ -8,14 +6,15 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import { PlayersProp } from './types-new';
-import {ColorArr} from '@/lib/constants';
+import { LeaderBoardData } from '@/lib/types';
+import { ColorArr } from '@/lib/constants';
 
-export default function Players(players: PlayersProp) {
-  const playerList = useMemo(() => {
-    return Object.values(players);
-  }, [players]);
+interface LeaderBoardProps {
+  leaderBoardData: LeaderBoardData;
+}
 
+export default function LeaderBoard(props: LeaderBoardProps) {
+  const { leaderBoardData } = props;
   return (
     <TableContainer>
       <Table>
@@ -27,14 +26,14 @@ export default function Players(players: PlayersProp) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {playerList.map((player, index) => (
+          {leaderBoardData.map((player, index) => (
             <TableRow
               key={index}
               sx={{ backgroundColor: ColorArr[player.color] }}
             >
-              <TableCell>{player.name}</TableCell>
-              <TableCell>{player.armiesCount}</TableCell>
-              <TableCell>{player.unitiesCount}</TableCell>
+              <TableCell>{player.username}</TableCell>
+              <TableCell>{player.armyCount}</TableCell>
+              <TableCell>{player.landsCount}</TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { PlayersProp, TileProp, MapPosition } from './types-new';
-import { usePlayerState, useTileState } from '@/hooks/index';
-import {ColorArr} from '@/lib/constants';
+import { useTileState } from '@/hooks/index';
+import { ColorArr } from '@/lib/constants';
 
 interface MapTileProps {
   zoom: number;
@@ -80,7 +80,9 @@ function MapTile(props: MapTileProps) {
     }
   }, [isOwned, players, playerId]);
 
-  const { color: playerColor } = usePlayerState(player);
+  // todo: refactor player type
+  const playerColor = player ? player[2] : undefined;
+
   const fill = useMemo(() => {
     if (isOwned) {
       return ColorArr[playerColor];

@@ -146,18 +146,20 @@ async function handleGame(room: Room, io: Server) {
           clearInterval(room.gameLoop);
         }
 
+
         let leaderBoard: LeaderBoardData = room.players
           .map((player) => {
+            if (!room.map) throw new Error('Map is not generated');
             let data = room.map.getTotal(player);
             return {
               color: player.color,
               username: player.username,
-              army: data.army,
-              land: data.land,
+              armyCount: data.army,
+              landsCount: data.land,
             };
           })
           .sort((a, b) => {
-            return b.army - a.army || b.land - a.land;
+            return b.armyCount - a.armyCount || b.landsCount - a.landsCount;
           });
 
         for (let [id, socket] of io.sockets.sockets) {
@@ -258,6 +260,9 @@ function ioHandler(req: NextApiRequest, res: NextApiResponse) {
       // boardcast new player message to room
       io.in(room.id).emit('room_message', player, 'joined the lobby.');
       io.in(room.id).emit('room_info_update', room);
+      console.log(player.username, 'joined the room.');
+      console.log(`room ${room.roomName} has ${room.players.length} players`)
+      // console.log(room)
 
       if (room.players.length >= room.maxPlayers) {
         await handleGame(room, io);

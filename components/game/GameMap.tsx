@@ -4,13 +4,13 @@ import { PlayersProp, MapProp } from './types-new';
 import { usePossibleNextMapPositions } from '@/hooks/index';
 import MapTile from './MapTile';
 
-interface MapProps {
+interface GameMapProps {
   className?: string;
   mapData: MapProp;
   players: PlayersProp;
 }
 
-function GameMap(props: MapProps) {
+function GameMap(props: GameMapProps) {
   const { className, mapData, players } = props;
   const numberOfRows = useMemo(() => mapData.length, [mapData]);
   const numberOfColumns = useMemo(() => {
