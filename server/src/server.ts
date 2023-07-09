@@ -10,8 +10,10 @@ import Player from './lib/player';
 import GameMap from './lib/map';
 import xss from 'xss';
 import crypto from 'crypto';
+import cors from 'cors';
 
 const app = express();
+app.use(cors({ origin: '*' }));
 
 app.get('/get_rooms', (req: Request, res: Response) => {
   res.status(200).json(roomPool);

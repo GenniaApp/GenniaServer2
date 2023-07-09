@@ -18,6 +18,11 @@ const Login: React.FC<LoginProps> = (props) => {
   const handleUsernameChange = (event: any) => {
     setInputName(event.target.value);
   };
+  const handleInputKeyDown = (event: any) => {
+    if (event.key === 'Enter') {
+      handlePlayClick(inputname);
+    }
+  };
 
   return (
     <>
@@ -65,6 +70,7 @@ const Login: React.FC<LoginProps> = (props) => {
             variant='filled'
             hiddenLabel
             onChange={handleUsernameChange}
+            onKeyDown={handleInputKeyDown}
           />
           {/* todo 临时解决 tailwindcss 和 mui 冲突 */}
           <Button
