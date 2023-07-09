@@ -13,6 +13,11 @@ import {
   Tabs,
   Typography,
   TextField,
+  FormGroup,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Switch,
 } from '@mui/material';
 import ShareIcon from '@mui/icons-material/Share';
 import TerrainIcon from '@mui/icons-material/Terrain';
@@ -34,8 +39,6 @@ import { ColorArr, forceStartOK, SpeedOptions } from '@/lib/constants';
 import { Room, Message, Player } from '@/lib/types';
 import theme from '@/components/theme';
 import Navbar from '@/components/Navbar';
-
-import { Radio, RadioGroup, FormControlLabel } from '@mui/material';
 
 interface PlayerTableProps {
   myPlayerId: string;
@@ -115,6 +118,7 @@ function GamingRoom() {
   const [username, setUsername] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
+  const [fogOfWar, setFogOfWar] = useState<boolean>(true);
 
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackTitle, setSnackTitle] = useState('');
@@ -174,6 +178,11 @@ function GamingRoom() {
   const handleChangeHost = (playerId: string, username: string) => {
     console.log(`change host to ${username}, id ${playerId}`);
     socketRef.current.emit('change_host', playerId);
+  };
+
+  const handleFogOfWarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFogOfWar(event.target.checked);
+    socketRef.current.emit('change_fog_of_war', event.target.checked);
   };
 
   const handleClickForceStart = () => {
@@ -313,7 +322,7 @@ function GamingRoom() {
         sx={{
           width: {
             xs: '90vw',
-            md: '55vw',
+            md: '50vw',
           },
         }}
       >
@@ -426,6 +435,17 @@ function GamingRoom() {
                   'change_max_player_num'
                 )}
               />
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={fogOfWar}
+                      onChange={handleFogOfWarChange}
+                    />
+                  }
+                  label={t('fog-of-war')}
+                />
+              </FormGroup>
             </Box>
           </TabPanel>
           <TabPanel value={value} index={1}>

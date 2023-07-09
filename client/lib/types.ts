@@ -42,6 +42,7 @@ export class Room {
     public mountain: number = 0.5,
     public city: number = 0.5,
     public swamp: number = 0,
+    public fogOfWar: boolean = true,
 
     public map: GameMap | null = null,
     public gameLoop: any = null, // gameLoop function

@@ -343,6 +343,30 @@ class GameMap {
     this.getBlock(newFocus).enterUnit(player, unit);
   }
 
+  // no fog of war
+  getMapData(): Promise<MapDataProp> {
+    const mapDataForPlayer: MapDataProp = Array.from(Array(this.width), () =>
+      Array(this.height).fill([TileType.Fog, null, null])
+    );
+
+    for (let i = 0; i < this.width; i++) {
+      for (let j = 0; j < this.height; j++) {
+        const point = new Point(i, j);
+        mapDataForPlayer[point.x][point.y] = [
+          this.map[point.x][point.y].type,
+          this.map[point.x][point.y].player
+            ? this.map[point.x][point.y].player.color
+            : null,
+          this.map[point.x][point.y].unit]
+
+        return new Promise(function (resolve, reject) {
+          console.log('View of player generated successfully');
+          resolve(mapDataForPlayer);
+        });
+      }
+    }
+  }
+
   getViewPlayer(player: any): Promise<MapDataProp> {
     // Get the view of the player from the whole map
     console.log('Player is', player.username);

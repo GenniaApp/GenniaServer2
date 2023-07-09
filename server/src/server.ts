@@ -163,19 +163,30 @@ async function handleGame(room: Room, io: Server) {
 
         let room_sockets = await io.in(room.id).fetchSockets();
 
-        for (let socket of room_sockets) {
-          let playerIndex = await getPlayerIndexBySocket(room, socket.id);
-          if (playerIndex !== -1) {
-            let mapData = await room.map.getViewPlayer(room.players[playerIndex]);
+        if (room.fogOfWar) {
+          for (let socket of room_sockets) {
+            let playerIndex = await getPlayerIndexBySocket(room, socket.id);
+            if (playerIndex !== -1) {
+              let mapData = await room.map.getViewPlayer(room.players[playerIndex]);
 
-            socket.emit(
-              'game_update',
-              JSON.stringify(mapData), //todo 减小数据量，例如只返回 diff
-              room.map.turn,
-              leaderBoard
-            );
+              socket.emit(
+                'game_update',
+                JSON.stringify(mapData), //todo 减小数据量，例如只返回 diff
+                room.map.turn,
+                leaderBoard
+              );
+            }
           }
+        } else {
+          let mapData = await room.map.getMapData();
+          io.in(room.id).emit(
+            'game_update',
+            JSON.stringify(mapData),
+            room.map.turn,
+            leaderBoard
+          )
         }
+
         room.map.updateTurn();
         room.map.updateUnit();
       } catch (e: any) {
@@ -234,8 +245,12 @@ io.on('connection', async (socket) => {
     return;
   }
   if (!roomPool[roomId]) {
-    reject_join(socket, `Room id: ${roomId} is not existed.`);
-    return;
+    try {
+      await createRoom(roomId)
+    } catch (e: any) {
+      reject_join(socket, e.message);
+    }
+    // return;
   }
   room = roomPool[roomId];
   // check room status
@@ -334,6 +349,21 @@ io.on('connection', async (socket) => {
         room.gameSpeed = value;
         io.in(room.id).emit('room_info_update', room);
         io.in(room.id).emit('room_message', player, `changed the game speed to ${value}x.`);
+      } else {
+        socket.emit('error', 'Changement was failed', 'You are not the game host.');
+      }
+    } catch (e: any) {
+      console.log(e.message);
+    }
+  });
+
+  socket.on('change_fog_of_war', async (value: boolean) => {
+    try {
+      if (player.isRoomHost) {
+        console.log('Changing fog of war to ' + value);
+        room.fogOfWar = value;
+        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('room_message', player, `changed fog of war to ${value}.`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
       }
