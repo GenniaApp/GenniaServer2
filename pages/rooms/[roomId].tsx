@@ -12,6 +12,7 @@ import {
   Tab,
   Tabs,
   Typography,
+  TextField,
 } from '@mui/material';
 import ShareIcon from '@mui/icons-material/Share';
 import TerrainIcon from '@mui/icons-material/Terrain';
@@ -98,6 +99,7 @@ function GamingRoom() {
   // todo 考虑合并所有状态到 roomInfo 并使用 useReducer 更新
   const [value, setValue] = useState(0);
   const [roomName, setRoomName] = useState<string>('');
+  const [isNameFocused, setIsNamedFocused] = useState(false);
   const [gameSpeed, setGameSpeed] = useState(1);
   const [maxPlayerNum, setMaxPlayerNum] = useState(2);
   const [mapWidth, setMapWidth] = useState(0.5);
@@ -152,6 +154,11 @@ function GamingRoom() {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
+  };
+
+  const handleRoomNameBlur = (event: any) => {
+    setIsNamedFocused(false);
+    socketRef.current.emit('change_room_name', roomName);
   };
 
   const navToHome = () => {
@@ -318,16 +325,33 @@ function GamingRoom() {
               color='primary'
               onClick={() => {
                 navigator.clipboard.writeText(shareLink);
-                handleSnackMessage(t('copied'), '');
+                handleSnackMessage('', t('copied'));
               }}
             >
               <ShareIcon />
             </IconButton>
           }
         >
-          <Typography variant='h5'>
-            {roomId} : {roomName}{' '}
-          </Typography>
+          {!isNameFocused ? (
+            <Typography
+              sx={{ fontSize: '30px' }}
+              onClick={() => {
+                setIsNamedFocused(true);
+              }}
+            >
+              {roomName}
+            </Typography>
+          ) : (
+            <TextField
+              autoFocus
+              variant='standard'
+              inputProps={{ style: { fontSize: '30px' } }}
+              value={roomName}
+              onChange={(event) => setRoomName(event.target.value)}
+              onBlur={handleRoomNameBlur}
+              disabled={disabled_ui}
+            />
+          )}
         </Alert>
         <Snackbar
           open={snackOpen}

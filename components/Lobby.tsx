@@ -11,23 +11,18 @@ import {
   Typography,
   Button,
   Box,
+  Snackbar,
+  Alert,
   CircularProgress,
 } from '@mui/material';
 import { Room, RoomPool } from '@/lib/types';
 import { useTranslation } from 'next-i18next';
 
-function generateRandomString(length: number) {
-  const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-  }
-  return result;
-}
-
 function Lobby() {
   const [rooms, setRooms] = useState<RoomPool>({});
   const [loading, setLoading] = useState(true);
+  const [snackOpen, setSnackOpen] = useState(false);
+  const [snackMessage, setSnackMessage] = useState('');
   const router = useRouter();
 
   const { t } = useTranslation();
@@ -51,18 +46,14 @@ function Lobby() {
   };
 
   const handleCreateRoomClick = async () => {
-    let success = false;
-    for (let i = 0; i < 3; i++) {
-      let random_roomid = generateRandomString(7);
-      const res = await fetch(`/api/rooms/${random_roomid}`); // TODO
-      if (res.status === 404) {
-        success = true;
-        router.push(`/rooms/${random_roomid}`);
-        break;
-      }
-    }
-    if (!success) {
-      alert('Failed to create room. Please try again later.');
+    const res = await fetch('http://127.0.0.1:3001/create_room');
+    let data = await res.json();
+    if (res.status === 200) {
+      router.push(`/rooms/${data.roomId}`);
+    } else {
+      // alert('Failed to create room. Please try again later.');
+      setSnackOpen(true);
+      setSnackMessage(data.message);
     }
   };
 
@@ -80,6 +71,17 @@ function Lobby() {
         },
       }}
     >
+      <Snackbar
+        open={snackOpen}
+        autoHideDuration={1000}
+        onClose={() => {
+          setSnackOpen(!snackOpen);
+        }}
+      >
+        <Alert severity='error' sx={{ width: '100%' }}>
+          {snackMessage}
+        </Alert>
+      </Snackbar>
       <Typography
         variant='h4'
         component='h1'

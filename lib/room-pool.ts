@@ -11,24 +11,24 @@ createRoom('Test Room 1');
 export async function leaveRoom(roomId: string) {
   try {
     delete roomPool[roomId];
-  } catch (_) { }
+  } catch (_) {}
 }
 
-export async function createRoom(roomName: string) {
+export async function createRoom(roomName: string = 'Untitled') {
   try {
     if (roomCount > MAX_ROOM_COUNT) throw new Error('Room count exceeded');
-    if (roomName.length > 0 && roomName.length < MAX_ROOM_NAME_LENGTH)
-      throw new Error('Room name is invalid, length must be between 0 and 10');
     ++roomCount;
-    roomPool[String(roomCount)] = new Room(String(roomCount), roomName);
+    let roomId = String(roomCount);
+    roomPool[roomId] = new Room(roomId, roomName);
     return {
       success: true,
+      roomId: roomId,
     };
   } catch (err: any) {
     console.log(err);
     return {
       success: false,
-      reason: err.message,
+      message: err.message,
     };
   }
 }

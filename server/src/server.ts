@@ -19,6 +19,14 @@ app.get('/get_rooms', (req: Request, res: Response) => {
   res.status(200).json(roomPool);
 });
 
+app.get('/create_room', async (req: Request, res: Response) => {
+  let result = await createRoom();
+  if (result.success) {
+    res.status(200).json(result);
+  } else {
+    res.status(500).json(result);
+  }
+});
 
 const server = app.listen(3001, () => {
   console.log('Application started on port 3001!');
@@ -31,32 +39,22 @@ const io = new Server(server, {
   },
 });
 
-async function handleDisconnectInGame(room: Room, player: Player, io: Server) {
-  try {
-    io.in(room.id).emit('room_message', player, 'quit.');
-    room.players = room.players.filter((p) => p.id != player.id);
-  } catch (e: any) {
-    console.log(e.message);
-  }
-}
-
 async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
   try {
     io.in(room.id).emit('room_message', player, 'quit.');
-    let newPlayers = [];
+    room.players = room.players.filter((p) => p.id != player.id);
+
     room.forceStartNum = 0;
     for (let i = 0, c = 0; i < room.players.length; ++i) {
-      if (room.players[i].id !== player.id) {
-        room.players[i].color = c++;
-        newPlayers.push(room.players[i]);
-        if (room.players[i].forceStart) {
-          ++room.forceStartNum;
-        }
+      if (room.players[i].forceStart) {
+        ++room.forceStartNum;
       }
     }
-    room.players = newPlayers;
-    if (room.players.length > 0) room.players[0].setRoomHost(true);
-    // todo : fixed
+    if (room.players.length < 1) {
+      delete roomPool[room.id];
+    } else {
+      room.players[0].setRoomHost(true);
+    }
     io.in(room.id).emit('room_info_update', room);
   } catch (e: any) {
     console.log(e.message);
@@ -112,11 +110,7 @@ async function handleGame(room: Room, io: Server) {
         let playerIndex = await getPlayerIndexBySocket(room, id);
         if (playerIndex !== -1) {
           let player = room.players[playerIndex];
-          if (
-            room.map &&
-            player.operatedTurn < room.map.turn &&
-            room.map.commandable(player, from, to)
-          ) {
+          if (room.map && player.operatedTurn < room.map.turn && room.map.commandable(player, from, to)) {
             if (isHalf) {
               room.map.moveHalfMovableUnit(player, from, to);
             } else {
@@ -163,8 +157,7 @@ async function handleGame(room: Room, io: Server) {
         });
         let alivePlayer = null,
           countAlive = 0;
-        for (let a of room.players)
-          if (!a.isDead) (alivePlayer = a), ++countAlive;
+        for (let a of room.players) if (!a.isDead) (alivePlayer = a), ++countAlive;
         if (countAlive === 1) {
           if (!alivePlayer) throw new Error('alivePlayer is null');
           io.in(room.id).emit('game_ended', alivePlayer.id);
@@ -194,9 +187,7 @@ async function handleGame(room: Room, io: Server) {
         for (let [id, socket] of io.sockets.sockets) {
           let playerIndex = await getPlayerIndexBySocket(room, id);
           if (playerIndex !== -1) {
-            let mapData = await room.map.getViewPlayer(
-              room.players[playerIndex]
-            );
+            let mapData = await room.map.getViewPlayer(room.players[playerIndex]);
 
             socket.emit(
               'game_update',
@@ -234,7 +225,6 @@ function get_query_param(params: any, key: string) {
 // main
 // =====================
 
-
 io.on('connection', async (socket) => {
   // ====================================
   // init
@@ -244,14 +234,13 @@ io.on('connection', async (socket) => {
 
   console.log(`new ${socket.id} connected`);
 
-
   let params = socket.handshake.query;
 
-  let username = get_query_param(params, 'username')
-  let roomId = get_query_param(params, 'roomId')
-  let myPlayerId = get_query_param(params, 'myPlayerId')
+  let username = get_query_param(params, 'username');
+  let roomId = get_query_param(params, 'roomId');
+  let myPlayerId = get_query_param(params, 'myPlayerId');
 
-  console.log(`new connect: ${username} ${roomId} ${myPlayerId}`)
+  console.log(`new connect: ${username} ${roomId} ${myPlayerId}`);
 
   // validate roomId and username
   if (!username) {
@@ -273,8 +262,7 @@ io.on('connection', async (socket) => {
   }
   room = roomPool[roomId];
   // check room status
-  if (room.players.length >= room.maxPlayers)
-    reject_join(socket, 'The room is full.');
+  if (room.players.length >= room.maxPlayers) reject_join(socket, 'The room is full.');
   else {
     socket.join(roomId as string);
   }
@@ -285,10 +273,12 @@ io.on('connection', async (socket) => {
 
   let isValidReconnectPlayer = false;
 
-  if (myPlayerId) { // reconnect: todo : unfinished 因为玩家 disconnect 后，对应的 id会被清空，需要区分正常退出（清除id）和异常退出（保留玩家id）的情况
+  if (myPlayerId) {
+    // reconnect or same user with multiple tabs
+    // todo: unfinished 因为玩家 disconnect 后，对应的 id会被清空，需要区分正常退出（清除id）和异常退出（保留玩家id）的情况
     let playerIndex = await getPlayerIndex(room, myPlayerId);
 
-    if (playerIndex !== -1 && myPlayerId !== player.id) {
+    if (playerIndex !== -1) {
       isValidReconnectPlayer = true;
       room.players = room.players.filter((p) => p !== player);
       player = room.players[playerIndex];
@@ -303,11 +293,15 @@ io.on('connection', async (socket) => {
       .randomBytes(Math.ceil(10 / 2))
       .toString('hex')
       .slice(0, 10);
-    console.log(
-      `Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId}`
-    );
+    console.log(`Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId}`);
 
-    player = new Player(playerId, socket.id, username, room.players.length);
+    let playerColor = 0;
+    for (let i = 0; i < room.players.length; ++i) {
+      if (room.players[i].color === playerColor) {
+        ++playerColor;
+      }
+    }
+    player = new Player(playerId, socket.id, username, playerColor);
 
     if (room.players.length === 0) {
       player.setRoomHost(true);
@@ -321,7 +315,6 @@ io.on('connection', async (socket) => {
     io.in(room.id).emit('room_message', player, 'joined the lobby.');
     io.in(room.id).emit('room_info_update', room);
   }
-
 
   console.log(player.username, 'joined the room.');
   if (room.players.length >= room.maxPlayers) {
@@ -347,11 +340,7 @@ io.on('connection', async (socket) => {
         room.players[currentHost].setRoomHost(false);
         room.players[newHost].setRoomHost(true);
         io.in(room.id).emit('room_info_update', room);
-        io.in(room.id).emit(
-          'room_message',
-          player,
-          `transfer host to ${room.players[newHost].username}.`
-        );
+        io.in(room.id).emit('room_message', player, `transfer host to ${room.players[newHost].username}.`);
       } else {
         throw new Error('Target player not found.');
       }
@@ -362,26 +351,36 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('change_game_speed', async (value) => {
-    console.log('Temp: Changing game speed to ' + value + 'x');
     try {
       if (player.isRoomHost) {
         console.log('Changing game speed to ' + value + 'x');
         room.gameSpeed = value;
         io.in(room.id).emit('room_info_update', room);
-        io.in(room.id).emit(
-          'room_message',
-          player,
-          `changed the game speed to ${value}x.`
-        );
+        io.in(room.id).emit('room_message', player, `changed the game speed to ${value}x.`);
       } else {
-        socket.emit(
-          'error',
-          'Changement was failed',
-          'You are not the game host.'
-        );
+        socket.emit('error', 'Changement was failed', 'You are not the game host.');
       }
     } catch (e: any) {
       console.log(e.message);
+    }
+  });
+
+  socket.on('change_room_name', async (value) => {
+    try {
+      if (player.isRoomHost) {
+        // value length should > 0 < 15
+        if (value.length < 1 && value.length > 15) {
+          throw new Error('Room name length should between [1, 15] .');
+        }
+        console.log('Changing room name to ' + value);
+        room.roomName = value;
+        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('room_message', player, `changed room name to ${value}`);
+      } else {
+        socket.emit('error', 'Changement was failed', 'You are not the game host.');
+      }
+    } catch (e: any) {
+      socket.emit('error', 'Changement was failed', e.message);
     }
   });
 
@@ -391,17 +390,9 @@ io.on('connection', async (socket) => {
         console.log('Changing map width to' + value);
         room.mapWidth = value;
         io.in(room.id).emit('room_info_update', room);
-        io.in(room.id).emit(
-          'room_message',
-          player,
-          `changed the map width to ${value}.`
-        );
+        io.in(room.id).emit('room_message', player, `changed the map width to ${value}.`);
       } else {
-        socket.emit(
-          'error',
-          'Changement was failed',
-          'You are not the game host.'
-        );
+        socket.emit('error', 'Changement was failed', 'You are not the game host.');
       }
     } catch (e: any) {
       console.log(e.message);
@@ -414,17 +405,9 @@ io.on('connection', async (socket) => {
         console.log('Changing map height to' + value);
         room.mapHeight = value;
         io.in(room.id).emit('room_info_update', room);
-        io.in(room.id).emit(
-          'room_message',
-          player,
-          `changed the map height to ${value}.`
-        );
+        io.in(room.id).emit('room_message', player, `changed the map height to ${value}.`);
       } else {
-        socket.emit(
-          'error',
-          'Changement was failed',
-          'You are not the game host.'
-        );
+        socket.emit('error', 'Changement was failed', 'You are not the game host.');
       }
     } catch (e: any) {
       console.log(e.message);
@@ -437,17 +420,9 @@ io.on('connection', async (socket) => {
         console.log('Changing mountain to' + value);
         room.mountain = value;
         io.in(room.id).emit('room_info_update', room);
-        io.in(room.id).emit(
-          'room_message',
-          player,
-          `changed the mountain to ${value}.`
-        );
+        io.in(room.id).emit('room_message', player, `changed the mountain to ${value}.`);
       } else {
-        socket.emit(
-          'error',
-          'Changement was failed',
-          'You are not the game host.'
-        );
+        socket.emit('error', 'Changement was failed', 'You are not the game host.');
       }
     } catch (e: any) {
       console.log(e.message);
@@ -460,17 +435,9 @@ io.on('connection', async (socket) => {
         console.log('Changing city to' + value);
         room.city = value;
         io.in(room.id).emit('room_info_update', room);
-        io.in(room.id).emit(
-          'room_message',
-          player,
-          `changed the city to ${value}.`
-        );
+        io.in(room.id).emit('room_message', player, `changed the city to ${value}.`);
       } else {
-        socket.emit(
-          'error',
-          'Changement was failed',
-          'You are not the game host.'
-        );
+        socket.emit('error', 'Changement was failed', 'You are not the game host.');
       }
     } catch (e: any) {
       console.log(e.message);
@@ -483,17 +450,9 @@ io.on('connection', async (socket) => {
         console.log('Changing swamp to' + value);
         room.swamp = value;
         io.in(room.id).emit('room_info_update', room);
-        io.in(room.id).emit(
-          'room_message',
-          player,
-          `changed the swamp to ${value}.`
-        );
+        io.in(room.id).emit('room_message', player, `changed the swamp to ${value}.`);
       } else {
-        socket.emit(
-          'error',
-          'Changement was failed',
-          'You are not the game host.'
-        );
+        socket.emit('error', 'Changement was failed', 'You are not the game host.');
       }
     } catch (e: any) {
       console.log(e.message);
@@ -504,27 +463,15 @@ io.on('connection', async (socket) => {
     try {
       if (player.isRoomHost) {
         if (value <= 1) {
-          socket.emit(
-            'error',
-            'Changement was failed',
-            'Max player num is invalid.'
-          );
+          socket.emit('error', 'Changement was failed', 'Max player num is invalid.');
           return;
         }
         console.log('Changing max players to' + value);
         room.maxPlayers = value;
         io.in(room.id).emit('room_info_update', room);
-        io.in(room.id).emit(
-          'room_message',
-          player,
-          `changed the max player num to ${value}.`
-        );
+        io.in(room.id).emit('room_message', player, `changed the max player num to ${value}.`);
       } else {
-        socket.emit(
-          'error',
-          'Changement was failed',
-          'You are not the game host.'
-        );
+        socket.emit('error', 'Changement was failed', 'You are not the game host.');
       }
     } catch (e: any) {
       console.log(e.message);
@@ -536,9 +483,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('disconnect', async () => {
-    if (!room.gameStarted) await handleDisconnectInRoom(room, player, io);
-    else await handleDisconnectInGame(room, player, io);
-
+    await handleDisconnectInRoom(room, player, io);
     socket.disconnect();
   });
 
@@ -562,4 +507,3 @@ io.on('connection', async (socket) => {
     }
   });
 });
-
