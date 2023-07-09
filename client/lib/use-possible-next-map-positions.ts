@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { MapDataProp, Position } from '@/lib/types';
+import { MapDataProp, Position } from './types';
 
 interface UsePossibleNextMapPositionsProps {
   mapData: MapDataProp;

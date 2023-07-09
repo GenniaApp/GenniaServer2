@@ -33,7 +33,7 @@ dependencies:
     specifier: ^23.2.5
     version: 23.2.5
   next:
-    specifier: 13.2.4
+    specifier: ^13.2.4
     version: 13.2.4(react-dom@18.2.0)(react@18.2.0)
   next-i18next:
     specifier: ^14.0.0

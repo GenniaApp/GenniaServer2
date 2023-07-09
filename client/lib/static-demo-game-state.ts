@@ -1,4 +1,4 @@
-import { TileType, MapDataProp, Player } from '@/lib/types';
+import { TileType, MapDataProp, Player } from './types';
 
 export const mapData: MapDataProp = [
   [

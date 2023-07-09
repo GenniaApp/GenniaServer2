@@ -5,7 +5,7 @@
 What is GenniaServer 2?
 
 - A realtime multiplayer game where the goal is to capture all of the enemy's general without losing your own
-- using react/nextjs/socket/tailwindcss
+- using react/nextjs/socket/express
 - inspired by [generals.io](https://generals.io), the game mode will be different from generals in the future.
 
 ## How to Play
@@ -14,11 +14,12 @@ WIP
 
 ## Development
 
-### web: nextjs
+### client: nextjs
 
 First, run the development server:
 
 ```bash
+cd client/
 pnpm install
 pnpm run dev
 ```
@@ -30,7 +31,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ps: server side code init from [template](https://github.com/nisicadmir/nodejs-typescript/tree/master/tutorial-5)
 
 ```bash
-cd server
+cd server/
 pnpm install
 pnpm run start
 ```
