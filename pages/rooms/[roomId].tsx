@@ -31,7 +31,6 @@ import Swal from 'sweetalert2';
 
 import { ColorArr, forceStartOK, SpeedOptions } from '@/lib/constants';
 import { Room, Message, Player } from '@/lib/types';
-import Point from '@/lib/point';
 import theme from '@/components/theme';
 import Navbar from '@/components/Navbar';
 
@@ -96,11 +95,10 @@ function PlayerTable(props: PlayerTableProps) {
 }
 
 function GamingRoom() {
-  const { t } = useTranslation();
   // todo 考虑合并所有状态到 roomInfo 并使用 useReducer 更新
   const [value, setValue] = useState(0);
   const [roomName, setRoomName] = useState<string>('');
-  const [gameSpeed, setGameSpeed] = useState(3);
+  const [gameSpeed, setGameSpeed] = useState(1);
   const [maxPlayerNum, setMaxPlayerNum] = useState(2);
   const [mapWidth, setMapWidth] = useState(0.5);
   const [mapHeight, setMapHeight] = useState(0.5);
@@ -114,7 +112,7 @@ function GamingRoom() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [username, setUsername] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
-  const [myPlayerId, setMyPlayerId] = useState<string>('');
+  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
 
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackTitle, setSnackTitle] = useState('');
@@ -123,6 +121,8 @@ function GamingRoom() {
 
   const router = useRouter();
   const roomId = router.query.roomId as string;
+
+  const { t } = useTranslation();
 
   const disabled_ui = useMemo(() => {
     if (myPlayerId && players) {
@@ -137,6 +137,7 @@ function GamingRoom() {
 
   useEffect(() => {
     setUsername(localStorage.getItem('username') || t('anonymous'));
+    setMyPlayerId(localStorage.getItem('playerId'));
   }, []);
 
   useEffect(() => {
@@ -158,7 +159,7 @@ function GamingRoom() {
   };
 
   const handleLeaveRoom = () => {
-    socketRef.current.emit('leave_game');
+    console.log('Leave Room');
     socketRef.current.disconnect();
     navToHome();
   };
@@ -182,8 +183,6 @@ function GamingRoom() {
     };
 
   const updateRoomInfo = (room: Room) => {
-    console.log(`room: ${JSON.stringify(room)}`);
-
     setRoomName(room.roomName);
     setGameStarted(room.gameStarted);
     setForceStartNum(room.forceStartNum);
@@ -202,8 +201,9 @@ function GamingRoom() {
   useEffect(() => {
     if (!roomId) return;
     if (!username) return;
+    // myPlayerId could be null for first connect
     socketRef.current = io('localhost:3001', {
-      query: { roomId: roomId, username: username },
+      query: { roomId: roomId, username: username, myPlayerId: myPlayerId },
     });
     let socket = socketRef.current;
     socket.emit('get_room_info');
@@ -211,18 +211,10 @@ function GamingRoom() {
     // set up socket event listeners
     socket.on('connect', () => {
       console.log(`socket client connect to server: ${socket.id}`);
-      if (localStorage.getItem('playerId'))
-        socket.emit('reconnect', myPlayerId);
     });
     socket.on('set_player_id', (id: string) => {
-      if (!localStorage.getItem('playerId')) {
-        setMyPlayerId(id);
-        localStorage.setItem('playerId', id);
-      }
-    });
-    socket.on('delete_local_reconnect', () => {
-      localStorage.removeItem('playerId');
-      router.reload();
+      setMyPlayerId(id);
+      localStorage.setItem('playerId', id);
     });
     socket.on('room_info_update', updateRoomInfo);
     socket.on('error', (title: string, message: string) => {
@@ -261,7 +253,6 @@ function GamingRoom() {
 
     socket.on('connect_error', (error: Error) => {
       console.log('\nConnection Failed: ' + error);
-      socket.emit('leave_game');
       socket.disconnect();
       Swal.fire({
         title: "Can't connect to the server",
@@ -277,7 +268,9 @@ function GamingRoom() {
     });
 
     socket.on('disconnect', () => {
+      console.log('Disconnected from server.');
       handleSnackMessage('Reconnecting...', 'Disconnected from the server');
+      // Swal.fire({
       //   title: 'Disconnected from the server',
       //   html: 'Please reflush the App.',
       //   icon: 'error',
@@ -289,7 +282,6 @@ function GamingRoom() {
       //   /* Read more about isConfirmed, isDenied below */
       //   navToHome();
       // });
-      console.log('Disconnected from server.');
     });
 
     socket.on('reconnect', () => {
@@ -303,7 +295,6 @@ function GamingRoom() {
 
     return () => {
       console.log('use effect leave room');
-      socketRef.current.emit('leave_game');
       socketRef.current.disconnect();
     };
   }, [roomId, username]);

@@ -222,6 +222,14 @@ function reject_join(socket: Socket, msg: string) {
   socket.disconnect();
 }
 
+function get_query_param(params: any, key: string) {
+  if (Array.isArray(params[key])) {
+    return params[key][0];
+  } else {
+    return params[key];
+  }
+}
+
 // =====================
 // main
 // =====================
@@ -239,13 +247,19 @@ io.on('connection', async (socket) => {
 
   let params = socket.handshake.query;
 
-  let username = Array.isArray(params.username) ? params.username[0] : params.username
-  let roomId = Array.isArray(params.roomId) ? params.roomId[0] : params.roomId
+  let username = get_query_param(params, 'username')
+  let roomId = get_query_param(params, 'roomId')
+  let myPlayerId = get_query_param(params, 'myPlayerId')
 
+  console.log(`new connect: ${username} ${roomId} ${myPlayerId}`)
 
   // validate roomId and username
-  if (Array.isArray(username) || !username) {
-    reject_join(socket, `username ${username} is invalid.`);
+  if (!username) {
+    reject_join(socket, `Username: ${username} is invalid`);
+    return;
+  }
+  if (!roomId) {
+    reject_join(socket, `roomId: ${username} is invalid`);
     return;
   }
   username = xss(username);
@@ -253,16 +267,10 @@ io.on('connection', async (socket) => {
     reject_join(socket, `Xss Username: ${username} is invalid`);
     return;
   }
-  if (Array.isArray(roomId) || !roomId) {
-    reject_join(socket, `Room id: ${roomId} is invalid.`);
-    return;
-  }
-
   if (!roomPool[roomId]) {
     reject_join(socket, `Room id: ${roomId} is not existed.`);
     return;
   }
-
   room = roomPool[roomId];
   // check room status
   if (room.players.length >= room.maxPlayers)
@@ -274,31 +282,48 @@ io.on('connection', async (socket) => {
     socket.emit('reject_join', 'Game is already started');
     return;
   }
-  let playerId = crypto
-    .randomBytes(Math.ceil(10 / 2))
-    .toString('hex')
-    .slice(0, 10);
-  console.log(
-    `Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId}`
-  );
 
-  player = new Player(playerId, socket.id, username, room.players.length);
+  let isValidReconnectPlayer = false;
 
-  if (room.players.length === 0) {
-    player.setRoomHost(true);
+  if (myPlayerId) { // reconnect: todo : unfinished 因为玩家 disconnect 后，对应的 id会被清空，需要区分正常退出（清除id）和异常退出（保留玩家id）的情况
+    let playerIndex = await getPlayerIndex(room, myPlayerId);
+
+    if (playerIndex !== -1 && myPlayerId !== player.id) {
+      isValidReconnectPlayer = true;
+      room.players = room.players.filter((p) => p !== player);
+      player = room.players[playerIndex];
+      room.players[playerIndex].socket_id = socket.id;
+      io.in(room.id).emit('room_message', player, 're-joined the lobby.');
+      io.in(room.id).emit('room_info_update', room);
+    }
   }
 
-  socket.emit('set_player_id', player.id);
+  if (!isValidReconnectPlayer) {
+    let playerId = crypto
+      .randomBytes(Math.ceil(10 / 2))
+      .toString('hex')
+      .slice(0, 10);
+    console.log(
+      `Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId}`
+    );
 
-  room.players.push(player);
+    player = new Player(playerId, socket.id, username, room.players.length);
 
-  // boardcast new player message to room
-  io.in(room.id).emit('room_message', player, 'joined the lobby.');
-  io.in(room.id).emit('room_info_update', room);
+    if (room.players.length === 0) {
+      player.setRoomHost(true);
+    }
+
+    socket.emit('set_player_id', player.id);
+
+    room.players.push(player);
+
+    // boardcast new player message to room
+    io.in(room.id).emit('room_message', player, 'joined the lobby.');
+    io.in(room.id).emit('room_info_update', room);
+  }
+
+
   console.log(player.username, 'joined the room.');
-  console.log(`room ${room.roomName} has ${room.players.length} players`);
-  // console.log(room)
-
   if (room.players.length >= room.maxPlayers) {
     await handleGame(room, io);
   }
@@ -306,27 +331,6 @@ io.on('connection', async (socket) => {
   // ====================================
   // set up socket event listeners
   // ====================================
-  socket.on('reconnect', async (playerId) => {
-    try {
-      // Allow to reconnect
-      let playerIndex = await getPlayerIndex(room, playerId);
-      if (playerIndex !== -1 && playerId !== player.id) {
-        room.players = room.players.filter((p) => p !== player);
-        player = room.players[playerIndex];
-        room.players[playerIndex].socket_id = socket.id;
-        io.in(room.id).emit('room_message', player, 're-joined the lobby.');
-        io.in(room.id).emit('room_info_update', room);
-      } else {
-        socket.emit('delete_local_reconnect');
-      }
-    } catch (err: any) {
-      socket.emit(
-        'error',
-        'An unknown error occurred: ' + err.message,
-        err.stack
-      );
-    }
-  });
 
   socket.on('get_room_info', async () => {
     socket.emit('room_info_update', room);
@@ -534,15 +538,8 @@ io.on('connection', async (socket) => {
   socket.on('disconnect', async () => {
     if (!room.gameStarted) await handleDisconnectInRoom(room, player, io);
     else await handleDisconnectInGame(room, player, io);
-  });
 
-  socket.on('leave_game', async () => {
-    try {
-      socket.disconnect();
-      await handleDisconnectInGame(room, player, io);
-    } catch (e: any) {
-      console.log(e.message);
-    }
+    socket.disconnect();
   });
 
   socket.on('force_start', async () => {
