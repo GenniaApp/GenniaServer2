@@ -7,20 +7,20 @@ import Router from 'next/router';
 interface OverDialogProps {
   className?: string;
   didWin: boolean;
-  roomName: string;
+  roomId: string;
   open: boolean;
   onClose: () => void;
 }
 
 function OverDialog(props: OverDialogProps) {
-  const { className, didWin, roomName, open, onClose } = props;
+  const { className, didWin, roomId, open, onClose } = props;
 
   const handleExit = () => {
     Router.push('/');
   };
 
   const handleBackRoom = () => {
-    Router.push(`/rooms/${roomName}`);
+    Router.push(`/rooms/${roomId}`);
   };
 
   const dialogTitile = didWin ? 'You won!' : 'Game Over!';

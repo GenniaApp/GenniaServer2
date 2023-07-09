@@ -28,8 +28,9 @@ export default function usePossibleNextMapPositions({
   }, []);
 
   const maxMapColumnIndex = useMemo(() => {
-    const [tilesOfFirstRow] = mapData;
-    return tilesOfFirstRow.length - 1;
+    if (mapData.length === 0) return 0;
+    const firstRow = mapData[0];
+    return firstRow.length - 1;
   }, [mapData]);
 
   const topMovePosition = useMemo(() => {

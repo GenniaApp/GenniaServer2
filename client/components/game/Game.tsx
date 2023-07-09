@@ -12,12 +12,12 @@ interface GameProps {
   turnsCount: number;
   mapData: MapDataProp;
   players: Player[];
-  roomName: string;
+  roomId: string;
   leaderBoardData: LeaderBoardData;
 }
 
 function Game(props: GameProps) {
-  const { turnsCount, mapData, players, roomName, leaderBoardData } = props;
+  const { turnsCount, mapData, players, roomId, leaderBoardData } = props;
   const [didOver, setDidOver] = useState(false);
   const [didWin, setDidWin] = useState(false);
   const handleOverDialogClose = useCallback(() => {
@@ -41,7 +41,7 @@ function Game(props: GameProps) {
         open={didOver}
         didWin={didWin}
         onClose={handleOverDialogClose}
-        roomName={roomName}
+        roomId={roomId}
       />
     </Box>
   );

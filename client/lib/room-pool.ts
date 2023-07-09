@@ -7,9 +7,13 @@ var roomCount = 0;
 
 createRoom('1', 'Test Room 1');
 
-export async function createRoom(roomId: string = '', roomName: string = 'Untitled') {
+export async function createRoom(
+  roomId: string = '',
+  roomName: string = 'Untitled'
+) {
   try {
-    if (Object.keys(roomPool).length > MAX_ROOM_COUNT) throw new Error('Room count exceeded');
+    if (Object.keys(roomPool).length > MAX_ROOM_COUNT)
+      throw new Error('Room count exceeded');
     if (!roomId) {
       ++roomCount;
       roomId = String(roomCount);

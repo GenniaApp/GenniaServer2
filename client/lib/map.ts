@@ -39,18 +39,22 @@ class GameMap {
     public swamp: number,
     public kings: Player[]
   ) {
-    this.width = Math.sqrt(kings.length) * 5 + 6 * width;
-    this.height = Math.sqrt(kings.length) * 5 + 6 * height;
+    this.width = Math.ceil(Math.sqrt(kings.length) * 5 + 6 * width);
+    this.height = Math.ceil(Math.sqrt(kings.length) * 5 + 6 * height);
     if (mountain + city === 0) {
       this.mountain = this.city = 0;
     } else {
-      this.mountain =
-        (((this.width * this.height) / 4) * mountain) / (mountain + city);
-      this.city = (((this.width * this.height) / 6) * city) / (mountain + city);
+      this.mountain = Math.ceil(
+        (((this.width * this.height) / 4) * mountain) / (mountain + city)
+      );
+      this.city = Math.ceil(
+        (((this.width * this.height) / 6) * city) / (mountain + city)
+      );
       console.log('mountains', this.mountain, 'cities', this.city);
     }
-    this.swamp =
-      ((this.width * this.height - this.mountain - this.city) / 3) * swamp;
+    this.swamp = Math.ceil(
+      ((this.width * this.height - this.mountain - this.city) / 3) * swamp
+    );
     this.kings = kings;
     this.map = Array.from(Array(this.width), () =>
       Array(this.height).fill(null)
@@ -357,7 +361,8 @@ class GameMap {
           this.map[point.x][point.y].player
             ? this.map[point.x][point.y].player.color
             : null,
-          this.map[point.x][point.y].unit]
+          this.map[point.x][point.y].unit,
+        ];
 
         return new Promise(function (resolve, reject) {
           console.log('View of player generated successfully');
@@ -369,7 +374,6 @@ class GameMap {
 
   getViewPlayer(player: any): Promise<MapDataProp> {
     // Get the view of the player from the whole map
-    console.log('Player is', player.username);
     const mapDataForPlayer: MapDataProp = Array.from(Array(this.width), () =>
       Array(this.height).fill([TileType.Fog, null, null])
     );
@@ -410,7 +414,6 @@ class GameMap {
       }
     }
     return new Promise(function (resolve, reject) {
-      console.log('View of player generated successfully');
       resolve(mapDataForPlayer);
     });
   }

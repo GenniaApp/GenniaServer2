@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
-import classNames from 'classnames';
 import { MapDataProp, Player } from '@/lib/types';
 import usePossibleNextMapPositions from '@/lib/use-possible-next-map-positions';
 import MapTile from './MapTile';
@@ -49,6 +48,7 @@ function GameMap(props: GameMapProps) {
 
   const numberOfRows = useMemo(() => mapData.length, [mapData]);
   const numberOfColumns = useMemo(() => {
+    if (mapData.length === 0) return 0;
     const firstRow = mapData[0];
     return firstRow.length;
   }, [mapData]);

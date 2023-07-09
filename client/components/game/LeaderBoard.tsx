@@ -21,12 +21,13 @@ export default function LeaderBoard(props: LeaderBoardProps) {
       sx={{
         position: 'absolute',
         right: '5px',
+        top: '0px',
         width: 'min-content',
       }}
     >
       <Table>
         <TableHead>
-          <TableRow>
+          <TableRow sx={{ backgroundColor: 'black' }}>
             <TableCell>Player</TableCell>
             <TableCell>Army</TableCell>
             <TableCell>Land</TableCell>

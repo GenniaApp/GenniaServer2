@@ -18,6 +18,7 @@ import {
   Radio,
   RadioGroup,
   Switch,
+  CircularProgress,
 } from '@mui/material';
 import ShareIcon from '@mui/icons-material/Share';
 import TerrainIcon from '@mui/icons-material/Terrain';
@@ -36,12 +37,19 @@ import Footer from '@/components/Footer';
 import Swal from 'sweetalert2';
 
 import { ColorArr, forceStartOK, SpeedOptions } from '@/lib/constants';
-import { Room, Message, Player } from '@/lib/types';
+import {
+  Room,
+  Message,
+  Player,
+  MapDataProp,
+  LeaderBoardData,
+} from '@/lib/types';
 import theme from '@/components/theme';
 import Navbar from '@/components/Navbar';
+import Game from '@/components/game/Game';
 
 interface PlayerTableProps {
-  myPlayerId: string;
+  myPlayerId: string | undefined;
   players: Player[];
   handleChangeHost: any;
   disabled_ui: boolean;
@@ -119,6 +127,10 @@ function GamingRoom() {
   const [gameStarted, setGameStarted] = useState(false);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const [fogOfWar, setFogOfWar] = useState<boolean>(true);
+  const [mapData, setMapData] = useState<MapDataProp>([]);
+  const [turnsCount, setTurnsCount] = useState<number>(0);
+  const [leaderBoardData, setLeaderBoardData] = useState<LeaderBoardData>([]);
+  const [loading, setLoading] = useState(true);
 
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackTitle, setSnackTitle] = useState('');
@@ -202,7 +214,6 @@ function GamingRoom() {
     setRoomName(room.roomName);
     setGameStarted(room.gameStarted);
     setForceStartNum(room.forceStartNum);
-
     setMaxPlayerNum(room.maxPlayers);
     setGameSpeed(room.gameSpeed);
     setMapWidth(room.mapWidth);
@@ -242,16 +253,20 @@ function GamingRoom() {
       setMessages((messages) => [...messages, new Message(player, content)]);
     });
 
-    // socket.on('game_update', (gameMap, width, height, turn, leaderBoard) => {
-    //   // Update game map state
-    //   setGameMap(JSON.parse(gameMap)); // todo
-    //   console.log(gameMap);
-    //   console.log(`width ${width}`);
-    //   console.log(`height ${height}`);
-    //   console.log(`leaderBoard ${leaderBoard}`);
-    // });
-
-    // todo 设置颜色
+    socket.on(
+      'game_update',
+      (
+        mapData: MapDataProp,
+        turnsCount: number,
+        leaderBoardData: LeaderBoardData
+      ) => {
+        // setGameMap(JSON.parse(gameMap)); // todo
+        setLoading(false);
+        setMapData(mapData);
+        setTurnsCount(turnsCount);
+        setLeaderBoardData(leaderBoardData);
+      }
+    );
 
     socket.on('reject_join', (message: string) => {
       Swal.fire({
@@ -318,230 +333,254 @@ function GamingRoom() {
   return (
     <ThemeProvider theme={theme}>
       <Navbar />
-      <Box
-        sx={{
-          width: {
-            xs: '90vw',
-            md: '50vw',
-          },
-        }}
-      >
-        <Alert
-          icon={false}
-          sx={{ backgroundColor: 'transparent', padding: 0 }}
-          action={
-            <IconButton
-              color='primary'
-              onClick={() => {
-                navigator.clipboard.writeText(shareLink);
-                handleSnackMessage('', t('copied'));
-              }}
-            >
-              <ShareIcon />
-            </IconButton>
-          }
-        >
-          {!isNameFocused ? (
-            <Typography
-              sx={{ fontSize: '30px' }}
-              onClick={() => {
-                setIsNamedFocused(true);
-              }}
-            >
-              {roomName}
-            </Typography>
-          ) : (
-            <TextField
-              autoFocus
-              variant='standard'
-              inputProps={{ style: { fontSize: '30px' } }}
-              value={roomName}
-              onChange={(event) => setRoomName(event.target.value)}
-              onBlur={handleRoomNameBlur}
-              disabled={disabled_ui}
-            />
-          )}
-        </Alert>
-        <Snackbar
-          open={snackOpen}
-          autoHideDuration={1000}
-          onClose={() => {
-            setSnackOpen(!snackOpen);
-          }}
-          title={snackTitle}
-          message={snackMessage}
-        />
+      {!gameStarted && (
         <Box
-          className='menu-container'
           sx={{
-            mb: 2,
+            width: {
+              xs: '90vw',
+              md: '50vw',
+            },
           }}
         >
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            variant='fullWidth'
-            indicatorColor='primary'
-            textColor='inherit'
-            aria-label='game settings tabs'
-          >
-            <Tab label={t('game')} />
-            <Tab label={t('map')} />
-            <Tab label={t('terrain')} />
-          </Tabs>
-          <TabPanel value={value} index={0}>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', my: 2.5 }}>
-                <Typography sx={{ mr: 2, whiteSpace: 'nowrap' }}>
-                  {t('game-speed')}
-                </Typography>
-
-                <RadioGroup
-                  aria-label='game-speed'
-                  name='game-speed'
-                  value={gameSpeed}
-                  row
-                  // @ts-ignore
-                  onChange={handleSettingChange(
-                    setGameSpeed,
-                    'change_game_speed'
-                  )}
-                >
-                  {SpeedOptions.map((value) => (
-                    <FormControlLabel
-                      key={value}
-                      value={value}
-                      control={<Radio />}
-                      label={`${value}x`}
-                      disabled={disabled_ui}
-                    />
-                  ))}
-                </RadioGroup>
-              </Box>
-              <SliderBox
-                label={t('max-player-num')}
-                value={maxPlayerNum}
-                valueLabelDisplay='auto'
-                disabled={disabled_ui}
-                min={2}
-                max={12}
-                step={1}
-                marks={Array.from({ length: 11 }, (_, i) => ({
-                  value: i + 2,
-                  label: `${i + 2}`,
-                }))}
-                handleChange={handleSettingChange(
-                  setMaxPlayerNum,
-                  'change_max_player_num'
-                )}
-              />
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={fogOfWar}
-                      onChange={handleFogOfWarChange}
-                    />
-                  }
-                  label={t('fog-of-war')}
-                />
-              </FormGroup>
-            </Box>
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <SliderBox
-                label={t('width')}
-                value={mapWidth}
-                disabled={disabled_ui}
-                handleChange={handleSettingChange(
-                  setMapWidth,
-                  'change_map_width'
-                )}
-              />
-              <SliderBox
-                label={t('height')}
-                value={mapHeight}
-                disabled={disabled_ui}
-                handleChange={handleSettingChange(
-                  setMapHeight,
-                  'change_map_height'
-                )}
-              />
-            </Box>
-          </TabPanel>
-          <TabPanel value={value} index={2}>
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <SliderBox
-                label={t('mountain')}
-                value={mountain}
-                disabled={disabled_ui}
-                handleChange={handleSettingChange(
-                  setMountain,
-                  'change_mountain'
-                )}
-                icon={<TerrainIcon />}
-              />
-              <SliderBox
-                label={t('city')}
-                value={city}
-                disabled={disabled_ui}
-                handleChange={handleSettingChange(setCity, 'change_city')}
-                icon={<LocationCityIcon />}
-              />
-              <SliderBox
-                label={t('swamp')}
-                value={swamp}
-                disabled={disabled_ui}
-                handleChange={handleSettingChange(setSwamp, 'change_swamp')}
-                icon={<WaterIcon />}
-              />
-            </Box>
-          </TabPanel>
-        </Box>
-        <Card className='menu-container' sx={{ mb: 2 }}>
-          <CardHeader
-            avatar={<GroupIcon color='primary' />}
-            title={
-              <Typography sx={{ color: 'white' }}>{t('players')}</Typography>
+          <Alert
+            icon={false}
+            sx={{ backgroundColor: 'transparent', padding: 0 }}
+            action={
+              <IconButton
+                color='primary'
+                onClick={() => {
+                  navigator.clipboard.writeText(shareLink);
+                  handleSnackMessage('', t('copied'));
+                }}
+              >
+                <ShareIcon />
+              </IconButton>
             }
-            sx={{ padding: 'sm' }}
+          >
+            {!isNameFocused ? (
+              <Typography
+                sx={{ fontSize: '30px' }}
+                onClick={() => {
+                  setIsNamedFocused(true);
+                }}
+              >
+                {roomName}
+              </Typography>
+            ) : (
+              <TextField
+                autoFocus
+                variant='standard'
+                inputProps={{ style: { fontSize: '30px' } }}
+                value={roomName}
+                onChange={(event) => setRoomName(event.target.value)}
+                onBlur={handleRoomNameBlur}
+                disabled={disabled_ui}
+              />
+            )}
+          </Alert>
+          <Snackbar
+            open={snackOpen}
+            autoHideDuration={1000}
+            onClose={() => {
+              setSnackOpen(!snackOpen);
+            }}
+            title={snackTitle}
+            message={snackMessage}
           />
-          <CardContent sx={{ padding: 'sm' }}>
-            <PlayerTable
-              myPlayerId={myPlayerId}
-              players={players}
-              handleChangeHost={handleChangeHost}
-              disabled_ui={disabled_ui}
+          <Box
+            className='menu-container'
+            sx={{
+              mb: 2,
+            }}
+          >
+            <Tabs
+              value={value}
+              onChange={handleChange}
+              variant='fullWidth'
+              indicatorColor='primary'
+              textColor='inherit'
+              aria-label='game settings tabs'
+            >
+              <Tab label={t('game')} />
+              <Tab label={t('map')} />
+              <Tab label={t('terrain')} />
+            </Tabs>
+            <TabPanel value={value} index={0}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', my: 2.5 }}>
+                  <Typography sx={{ mr: 2, whiteSpace: 'nowrap' }}>
+                    {t('game-speed')}
+                  </Typography>
+
+                  <RadioGroup
+                    aria-label='game-speed'
+                    name='game-speed'
+                    value={gameSpeed}
+                    row
+                    // @ts-ignore
+                    onChange={handleSettingChange(
+                      setGameSpeed,
+                      'change_game_speed'
+                    )}
+                  >
+                    {SpeedOptions.map((value) => (
+                      <FormControlLabel
+                        key={value}
+                        value={value}
+                        control={<Radio />}
+                        label={`${value}x`}
+                        disabled={disabled_ui}
+                      />
+                    ))}
+                  </RadioGroup>
+                </Box>
+                <SliderBox
+                  label={t('max-player-num')}
+                  value={maxPlayerNum}
+                  valueLabelDisplay='auto'
+                  disabled={disabled_ui}
+                  min={2}
+                  max={12}
+                  step={1}
+                  marks={Array.from({ length: 11 }, (_, i) => ({
+                    value: i + 2,
+                    label: `${i + 2}`,
+                  }))}
+                  handleChange={handleSettingChange(
+                    setMaxPlayerNum,
+                    'change_max_player_num'
+                  )}
+                />
+                <FormGroup>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={fogOfWar}
+                        onChange={handleFogOfWarChange}
+                      />
+                    }
+                    label={t('fog-of-war')}
+                  />
+                </FormGroup>
+              </Box>
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <SliderBox
+                  label={t('width')}
+                  value={mapWidth}
+                  disabled={disabled_ui}
+                  handleChange={handleSettingChange(
+                    setMapWidth,
+                    'change_map_width'
+                  )}
+                />
+                <SliderBox
+                  label={t('height')}
+                  value={mapHeight}
+                  disabled={disabled_ui}
+                  handleChange={handleSettingChange(
+                    setMapHeight,
+                    'change_map_height'
+                  )}
+                />
+              </Box>
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <SliderBox
+                  label={t('mountain')}
+                  value={mountain}
+                  disabled={disabled_ui}
+                  handleChange={handleSettingChange(
+                    setMountain,
+                    'change_mountain'
+                  )}
+                  icon={<TerrainIcon />}
+                />
+                <SliderBox
+                  label={t('city')}
+                  value={city}
+                  disabled={disabled_ui}
+                  handleChange={handleSettingChange(setCity, 'change_city')}
+                  icon={<LocationCityIcon />}
+                />
+                <SliderBox
+                  label={t('swamp')}
+                  value={swamp}
+                  disabled={disabled_ui}
+                  handleChange={handleSettingChange(setSwamp, 'change_swamp')}
+                  icon={<WaterIcon />}
+                />
+              </Box>
+            </TabPanel>
+          </Box>
+          <Card className='menu-container' sx={{ mb: 2 }}>
+            <CardHeader
+              avatar={<GroupIcon color='primary' />}
+              title={
+                <Typography sx={{ color: 'white' }}>{t('players')}</Typography>
+              }
+              sx={{ padding: 'sm' }}
             />
-          </CardContent>
-        </Card>
-        <Button
-          variant='contained'
-          color={forceStart ? 'primary' : 'secondary'}
-          size='large'
-          sx={{ width: '100%', height: '60px', fontSize: '20px' }}
-          onClick={handleClickForceStart}
-        >
-          {t('force-start')}({forceStartNum}/{forceStartOK[maxPlayerNum]})
-        </Button>
+            <CardContent sx={{ padding: 'sm' }}>
+              <PlayerTable
+                myPlayerId={myPlayerId}
+                players={players}
+                handleChangeHost={handleChangeHost}
+                disabled_ui={disabled_ui}
+              />
+            </CardContent>
+          </Card>
+          <Button
+            variant='contained'
+            color={forceStart ? 'primary' : 'secondary'}
+            size='large'
+            sx={{ width: '100%', height: '60px', fontSize: '20px' }}
+            onClick={handleClickForceStart}
+          >
+            {t('force-start')}({forceStartNum}/{forceStartOK[maxPlayerNum]})
+          </Button>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Button
+              variant='contained'
+              size='large'
+              sx={{ mt: 2, height: '60px', fontSize: '20px' }}
+              onClick={handleLeaveRoom}
+            >
+              {t('leave-room')}
+            </Button>
+          </Box>
+        </Box>
+      )}
+      {gameStarted && loading && (
         <Box
           sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            height: '100vh',
           }}
         >
-          <Button
-            variant='contained'
-            size='large'
-            sx={{ mt: 2, height: '60px', fontSize: '20px' }}
-            onClick={handleLeaveRoom}
-          >
-            {t('leave-room')}
-          </Button>
+          <Typography variant='h3'>{t('game-starting')}</Typography>
+          <CircularProgress />
         </Box>
-      </Box>
+      )}
+      {gameStarted && !loading && (
+        <Game
+          roomId={roomId}
+          turnsCount={turnsCount}
+          mapData={mapData}
+          players={players}
+          leaderBoardData={leaderBoardData}
+        />
+      )}
       <ChatBox
         socket={socketRef.current}
         messages={messages}
