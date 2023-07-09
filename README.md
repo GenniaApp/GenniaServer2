@@ -33,8 +33,12 @@ ps: server side code init from [template](https://github.com/nisicadmir/nodejs-t
 ```bash
 cd server/
 pnpm install
-pnpm run start
+pnpm run dev
 ```
+
+## Deployment
+
+WIP
 
 ## License
 

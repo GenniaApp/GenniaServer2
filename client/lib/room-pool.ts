@@ -3,16 +3,9 @@ import { Room, RoomPool } from './types';
 export const roomPool: RoomPool = {};
 
 const MAX_ROOM_COUNT = 15;
-const MAX_ROOM_NAME_LENGTH = 10;
 var roomCount = 0;
 
 createRoom('Test Room 1');
-
-export async function leaveRoom(roomId: string) {
-  try {
-    delete roomPool[roomId];
-  } catch (_) {}
-}
 
 export async function createRoom(roomName: string = 'Untitled') {
   try {

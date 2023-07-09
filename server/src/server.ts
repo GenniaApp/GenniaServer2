@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { Server, Socket } from 'socket.io';
 
 import { forceStartOK } from './lib/constants';
-import { roomPool, createRoom, leaveRoom } from './lib/room-pool';
+import { roomPool, createRoom } from './lib/room-pool';
 import { Room, LeaderBoardData } from './lib/types';
 import Point from './lib/point';
 import Player from './lib/player';
@@ -12,8 +12,11 @@ import xss from 'xss';
 import crypto from 'crypto';
 import cors from 'cors';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 const app = express();
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: process.env.CLIENT_URL }));
 
 app.get('/get_rooms', (req: Request, res: Response) => {
   res.status(200).json(roomPool);
@@ -28,14 +31,13 @@ app.get('/create_room', async (req: Request, res: Response) => {
   }
 });
 
-const server = app.listen(3001, () => {
-  console.log('Application started on port 3001!');
+const server = app.listen(process.env.PORT, () => {
+  console.log(`Application started on port ${process.env.PORT}!`);
 });
 
 const io = new Server(server, {
   cors: {
-    origin: '*', // Allow any origin for testing purposes. This should be changed on production.
-    // origin: "http://localhost:3000"
+    origin: process.env.CLIENT_URL,
   },
 });
 
@@ -82,12 +84,6 @@ async function getPlayerIndexBySocket(room: Room, socketId: string) {
 async function handleGame(room: Room, io: Server) {
   if (room.gameStarted === false) {
     console.info(`Start game`);
-    for (let [id, socket] of io.sockets.sockets) {
-      let playerIndex = await getPlayerIndexBySocket(room, id);
-      if (playerIndex !== -1) {
-        socket.emit('game_started', room.players[playerIndex].color);
-      }
-    }
     room.gameStarted = true;
 
     room.map = new GameMap(
@@ -103,29 +99,6 @@ async function handleGame(room: Room, io: Server) {
     room.players = await room.map.generate();
     room.mapGenerated = true;
 
-    io.in(room.id).emit('init_game_map', room.map.width, room.map.height);
-
-    for (let [id, socket] of io.sockets.sockets) {
-      socket.on('attack', async (from: Point, to: Point, isHalf: boolean) => {
-        let playerIndex = await getPlayerIndexBySocket(room, id);
-        if (playerIndex !== -1) {
-          let player = room.players[playerIndex];
-          if (room.map && player.operatedTurn < room.map.turn && room.map.commandable(player, from, to)) {
-            if (isHalf) {
-              room.map.moveHalfMovableUnit(player, from, to);
-            } else {
-              room.map.moveAllMovableUnit(player, from, to);
-            }
-
-            room.players[playerIndex].operatedTurn = room.map.turn;
-            socket.emit('attack_success', from, to);
-          } else {
-            socket.emit('attack_failure', from, to);
-          }
-        }
-      });
-    }
-
     let updTime = 500 / room.gameSpeed;
     room.gameLoop = setInterval(async () => {
       try {
@@ -138,6 +111,7 @@ async function handleGame(room: Room, io: Server) {
             if (block.player !== player && player.isDead === false) {
               console.log(block.player.username, 'captured', player.username);
               io.in(room.id).emit('captured', block.player, player);
+              io.in(room.id).emit('room_message', block.player, `capture ${player.username}`);
               let player_socket = io.sockets.sockets.get(player.socket_id);
               if (player_socket) {
                 player_socket.emit('game_over', block.player);
@@ -147,7 +121,6 @@ async function handleGame(room: Room, io: Server) {
               player.isDead = true;
               room.map.getBlock(player.king).kingBeDominated();
               player.land.forEach((block) => {
-                if (!room.map) throw new Error('map is null');
                 room.map.transferBlock(block, room.players[blockPlayerIndex]);
                 room.players[blockPlayerIndex].winLand(block);
               });
@@ -155,9 +128,16 @@ async function handleGame(room: Room, io: Server) {
             }
           }
         });
-        let alivePlayer = null,
-          countAlive = 0;
-        for (let a of room.players) if (!a.isDead) (alivePlayer = a), ++countAlive;
+
+        let alivePlayer = null;
+        let countAlive = 0;
+        for (let player of room.players) {
+          if (!player.isDead) {
+            alivePlayer = player;
+            ++countAlive;
+          }
+        }
+        // Game over, Find Winner
         if (countAlive === 1) {
           if (!alivePlayer) throw new Error('alivePlayer is null');
           io.in(room.id).emit('game_ended', alivePlayer.id);
@@ -169,7 +149,6 @@ async function handleGame(room: Room, io: Server) {
 
         let leaderBoard: LeaderBoardData = room.players
           .map((player) => {
-            if (!room.map) throw new Error('Map is not generated');
             let data = room.map.getTotal(player);
             return {
               color: player.color,
@@ -182,18 +161,16 @@ async function handleGame(room: Room, io: Server) {
             return b.armyCount - a.armyCount || b.landsCount - a.landsCount;
           });
 
-        if (!room.map) throw new Error('Map is not generated');
+        let room_sockets = await io.in(room.id).fetchSockets();
 
-        for (let [id, socket] of io.sockets.sockets) {
-          let playerIndex = await getPlayerIndexBySocket(room, id);
+        for (let socket of room_sockets) {
+          let playerIndex = await getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1) {
             let mapData = await room.map.getViewPlayer(room.players[playerIndex]);
 
             socket.emit(
               'game_update',
-              JSON.stringify(mapData), //todo
-              room.map.width,
-              room.map.height,
+              JSON.stringify(mapData), //todo 减小数据量，例如只返回 diff
               room.map.turn,
               leaderBoard
             );
@@ -504,6 +481,25 @@ io.on('connection', async (socket) => {
       }
     } catch (e: any) {
       console.log(e.message);
+    }
+  });
+
+  socket.on('attack', async (from: Point, to: Point, isHalf: boolean) => {
+    let playerIndex = await getPlayerIndexBySocket(room, socket.id);
+    if (playerIndex !== -1) {
+      let player = room.players[playerIndex];
+      if (room.map && player.operatedTurn < room.map.turn && room.map.commandable(player, from, to)) {
+        if (isHalf) {
+          room.map.moveHalfMovableUnit(player, from, to);
+        } else {
+          room.map.moveAllMovableUnit(player, from, to);
+        }
+
+        room.players[playerIndex].operatedTurn = room.map.turn;
+        socket.emit('attack_success', from, to);
+      } else {
+        socket.emit('attack_failure', from, to);
+      }
     }
   });
 });
