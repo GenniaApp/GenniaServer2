@@ -1,4 +1,5 @@
 import {
+  Box,
   TableContainer,
   Table,
   TableCell,
@@ -16,7 +17,13 @@ interface LeaderBoardProps {
 export default function LeaderBoard(props: LeaderBoardProps) {
   const { leaderBoardData } = props;
   return (
-    <TableContainer>
+    <TableContainer
+      sx={{
+        position: 'absolute',
+        right: '5px',
+        width: 'min-content',
+      }}
+    >
       <Table>
         <TableHead>
           <TableRow>

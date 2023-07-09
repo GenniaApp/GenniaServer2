@@ -180,6 +180,7 @@ export default function MapTile(props: MapTileProps) {
             opacity: 0.8,
           }}
           alt={`tile-${x}-${y}`}
+          draggable={false}
         />
       )}
       {unitCount && (

@@ -37,6 +37,7 @@ const navItems = [
   { href: 'https://gennia.reqwey.com/', label: 'wiki' },
   { href: 'https://gennia.reqwey.com/bot-api/', label: 'bot-api' },
   { href: 'https://github.com/GenniaApp', label: 'about-us' },
+  { href: 'https://github.com/GenniaApp/Gennia/issues', label: 'feedback' },
 ];
 
 function Navbar() {

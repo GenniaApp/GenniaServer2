@@ -9,7 +9,6 @@ import OverDialog from './OverDialog';
 import { LeaderBoardData, MapDataProp, Player } from '@/lib/types';
 
 interface GameProps {
-  className?: string;
   turnsCount: number;
   mapData: MapDataProp;
   players: Player[];
@@ -18,15 +17,7 @@ interface GameProps {
 }
 
 function Game(props: GameProps) {
-  const {
-    className,
-    turnsCount,
-    mapData,
-    players,
-    roomName,
-    leaderBoardData,
-    ...restProps
-  } = props;
+  const { turnsCount, mapData, players, roomName, leaderBoardData } = props;
   const [didOver, setDidOver] = useState(false);
   const [didWin, setDidWin] = useState(false);
   const handleOverDialogClose = useCallback(() => {
@@ -41,19 +32,17 @@ function Game(props: GameProps) {
   }, []);
 
   return (
-    <Box sx={{ mb: 2 }}>
-      <div {...restProps} className={classNames('Game', className)}>
-        <TurnsCount count={turnsCount} />
-        <GameMap className='Game__Map' mapData={mapData} players={players} />
-        <LeaderBoard leaderBoardData={leaderBoardData} />
-        <SurrenderDialog onSurrender={handleSurrender} />
-        <OverDialog
-          open={didOver}
-          didWin={didWin}
-          onClose={handleOverDialogClose}
-          roomName={roomName}
-        />
-      </div>
+    <Box className='Game'>
+      <TurnsCount count={turnsCount} />
+      <GameMap mapData={mapData} players={players} />
+      <LeaderBoard leaderBoardData={leaderBoardData} />
+      <SurrenderDialog onSurrender={handleSurrender} />
+      <OverDialog
+        open={didOver}
+        didWin={didWin}
+        onClose={handleOverDialogClose}
+        roomName={roomName}
+      />
     </Box>
   );
 }

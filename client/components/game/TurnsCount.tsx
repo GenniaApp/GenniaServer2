@@ -1,19 +1,11 @@
-import React from 'react';
-import classNames from 'classnames';
-
 interface TurnsCountProps {
-  className?: string;
   count: number;
 }
 
 function TurnsCount(props: TurnsCountProps) {
-  const { className, count, ...restProps } = props;
+  const { count } = props;
 
-  return (
-    <div {...restProps} className={classNames('TurnsCount', className)}>
-      Turn {count}
-    </div>
-  );
+  return <div className='TurnsCount'> Turn {count} </div>;
 }
 
 export default TurnsCount;

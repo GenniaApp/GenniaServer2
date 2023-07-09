@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { MapDataProp, Player } from '@/lib/types';
 import usePossibleNextMapPositions from '@/lib/use-possible-next-map-positions';
@@ -12,6 +12,41 @@ interface GameMapProps {
 
 function GameMap(props: GameMapProps) {
   const { className, mapData, players } = props;
+  const [dragging, setDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const ref = useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    setDragging(true);
+    setStartPosition({
+      x: event.clientX - position.x,
+      y: event.clientY - position.y,
+    });
+  };
+
+  const handleMouseMove = (event: MouseEvent) => {
+    if (dragging && ref.current) {
+      setPosition({
+        x: event.clientX - startPosition.x,
+        y: event.clientY - startPosition.y,
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
+  };
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragging]);
+
   const numberOfRows = useMemo(() => mapData.length, [mapData]);
   const numberOfColumns = useMemo(() => {
     const firstRow = mapData[0];
@@ -65,11 +100,16 @@ function GameMap(props: GameMapProps) {
 
   return (
     <div
+      ref={ref}
       style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
         width: mapWidth,
         height: mapHeight,
       }}
-      className={classNames('GameMap', className)}
+      onMouseDown={handleMouseDown}
     >
       {mapData.map((tiles, x) => {
         return tiles.map((tile, y) => {

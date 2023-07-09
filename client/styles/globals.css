@@ -110,11 +110,9 @@ a {
 
 .Game {
   --primary-color: #d7afff;
+  top: 64px;
 
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
   width: 100vw;
   --tw-bg-opacity: 1;
@@ -123,23 +121,10 @@ a {
   font-size: 16px;
 }
 
-.Game__TurnsCount {
-  position: absolute;
-  top: 64px;
-  left: 5px;
-}
-
 .Game__Players {
   position: absolute;
   top: 64px;
   right: 5px;
-}
-
-.GameMap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
 }
 
 .Player__Name {
@@ -168,10 +153,13 @@ a {
 }
 
 .TurnsCount {
+  position: 'absolute';
+  left: '5px';
+  z-index: 110;
   display: inline-block;
   padding: 0.2em 0.4em;
   background-color: #fff;
-  font-size: 0.85em;
+  font-size: 1em;
   box-shadow: 2px 2px 0 var(--primary-color);
 }
 
