@@ -364,12 +364,12 @@ class GameMap {
           this.map[point.x][point.y].unit,
         ];
 
-        return new Promise(function (resolve, reject) {
-          console.log('View of player generated successfully');
-          resolve(mapDataForPlayer);
-        });
       }
     }
+
+    return new Promise(function (resolve, reject) {
+      resolve(mapDataForPlayer);
+    });
   }
 
   getViewPlayer(player: any): Promise<MapDataProp> {

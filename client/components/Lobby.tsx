@@ -67,7 +67,8 @@ function Lobby() {
       sx={{
         width: {
           xs: '90vw',
-          md: '50vw',
+          md: '55vw',
+          lg: '45vw',
         },
       }}
     >

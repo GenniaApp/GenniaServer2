@@ -25,7 +25,7 @@ export class Message {
   constructor(
     public player: Player,
     public content: string
-  ) {}
+  ) { }
 }
 
 export class Room {
@@ -35,7 +35,7 @@ export class Room {
     public gameStarted: boolean = false,
     public forceStartNum: number = 0,
     public mapGenerated: boolean = false,
-    public maxPlayers: number = 8,
+    public maxPlayers: number = 2,
     public gameSpeed: number = 1, // valid value: [0.25, 0.5, 0.75, 1, 2, 3, 4];
     public mapWidth: number = 0.75,
     public mapHeight: number = 0.75,
@@ -48,7 +48,7 @@ export class Room {
     public gameLoop: any = null, // gameLoop function
     public players: Player[] = new Array<Player>(),
     public generals: Point[] = new Array<Point>()
-  ) {}
+  ) { }
 
   toJSON() {
     const { map, gameLoop, generals, ...json } = this;
@@ -81,7 +81,7 @@ export const TileType2Image: Record<TileType, string> = {
   [TileType.King]: '/img/king.png',
   [TileType.City]: '/img/city.png',
   [TileType.Fog]: '',
-  [TileType.Obstacle]: '/img/mountain.png',
+  [TileType.Obstacle]: '/img/obstacle.png',
   [TileType.Plain]: '',
   [TileType.Mountain]: '/img/mountain.png',
   [TileType.Swamp]: '/img/swamp.png',

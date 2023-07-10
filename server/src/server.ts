@@ -172,7 +172,6 @@ async function handleGame(room: Room, io: Server) {
 
             socket.emit(
               'game_update',
-              // JSON.stringify(mapData), //todo 减小数据量，例如只返回 diff
               mapData, //todo 减小数据量，例如只返回 diff
               room.map.turn,
               leaderBoard
@@ -183,7 +182,7 @@ async function handleGame(room: Room, io: Server) {
         let mapData = await room.map.getMapData();
         io.in(room.id).emit(
           'game_update',
-          JSON.stringify(mapData),
+          mapData,
           room.map.turn,
           leaderBoard
         )
@@ -311,9 +310,6 @@ io.on('connection', async (socket) => {
   }
 
   console.log(player.username, 'joined the room.');
-  if (room.players.length >= room.maxPlayers) {
-    await handleGame(room, io);
-  }
 
   // ====================================
   // set up socket event listeners

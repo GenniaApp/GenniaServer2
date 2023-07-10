@@ -32,7 +32,8 @@ interface MapTileProps {
 const notRevealedFill = '#363636';
 const notOwnedArmyFill = '#D7D7D7';
 const notOwnedCityFill = '#757575';
-const blankFill = '#B3B3B3';
+const MountainFill = '#bbbbbb';
+const blankFill = '#dcdcdc';
 const selectedStroke = '#fff';
 const revealedStroke = '#000';
 
@@ -41,7 +42,7 @@ export default function MapTile(props: MapTileProps) {
     zoom,
     imageZoom = 0.8,
     size,
-    fontSize = 20,
+    fontSize = 16,
     x,
     y,
     tile,
@@ -55,9 +56,9 @@ export default function MapTile(props: MapTileProps) {
   const [tileType, color, unitCount] = tile;
 
   const image = TileType2Image[tileType];
-  const isBlankType = useMemo(() => tileType === TileType.Plain, [tileType]);
 
   // todo 判断是否是当前玩家的地盘，由于game_update只返回了颜色信息，需要传入玩家颜色进行对比，但是这样的逻辑有点奇怪
+  // 用来判断 canMove
   const isOwned = true;
 
   const isNextPossibleMove = useMemo(() => {
@@ -71,22 +72,29 @@ export default function MapTile(props: MapTileProps) {
       );
     });
 
-    return isNextPossibleMapPosition && !isBlankType;
-  }, [possibleNextMapPositions, x, y, isBlankType]);
+    return isNextPossibleMapPosition && tileType !== TileType.Mountain;
+  }, [possibleNextMapPositions, x, y, tileType]);
 
   const isSelected = useMemo(() => {
     return x === selectedMapPosition.x && y === selectedMapPosition.y;
   }, [selectedMapPosition, x, y]);
+
+  const isRevealed = useMemo(() => {
+    return (
+      unitCount !== null || // when reveal, swamp / city / plain's unitCount !== null
+      tileType === TileType.Mountain // Mountain is always revealed
+    );
+  }, [unitCount]);
 
   const stroke = useMemo(() => {
     if (isSelected) {
       return selectedStroke;
     }
 
-    if (tileType === TileType.Fog) {
+    if (isRevealed) {
       return revealedStroke;
     }
-  }, [isSelected, selectedStroke, tileType]);
+  }, [isSelected, isRevealed, tileType]);
 
   const canMove = useMemo(() => {
     return isOwned || isNextPossibleMove;
@@ -125,23 +133,33 @@ export default function MapTile(props: MapTileProps) {
     [zoomedSize, zoomedImageSize]
   );
 
-  // todo fix
   const bgcolor = useMemo(() => {
-    if (tileType === TileType.Fog) {
+    // 战争迷雾
+    if (!isRevealed) {
       return notRevealedFill;
+    }
+    // 山
+    if (tileType === TileType.Mountain) {
+      return MountainFill;
     }
 
-    if (tileType === TileType.Swamp) {
-      return notRevealedFill;
-    }
+    // 玩家单位
     if (color) {
       return ColorArr[color];
-    } else {
-      if (tileType === TileType.Obstacle) return notOwnedCityFill;
-      return notOwnedArmyFill;
     }
-    // return blankFill;
-  }, [tileType, color, unitCount]);
+    // 中立单位
+    if (!color) {
+      if (tileType === TileType.City) {
+        return notOwnedCityFill;
+      }
+      if (unitCount) {
+        return notOwnedArmyFill;
+      }
+    }
+
+    // 空白单位
+    return blankFill;
+  }, [tileType, color, unitCount, isRevealed]);
 
   return (
     <div
@@ -165,7 +183,7 @@ export default function MapTile(props: MapTileProps) {
           width: zoomedSize,
           height: zoomedSize,
           backgroundColor: bgcolor,
-          border: `${stroke} solid 1px`,
+          border: stroke ? `${stroke} solid 1px` : '',
         }}
       />
       {image && (

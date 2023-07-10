@@ -221,6 +221,7 @@ function GamingRoom() {
     setMountain(room.mountain);
     setCity(room.city);
     setSwamp(room.swamp);
+    setFogOfWar(room.fogOfWar);
 
     setPlayers(room.players);
   };
@@ -338,7 +339,8 @@ function GamingRoom() {
           sx={{
             width: {
               xs: '90vw',
-              md: '50vw',
+              md: '55vw',
+              lg: '45vw',
             },
           }}
         >
@@ -457,6 +459,7 @@ function GamingRoom() {
                       <Switch
                         checked={fogOfWar}
                         onChange={handleFogOfWarChange}
+                        disabled={disabled_ui}
                       />
                     }
                     label={t('fog-of-war')}
@@ -561,11 +564,11 @@ function GamingRoom() {
       )}
       {gameStarted && loading && (
         <Box
+          className='menu-container'
           sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            height: '100vh',
           }}
         >
           <Typography variant='h3'>{t('game-starting')}</Typography>
