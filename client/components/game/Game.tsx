@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { Box } from '@mui/material';
-import classNames from 'classnames';
 import SurrenderDialog from './SurrenderDialog';
 import TurnsCount from './TurnsCount';
 import GameMap from './GameMap';
@@ -9,26 +8,35 @@ import OverDialog from './OverDialog';
 import { LeaderBoardData, MapDataProp, Player } from '@/lib/types';
 
 interface GameProps {
+  myPlayerId: string;
   turnsCount: number;
   mapData: MapDataProp;
   players: Player[];
   roomId: string;
   leaderBoardData: LeaderBoardData;
+  dialogContent: [Player | null, string];
+  handleSurrender: any;
+  openOverDialog: boolean;
+  setOpenOverDialog: any;
 }
 
 function Game(props: GameProps) {
-  const { turnsCount, mapData, players, roomId, leaderBoardData } = props;
-  const [didOver, setDidOver] = useState(false);
-  const [didWin, setDidWin] = useState(false);
-  const handleOverDialogClose = useCallback(() => {
-    // TODO
-    setDidOver(false);
-  }, []);
+  const {
+    myPlayerId,
+    turnsCount,
+    mapData,
+    players,
+    roomId,
+    leaderBoardData,
+    dialogContent,
+    handleSurrender,
+    openOverDialog,
+    setOpenOverDialog,
+  } = props;
 
-  const handleSurrender = useCallback(() => {
-    // TODO emit surrender event
-    setDidWin(false);
-    setDidOver(true);
+  const handleDialogSurrender = useCallback(() => {
+    handleSurrender();
+    setOpenOverDialog(true);
   }, []);
 
   return (
@@ -36,11 +44,14 @@ function Game(props: GameProps) {
       <TurnsCount count={turnsCount} />
       <GameMap mapData={mapData} players={players} />
       <LeaderBoard leaderBoardData={leaderBoardData} />
-      <SurrenderDialog onSurrender={handleSurrender} />
+      <SurrenderDialog onSurrender={handleDialogSurrender} />
       <OverDialog
-        open={didOver}
-        didWin={didWin}
-        onClose={handleOverDialogClose}
+        myPlayerId={myPlayerId}
+        open={openOverDialog}
+        dialogContent={dialogContent}
+        onClose={() => {
+          setOpenOverDialog(false);
+        }}
         roomId={roomId}
       />
     </Box>

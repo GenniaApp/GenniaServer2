@@ -363,7 +363,6 @@ class GameMap {
             : null,
           this.map[point.x][point.y].unit,
         ];
-
       }
     }
 

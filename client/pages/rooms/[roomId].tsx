@@ -49,7 +49,7 @@ import Navbar from '@/components/Navbar';
 import Game from '@/components/game/Game';
 
 interface PlayerTableProps {
-  myPlayerId: string | undefined;
+  myPlayerId: string;
   players: Player[];
   handleChangeHost: any;
   disabled_ui: boolean;
@@ -125,12 +125,17 @@ function GamingRoom() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [username, setUsername] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
-  const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
+  const [myPlayerId, setMyPlayerId] = useState<string>('');
   const [fogOfWar, setFogOfWar] = useState<boolean>(true);
   const [mapData, setMapData] = useState<MapDataProp>([]);
   const [turnsCount, setTurnsCount] = useState<number>(0);
   const [leaderBoardData, setLeaderBoardData] = useState<LeaderBoardData>([]);
   const [loading, setLoading] = useState(true);
+  const [openOverDialog, setOpenOverDialog] = useState<boolean>(false);
+  const [dialogContent, setDialogContent] = useState<[Player | null, string]>([
+    null,
+    '',
+  ]);
 
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackTitle, setSnackTitle] = useState('');
@@ -141,6 +146,8 @@ function GamingRoom() {
   const roomId = router.query.roomId as string;
 
   const { t } = useTranslation();
+
+  console.log(`Init player_id: ${myPlayerId}`);
 
   const disabled_ui = useMemo(() => {
     if (myPlayerId && players) {
@@ -155,7 +162,8 @@ function GamingRoom() {
 
   useEffect(() => {
     setUsername(localStorage.getItem('username') || t('anonymous'));
-    setMyPlayerId(localStorage.getItem('playerId'));
+    // setMyPlayerId(localStorage.getItem('playerId'));
+    console.log(`use effect get playerId: ${myPlayerId}`);
   }, []);
 
   useEffect(() => {
@@ -192,6 +200,10 @@ function GamingRoom() {
     socketRef.current.emit('change_host', playerId);
   };
 
+  const handleSurrender = () => {
+    socketRef.current.emit('surrender', myPlayerId);
+  };
+
   const handleFogOfWarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFogOfWar(event.target.checked);
     socketRef.current.emit('change_fog_of_war', event.target.checked);
@@ -211,6 +223,9 @@ function GamingRoom() {
     };
 
   const updateRoomInfo = (room: Room) => {
+    console.log('update_room_info');
+    console.log(`myPlayerId: ${myPlayerId}`);
+    console.log(room);
     setRoomName(room.roomName);
     setGameStarted(room.gameStarted);
     setForceStartNum(room.forceStartNum);
@@ -240,11 +255,14 @@ function GamingRoom() {
     socket.on('connect', () => {
       console.log(`socket client connect to server: ${socket.id}`);
     });
-    socket.on('set_player_id', (id: string) => {
-      setMyPlayerId(id);
-      localStorage.setItem('playerId', id);
+    // get player id when first connect
+    socket.on('set_player_id', (playerId: string) => {
+      console.log(`set_player_id: ${playerId}`);
+      setMyPlayerId(playerId);
+      // localStorage.setItem('playerId', playerId);
     });
     socket.on('room_info_update', updateRoomInfo);
+
     socket.on('error', (title: string, message: string) => {
       handleSnackMessage(title, message);
     });
@@ -252,6 +270,16 @@ function GamingRoom() {
     socket.on('room_message', (player: Player, content: string) => {
       console.log(`room_message: ${content}`);
       setMessages((messages) => [...messages, new Message(player, content)]);
+    });
+    socket.on('game_over', (capturedBy: Player) => {
+      console.log(`game_over: ${capturedBy.username}`);
+      setOpenOverDialog(true);
+      setDialogContent([capturedBy, 'game_over']);
+    });
+    socket.on('game_ended', (winner: Player) => {
+      console.log(`game_ended: ${winner.username}`);
+      setDialogContent([winner, 'game_ended']);
+      setOpenOverDialog(true);
     });
 
     socket.on(
@@ -578,10 +606,15 @@ function GamingRoom() {
       {gameStarted && !loading && (
         <Game
           roomId={roomId}
+          myPlayerId={myPlayerId}
           turnsCount={turnsCount}
           mapData={mapData}
           players={players}
           leaderBoardData={leaderBoardData}
+          dialogContent={dialogContent}
+          openOverDialog={openOverDialog}
+          setOpenOverDialog={setOpenOverDialog}
+          handleSurrender={handleSurrender}
         />
       )}
       <ChatBox

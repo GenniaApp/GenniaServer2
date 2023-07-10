@@ -31,6 +31,13 @@
   "leave-room": "离开房间",
   "fog-of-war": "战争迷雾",
   "game-starting": "游戏即将开始...",
+  "win": "赢了!",
+  "winner": "赢家",
+  "captured-by": "被玩家占领",
+  "you-win": "你赢了！",
+  "game-over": "游戏结束！",
+  "surrender": "投降",
+  "are-you-sure-to-surrender": "你确定要投降？",
   "type-a-message": "点击聊天 Enter发送",
   "open-source-team": "开源团队",
   "all-right-reserved": "版权所有"

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Dialog from './Dialog';
 import Button from './Button';
+import { useTranslation } from 'next-i18next';
 
 interface SurrenderDialogProps {
   onSurrender?: () => void;
@@ -9,6 +10,7 @@ interface SurrenderDialogProps {
 function SurrenderDialog(props: SurrenderDialogProps) {
   const { onSurrender: handleSurrender, ...restProps } = props;
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
@@ -41,11 +43,11 @@ function SurrenderDialog(props: SurrenderDialogProps) {
       {...restProps}
       open={isOpen}
       onClose={handleClose}
-      title='Are you sure you want to surrender?'
+      title={t('are-you-sure-to-surrender')}
     >
       <div className='DialogButtons'>
         <Button variant='primary' onClick={handleCloseSurrender}>
-          Surrender
+          {t('surrender')}
         </Button>
       </div>
     </Dialog>
