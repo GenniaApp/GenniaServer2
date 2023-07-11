@@ -5,34 +5,23 @@ import TurnsCount from './TurnsCount';
 import GameMap from './GameMap';
 import LeaderBoard from './LeaderBoard';
 import OverDialog from './OverDialog';
-import { LeaderBoardData, MapDataProp, Player } from '@/lib/types';
+import { useGame, useGameDispatch } from '@/context/GameContext';
 
-interface GameProps {
-  myPlayerId: string;
-  turnsCount: number;
-  mapData: MapDataProp;
-  players: Player[];
-  roomId: string;
-  leaderBoardData: LeaderBoardData;
-  dialogContent: [Player | null, string];
-  handleSurrender: any;
-  openOverDialog: boolean;
-  setOpenOverDialog: any;
-}
-
-function Game(props: GameProps) {
+export default function Game() {
   const {
+    room,
+    socketRef,
     myPlayerId,
     turnsCount,
-    mapData,
-    players,
-    roomId,
     leaderBoardData,
     dialogContent,
-    handleSurrender,
     openOverDialog,
-    setOpenOverDialog,
-  } = props;
+  } = useGame();
+  const { setOpenOverDialog } = useGameDispatch();
+
+  const handleSurrender = () => {
+    socketRef.current.emit('surrender', myPlayerId);
+  };
 
   const handleDialogSurrender = useCallback(() => {
     handleSurrender();
@@ -42,7 +31,7 @@ function Game(props: GameProps) {
   return (
     <Box className='Game'>
       <TurnsCount count={turnsCount} />
-      <GameMap mapData={mapData} players={players} />
+      <GameMap />
       <LeaderBoard leaderBoardData={leaderBoardData} />
       <SurrenderDialog onSurrender={handleDialogSurrender} />
       <OverDialog
@@ -52,10 +41,8 @@ function Game(props: GameProps) {
         onClose={() => {
           setOpenOverDialog(false);
         }}
-        roomId={roomId}
+        roomId={room.id}
       />
     </Box>
   );
 }
-
-export default Game;

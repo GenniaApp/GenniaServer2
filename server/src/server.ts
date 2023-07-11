@@ -5,6 +5,7 @@ import { Server, Socket } from 'socket.io';
 import { forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
 import { Room, LeaderBoardData } from './lib/types';
+import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
 import Point from './lib/point';
 import Player from './lib/player';
 import GameMap from './lib/map';
@@ -57,35 +58,17 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
     } else {
       room.players[0].setRoomHost(true);
     }
-    io.in(room.id).emit('room_info_update', room);
+    io.in(room.id).emit('update_room', room);
   } catch (e: any) {
     console.log(e.message);
   }
-}
-
-async function getPlayerIndex(room: Room, playerId: string) {
-  for (let i = 0; i < room.players.length; ++i) {
-    if (room.players[i].id === playerId) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-async function getPlayerIndexBySocket(room: Room, socketId: string) {
-  for (let i = 0; i < room.players.length; ++i) {
-    if (room.players[i].socket_id === socketId) {
-      return i;
-    }
-  }
-  return -1;
 }
 
 async function handleGame(room: Room, io: Server) {
   if (room.gameStarted === false) {
     console.info(`Start game`);
     room.gameStarted = true;
-    io.in(room.id).emit('room_info_update', room);
+    io.in(room.id).emit('update_room', room);
 
     room.map = new GameMap(
       'random_map_id',
@@ -279,7 +262,7 @@ io.on('connection', async (socket) => {
       player = room.players[playerIndex];
       room.players[playerIndex].socket_id = socket.id;
       io.in(room.id).emit('room_message', player, 're-joined the lobby.');
-      io.in(room.id).emit('room_info_update', room);
+      io.in(room.id).emit('update_room', room);
     }
   }
 
@@ -308,7 +291,7 @@ io.on('connection', async (socket) => {
 
     // boardcast new player message to room
     io.in(room.id).emit('room_message', player, 'joined the room.');
-    io.in(room.id).emit('room_info_update', room);
+    io.in(room.id).emit('update_room', room);
   }
 
   console.log(player.username, 'joined the room.');
@@ -318,7 +301,7 @@ io.on('connection', async (socket) => {
   // ====================================
 
   socket.on('get_room_info', async () => {
-    socket.emit('room_info_update', room);
+    socket.emit('update_room', room);
   });
 
   socket.on('surrender', async (playerId) => {
@@ -349,7 +332,7 @@ io.on('connection', async (socket) => {
       if (newHost !== -1) {
         room.players[currentHost].setRoomHost(false);
         room.players[newHost].setRoomHost(true);
-        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('update_room', room);
         io.in(room.id).emit('room_message', player, `transfer host to ${room.players[newHost].username}.`);
       } else {
         throw new Error('Target player not found.');
@@ -360,12 +343,12 @@ io.on('connection', async (socket) => {
     }
   });
 
-  socket.on('change_game_speed', async (value) => {
+  socket.on('change_gameSpeed', async (value) => {
     try {
       if (player.isRoomHost) {
         console.log('Changing game speed to ' + value + 'x');
         room.gameSpeed = value;
-        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('update_room', room);
         io.in(room.id).emit('room_message', player, `changed the game speed to ${value}x.`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
@@ -375,12 +358,12 @@ io.on('connection', async (socket) => {
     }
   });
 
-  socket.on('change_fog_of_war', async (value: boolean) => {
+  socket.on('change_fogOfWar', async (value: boolean) => {
     try {
       if (player.isRoomHost) {
         console.log('Changing fog of war to ' + value);
         room.fogOfWar = value;
-        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('update_room', room);
         io.in(room.id).emit('room_message', player, `changed fog of war to ${value}.`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
@@ -390,7 +373,7 @@ io.on('connection', async (socket) => {
     }
   });
 
-  socket.on('change_room_name', async (value) => {
+  socket.on('change_roomName', async (value) => {
     try {
       if (player.isRoomHost) {
         // value length should > 0 < 15
@@ -399,7 +382,7 @@ io.on('connection', async (socket) => {
         }
         console.log('Changing room name to ' + value);
         room.roomName = value;
-        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('update_room', room);
         io.in(room.id).emit('room_message', player, `changed room name to ${value}`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
@@ -409,12 +392,12 @@ io.on('connection', async (socket) => {
     }
   });
 
-  socket.on('change_map_width', async (value) => {
+  socket.on('change_mapWidth', async (value) => {
     try {
       if (player.isRoomHost) {
         console.log('Changing map width to' + value);
         room.mapWidth = value;
-        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('update_room', room);
         io.in(room.id).emit('room_message', player, `changed the map width to ${value}.`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
@@ -424,12 +407,12 @@ io.on('connection', async (socket) => {
     }
   });
 
-  socket.on('change_map_height', async (value) => {
+  socket.on('change_mapHeight', async (value) => {
     try {
       if (player.isRoomHost) {
         console.log('Changing map height to' + value);
         room.mapHeight = value;
-        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('update_room', room);
         io.in(room.id).emit('room_message', player, `changed the map height to ${value}.`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
@@ -444,7 +427,7 @@ io.on('connection', async (socket) => {
       if (player.isRoomHost) {
         console.log('Changing mountain to' + value);
         room.mountain = value;
-        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('update_room', room);
         io.in(room.id).emit('room_message', player, `changed the mountain to ${value}.`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
@@ -459,7 +442,7 @@ io.on('connection', async (socket) => {
       if (player.isRoomHost) {
         console.log('Changing city to' + value);
         room.city = value;
-        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('update_room', room);
         io.in(room.id).emit('room_message', player, `changed the city to ${value}.`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
@@ -474,7 +457,7 @@ io.on('connection', async (socket) => {
       if (player.isRoomHost) {
         console.log('Changing swamp to' + value);
         room.swamp = value;
-        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('update_room', room);
         io.in(room.id).emit('room_message', player, `changed the swamp to ${value}.`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
@@ -484,7 +467,7 @@ io.on('connection', async (socket) => {
     }
   });
 
-  socket.on('change_max_player_num', async (value) => {
+  socket.on('change_maxPlayers', async (value) => {
     try {
       if (player.isRoomHost) {
         if (value <= 1) {
@@ -493,7 +476,7 @@ io.on('connection', async (socket) => {
         }
         console.log('Changing max players to' + value);
         room.maxPlayers = value;
-        io.in(room.id).emit('room_info_update', room);
+        io.in(room.id).emit('update_room', room);
         io.in(room.id).emit('room_message', player, `changed the max player num to ${value}.`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
@@ -522,7 +505,7 @@ io.on('connection', async (socket) => {
         room.players[playerIndex].forceStart = true;
         ++room.forceStartNum;
       }
-      io.in(room.id).emit('room_info_update', room);
+      io.in(room.id).emit('update_room', room);
 
       if (room.forceStartNum >= forceStartOK[room.players.length]) {
         await handleGame(room, io);

@@ -1,19 +1,13 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
-import { MapDataProp, Player } from '@/lib/types';
 import usePossibleNextMapPositions from '@/lib/use-possible-next-map-positions';
+import { useGame } from '@/context/GameContext';
 import MapTile from './MapTile';
 
-interface GameMapProps {
-  className?: string;
-  mapData: MapDataProp;
-  players: Player[];
-}
-
-function GameMap(props: GameMapProps) {
-  const { className, mapData, players } = props;
+function GameMap() {
   const [dragging, setDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const { mapData } = useGame();
   const ref = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -121,7 +115,6 @@ function GameMap(props: GameMapProps) {
               x={x}
               y={y}
               tile={tile}
-              players={players}
               selectedMapPosition={selectedMapPosition}
               onChangeSelectedMapPosition={setSelectedMapPosition}
               possibleNextMapPositions={possibleNextMapPositions}

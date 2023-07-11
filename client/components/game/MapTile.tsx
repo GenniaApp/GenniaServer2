@@ -1,13 +1,9 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
-import {
-  TileType,
-  TileProp,
-  Position,
-  Player,
-  TileType2Image,
-} from '@/lib/types';
+import { TileType, TileProp, Position, TileType2Image } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
+import { useGame } from '@/context/GameContext';
+import { Room } from '@/lib/types';
 
 interface MapTileProps {
   zoom: number;
@@ -16,7 +12,6 @@ interface MapTileProps {
   fontSize?: number;
   onChangeSize?: (size: number) => void;
   tile: TileProp;
-  players: Player[];
   x: number;
   y: number;
   selectedMapPosition: Position;
@@ -46,20 +41,32 @@ export default function MapTile(props: MapTileProps) {
     x,
     y,
     tile,
-    players, // todo 没用上
     selectedMapPosition,
     onChangeSelectedMapPosition,
     possibleNextMapPositions,
   } = props;
+
   const [cursorStyle, setCursorStyle] = useState('default');
-
+  const { room, myPlayerId } = useGame();
   const [tileType, color, unitCount] = tile;
-
   const image = TileType2Image[tileType];
 
-  // todo 判断是否是当前玩家的地盘，由于game_update只返回了颜色信息，需要传入玩家颜色进行对比，但是这样的逻辑有点奇怪
-  // 用来判断 canMove
-  const isOwned = true;
+  const getPlayerIndex = useCallback((room: Room, playerId: string) => {
+    for (let i = 0; i < room.players.length; ++i) {
+      if (room.players[i].id === playerId) {
+        return i;
+      }
+    }
+    return -1;
+  }, []);
+
+  const myPlayerIndex = useMemo(() => {
+    return getPlayerIndex(room, myPlayerId);
+  }, [room, myPlayerId]);
+
+  const isOwned = useMemo(() => {
+    return color === room.players[myPlayerIndex].color;
+  }, [myPlayerIndex, color]);
 
   const isNextPossibleMove = useMemo(() => {
     const isNextPossibleMapPosition = Object.values(
