@@ -1,7 +1,7 @@
 import Block from './block';
 import Point from './point';
 import Player from './player';
-import { MapDataProp, TileType } from './types';
+import { MapData, TileType } from './types';
 
 const directions = [
   new Point(-1, -1),
@@ -348,8 +348,8 @@ class GameMap {
   }
 
   // no fog of war
-  getMapData(): Promise<MapDataProp> {
-    const mapDataForPlayer: MapDataProp = Array.from(Array(this.width), () =>
+  getMapData(): Promise<MapData> {
+    const mapDataForPlayer: MapData = Array.from(Array(this.width), () =>
       Array(this.height).fill([TileType.Fog, null, null])
     );
 
@@ -371,9 +371,9 @@ class GameMap {
     });
   }
 
-  getViewPlayer(player: any): Promise<MapDataProp> {
+  getViewPlayer(player: any): Promise<MapData> {
     // Get the view of the player from the whole map
-    const mapDataForPlayer: MapDataProp = Array.from(Array(this.width), () =>
+    const mapDataForPlayer: MapData = Array.from(Array(this.width), () =>
       Array(this.height).fill([TileType.Fog, null, null])
     );
 

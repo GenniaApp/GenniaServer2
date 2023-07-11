@@ -1,6 +1,6 @@
-import { TileType, MapDataProp, Player } from './types';
+import { TileType, MapData, Player } from './types';
 
-export const mapData: MapDataProp = [
+export const mapData: MapData = [
   [
     [TileType.Fog, 0, 0],
     [TileType.Fog, 1, 5],

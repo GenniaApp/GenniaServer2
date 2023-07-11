@@ -5,13 +5,7 @@ import { useTranslation } from 'next-i18next';
 import ChatBox from '@/components/ChatBox';
 import Swal from 'sweetalert2';
 
-import {
-  Room,
-  Message,
-  Player,
-  MapDataProp,
-  LeaderBoardData,
-} from '@/lib/types';
+import { Room, Message, Player, MapData, LeaderBoardData } from '@/lib/types';
 import Game from '@/components/game/Game';
 import { GameProvider, useGame, useGameDispatch } from '@/context/GameContext';
 import GameSetting from '@/components/GameSetting';
@@ -27,16 +21,7 @@ function GamingRoom() {
 
   const { t } = useTranslation();
 
-  const {
-    room,
-    socketRef,
-    mapData,
-    myPlayerId,
-    turnsCount,
-    leaderBoardData,
-    dialogContent,
-    openOverDialog,
-  } = useGame();
+  const { room, socketRef, mapData, myPlayerId } = useGame();
   const {
     roomDispatch,
     mapDataDispatch,
@@ -114,7 +99,7 @@ function GamingRoom() {
     socket.on(
       'game_update',
       (
-        mapData: MapDataProp,
+        mapData: MapData,
         turnsCount: number,
         leaderBoardData: LeaderBoardData
       ) => {

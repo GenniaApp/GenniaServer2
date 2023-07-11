@@ -9,6 +9,11 @@ export interface Position {
   y: number;
 }
 
+export interface Route {
+  from: Position;
+  to: Position;
+}
+
 export type LeaderBoardData = {
   color: number;
   username: string;
@@ -75,7 +80,7 @@ export type TileProp = [TileType, number | null, number | null];
 
 export type TilesProp = TileProp[];
 
-export type MapDataProp = TilesProp[];
+export type MapData = TilesProp[];
 
 export const TileType2Image: Record<TileType, string> = {
   [TileType.King]: '/img/king.png',
