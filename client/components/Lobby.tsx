@@ -28,8 +28,12 @@ function Lobby() {
   const { t } = useTranslation();
 
   useEffect(() => {
+    console.log('fetching rooms from: ', process.env.NEXT_PUBLIC_SERVER_API);
     const fetchRooms = async () => {
-      const res = await fetch('http://127.0.0.1:3001/get_rooms');
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_API}/get_rooms`
+      );
+
       const rooms = await res.json();
       setRooms(rooms);
       setLoading(false);
@@ -46,12 +50,13 @@ function Lobby() {
   };
 
   const handleCreateRoomClick = async () => {
-    const res = await fetch('http://127.0.0.1:3001/create_room');
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_API}/create_room`
+    );
     let data = await res.json();
     if (res.status === 200) {
       router.push(`/rooms/${data.roomId}`);
     } else {
-      // alert('Failed to create room. Please try again later.');
       setSnackOpen(true);
       setSnackMessage(data.message);
     }

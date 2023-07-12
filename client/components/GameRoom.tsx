@@ -138,7 +138,7 @@ function GamingRoom() {
     attackQueueRef.current = new AttackQueue();
 
     // myPlayerId could be null for first connect
-    socketRef.current = io('localhost:3001', {
+    socketRef.current = io(process.env.NEXT_PUBLIC_SERVER_API, {
       query: { roomId: roomId, username: username, myPlayerId: myPlayerId },
     });
     let socket = socketRef.current;

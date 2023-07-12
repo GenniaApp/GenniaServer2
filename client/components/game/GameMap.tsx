@@ -11,7 +11,7 @@ function GameMap() {
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const { attackQueueRef, room, mapData, selectedMapTileInfo } = useGame();
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
-  const ref = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   // game start so room map should not be null
   if (!room.map) {
@@ -76,7 +76,7 @@ function GameMap() {
   };
 
   const handleMouseMove = (event: MouseEvent) => {
-    if (dragging && ref.current) {
+    if (dragging && mapRef.current) {
       setPosition({
         x: event.clientX - startPosition.x,
         y: event.clientY - startPosition.y,
@@ -214,7 +214,7 @@ function GameMap() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleKeyDown]);
+  }, [handleKeyDown, mapRef]);
 
   useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove);
@@ -227,7 +227,7 @@ function GameMap() {
 
   return (
     <div
-      ref={ref}
+      ref={mapRef}
       style={{
         position: 'absolute',
         top: '50%',

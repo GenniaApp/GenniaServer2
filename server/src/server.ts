@@ -17,7 +17,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: process.env.CLIENT_URL }));
+const cors_urls = process.env.CLIENT_URL.split(' ')
+console.log(cors_urls)
+app.use(cors({ origin: cors_urls }));
 
 app.get('/get_rooms', (req: Request, res: Response) => {
   res.status(200).json(roomPool);
@@ -38,7 +40,7 @@ const server = app.listen(process.env.PORT, () => {
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: cors_urls,
   },
 });
 
