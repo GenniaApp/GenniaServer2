@@ -140,6 +140,7 @@ async function handleGame(room: Room, io: Server) {
         })
         console.log('Game ended');
         clearInterval(room.gameLoop);
+        io.in(room.id).emit('update_room', room);
       }
 
       let leaderBoard: LeaderBoardData = room.players
@@ -250,8 +251,10 @@ io.on('connection', async (socket) => {
   }
   room = roomPool[roomId];
   // check room status
-  if (room.players.length >= room.maxPlayers) reject_join(socket, 'The room is full.');
-  else {
+  if (room.players.length >= room.maxPlayers) {
+    reject_join(socket, 'The room is full.');
+    return;
+  } else {
     socket.join(roomId as string);
   }
   if (room.gameStarted) {

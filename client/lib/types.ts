@@ -80,6 +80,13 @@ export enum TileType {
   Swamp = 6,
 }
 
+export enum RoomUiStatus {
+  loading,
+  gameRealStarted, // loading over, gameStarted
+  gameSetting,
+  gameOverConfirm,
+}
+
 export type TileProp = [TileType,
   number | null, // color, when color == null it means no player own this tile
   number | null // unitsCount

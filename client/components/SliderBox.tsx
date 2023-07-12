@@ -44,7 +44,7 @@ export default function SliderBox({
         defaultValue={value}
         value={value}
         marks={marks}
-        onChange={handleChange}
+        onChangeCommitted={handleChange}
         disabled={disabled}
         {...restProps}
       />

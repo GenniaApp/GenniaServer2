@@ -12,6 +12,7 @@ import {
   MapData,
   MapQueueData,
   LeaderBoardData,
+  RoomUiStatus,
 } from '@/lib/types';
 
 interface SnackState {
@@ -25,6 +26,7 @@ interface GameContext {
   socketRef: any;
   mapData: MapData;
   mapQueueData: MapQueueData | null;
+  roomUiStatus: RoomUiStatus;
   myPlayerId: string;
   turnsCount: number;
   leaderBoardData: LeaderBoardData | null;
@@ -39,6 +41,7 @@ interface GameDispatch {
   roomDispatch: React.Dispatch<any>;
   mapDataDispatch: React.Dispatch<any>;
   mapQueueDataDispatch: React.Dispatch<any>;
+  setRoomUiStatus: React.Dispatch<React.SetStateAction<RoomUiStatus>>;
   setMyPlayerId: React.Dispatch<React.SetStateAction<string>>;
   setTurnsCount: React.Dispatch<React.SetStateAction<number>>;
   setLeaderBoardData: React.Dispatch<any>;
@@ -68,6 +71,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
   );
   const socketRef = useRef<any>();
   const attackQueueRef = useRef<any>();
+  const [roomUiStatus, setRoomUiStatus] = useState(RoomUiStatus.gameSetting);
   const [snackState, snackStateDispatch] = useReducer(snackStateReducer, {
     open: false,
     title: '',
@@ -96,6 +100,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
         socketRef,
         mapData,
         mapQueueData,
+        roomUiStatus,
         myPlayerId,
         turnsCount,
         leaderBoardData,
@@ -111,6 +116,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
           roomDispatch,
           mapDataDispatch,
           mapQueueDataDispatch,
+          setRoomUiStatus,
           setMyPlayerId,
           setTurnsCount,
           setLeaderBoardData,

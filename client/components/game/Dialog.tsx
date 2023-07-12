@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import classNames from 'classnames';
 
 interface DialogProps {
-  className?: string;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
   children?: React.ReactNode;
@@ -12,7 +10,6 @@ interface DialogProps {
 
 function Dialog(props: DialogProps) {
   const {
-    className,
     title,
     subtitle,
     children,
@@ -55,11 +52,7 @@ function Dialog(props: DialogProps) {
 
   if (isOpen) {
     return (
-      <div
-        {...restProps}
-        className={classNames('Dialog', className)}
-        onClick={handleClick}
-      >
+      <div {...restProps} className='Dialog' onClick={handleClick}>
         <div ref={contentRef} className='Dialog__Content'>
           {title}
           {subtitle}

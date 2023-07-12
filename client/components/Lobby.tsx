@@ -133,9 +133,9 @@ function Lobby() {
                   <TableCell>
                     <Typography
                       variant='body2'
-                      color={room.gameStarted ? 'error' : 'success'}
+                      color={room.gameStarted ? 'yellow' : 'lime'}
                     >
-                      {room.gameStarted ? 'Started' : 'Waiting'}
+                      {room.gameStarted ? t('started') : t('waiting')}
                     </Typography>
                   </TableCell>
                   <TableCell>

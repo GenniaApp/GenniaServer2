@@ -13,6 +13,7 @@ import {
   LeaderBoardData,
   Route,
   Position,
+  RoomUiStatus,
 } from '@/lib/types';
 import Game from '@/components/game/Game';
 import { useGame, useGameDispatch } from '@/context/GameContext';
@@ -22,17 +23,18 @@ import GameLoading from '@/components/GameLoading';
 function GamingRoom() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [username, setUsername] = useState('');
-  const [loading, setLoading] = useState(true);
 
   const router = useRouter();
   const roomId = router.query.roomId as string;
 
   const { t } = useTranslation();
 
-  const { room, socketRef, myPlayerId, attackQueueRef } = useGame();
+  const { room, roomUiStatus, socketRef, myPlayerId, attackQueueRef } =
+    useGame();
   const {
     roomDispatch,
     mapDataDispatch,
+    setRoomUiStatus,
     setMyPlayerId,
     setTurnsCount,
     setLeaderBoardData,
@@ -54,6 +56,9 @@ function GamingRoom() {
   const updateRoomInfo = (room: Room) => {
     console.log('update_room');
     console.log(room);
+    if (room.gameStarted && roomUiStatus === RoomUiStatus.gameSetting) {
+      setRoomUiStatus(RoomUiStatus.loading);
+    }
     roomDispatch({ type: 'update', payload: room });
   };
 
@@ -169,11 +174,13 @@ function GamingRoom() {
     socket.on('game_over', (capturedBy: Player) => {
       console.log(`game_over: ${capturedBy.username}`);
       setOpenOverDialog(true);
+      setRoomUiStatus(RoomUiStatus.gameOverConfirm);
       setDialogContent([capturedBy, 'game_over']);
     });
     socket.on('game_ended', (winner: Player) => {
       console.log(`game_ended: ${winner.username}`);
       setDialogContent([winner, 'game_ended']);
+      setRoomUiStatus(RoomUiStatus.gameOverConfirm);
       setOpenOverDialog(true);
     });
 
@@ -185,7 +192,7 @@ function GamingRoom() {
         leaderBoardData: LeaderBoardData
       ) => {
         console.log(`game_update: ${turnsCount}`);
-        setLoading(false);
+        setRoomUiStatus(RoomUiStatus.gameRealStarted);
         mapDataDispatch({ type: 'update', payload: mapData });
         setTurnsCount(turnsCount);
         setLeaderBoardData(leaderBoardData);
@@ -284,9 +291,12 @@ function GamingRoom() {
 
   return (
     <div>
-      {!room.gameStarted && <GameSetting />}
+      {/* {!room.gameStarted && roomUiStatus && <GameSetting />}
       {room.gameStarted && loading && <GameLoading />}
-      {room.gameStarted && !loading && <Game />}
+      {room.gameStarted && !loading && <Game />} */}
+      {roomUiStatus === RoomUiStatus.gameSetting && <GameSetting />}
+      {roomUiStatus === RoomUiStatus.loading && <GameLoading />}
+      {roomUiStatus === RoomUiStatus.gameRealStarted && <Game />}
       <ChatBox
         socket={socketRef.current}
         messages={messages}

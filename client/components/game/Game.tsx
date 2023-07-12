@@ -6,6 +6,7 @@ import GameMap from './GameMap';
 import LeaderBoard from './LeaderBoard';
 import OverDialog from './OverDialog';
 import { useGame, useGameDispatch } from '@/context/GameContext';
+import { useTranslation } from 'next-i18next';
 
 export default function Game() {
   const {
@@ -17,14 +18,12 @@ export default function Game() {
     dialogContent,
     openOverDialog,
   } = useGame();
-  const { setOpenOverDialog } = useGameDispatch();
+  const { setOpenOverDialog, setDialogContent } = useGameDispatch();
+  const { t } = useTranslation();
 
-  const handleSurrender = () => {
+  const handleSurrender = useCallback(() => {
     socketRef.current.emit('surrender', myPlayerId);
-  };
-
-  const handleDialogSurrender = useCallback(() => {
-    handleSurrender();
+    setDialogContent([null, 'game_surrender']);
     setOpenOverDialog(true);
   }, []);
 
@@ -33,15 +32,13 @@ export default function Game() {
       <TurnsCount count={turnsCount} />
       <GameMap />
       <LeaderBoard leaderBoardData={leaderBoardData} />
-      <SurrenderDialog onSurrender={handleDialogSurrender} />
+      <SurrenderDialog handleSurrender={handleSurrender} />
       <OverDialog
-        myPlayerId={myPlayerId}
         open={openOverDialog}
         dialogContent={dialogContent}
         onClose={() => {
           setOpenOverDialog(false);
         }}
-        roomId={room.id}
       />
     </Box>
   );

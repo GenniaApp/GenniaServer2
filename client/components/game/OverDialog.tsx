@@ -1,23 +1,23 @@
 import React from 'react';
-import classNames from 'classnames';
-import Dialog from './Dialog';
-import Button from './Button';
-import Router from 'next/router';
+import { Button } from '@mui/material';
+import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { Player } from '@/lib/types';
+import { Player, RoomUiStatus } from '@/lib/types';
+import { useGame, useGameDispatch } from '@/context/GameContext';
+import Dialog from './Dialog';
 
 interface OverDialogProps {
-  className?: string;
-  myPlayerId: string;
   dialogContent: [Player | null, string];
-  roomId: string;
   open: boolean;
   onClose: () => void;
 }
 
-function OverDialog(props: OverDialogProps) {
-  const { className, myPlayerId, dialogContent, roomId, open, onClose } = props;
+export default function OverDialog(props: OverDialogProps) {
+  const { myPlayerId, room } = useGame();
+  const { setRoomUiStatus, setOpenOverDialog } = useGameDispatch();
+  const { dialogContent, open, onClose } = props;
   const { t } = useTranslation();
+  const router = useRouter();
 
   let title: string = '';
   let subtitle: string = '';
@@ -32,34 +32,38 @@ function OverDialog(props: OverDialogProps) {
       title = player.id === myPlayerId ? t('you-win') : t('game-over');
       subtitle = `${t('winner')}: ${player.username}`;
     }
+    if (dialogContent[1] === 'game_surrender') {
+      title = t('you-surrender');
+      subtitle = '';
+    }
   }
 
   const handleExit = () => {
-    Router.push('/');
+    router.push('/');
+    setOpenOverDialog(false);
   };
 
   const handleBackRoom = () => {
-    Router.push(`/rooms/${roomId}`);
+    setRoomUiStatus(RoomUiStatus.gameSetting);
+    setOpenOverDialog(false);
   };
 
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      className={classNames('OverDialog', className)}
+      className='OverDialog'
       title={<h1 className='OverDialog__Title'>{title}</h1>}
-      subtitle={<h6 className='OverDialog__Title'>{subtitle}</h6>}
+      subtitle={<h4 className='OverDialog__Title'>{subtitle}</h4>}
     >
       <div className='DialogButtons'>
-        <Button variant='primary' onClick={handleBackRoom}>
-          Play Again
+        <Button variant='contained' onClick={handleBackRoom}>
+          {t('play-again')}
         </Button>
-        <Button variant='primary' size='big' onClick={handleExit}>
-          Exit
+        <Button variant='contained' onClick={handleExit} sx={{ top: 5 }}>
+          {t('exit')}
         </Button>
       </div>
     </Dialog>
   );
 }
-
-export default OverDialog;
