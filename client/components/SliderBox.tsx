@@ -28,7 +28,7 @@ export default function SliderBox({
   ...restProps
 }: SliderBoxProps) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', my: 2.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', my: 1.5 }}>
       {icon}
       <Typography id={`${label}Label`} sx={{ mr: 2, whiteSpace: 'nowrap' }}>
         {label}

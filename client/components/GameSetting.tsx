@@ -175,7 +175,8 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         <CardContent
           className='menu-container'
           sx={{
-            mb: 2,
+            p: 0,
+            '&:last-child': { pb: 0 },
           }}
         >
           <Tabs
@@ -192,7 +193,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           </Tabs>
           <TabPanel value={tabIndex} index={0}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', my: 2.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
                 <Typography sx={{ mr: 2, whiteSpace: 'nowrap' }}>
                   {t('game-speed')}
                 </Typography>
@@ -209,7 +210,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                     <FormControlLabel
                       key={value}
                       value={value}
-                      control={<Radio />}
+                      control={<Radio size='small' />}
                       label={`${value}x`}
                       disabled={disabled_ui}
                     />
@@ -296,7 +297,12 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           }
           sx={{ padding: 'sm' }}
         />
-        <CardContent sx={{ padding: 'sm' }}>
+        <CardContent
+          sx={{
+            padding: 0,
+            '&:last-child': { pb: 0 },
+          }}
+        >
           <PlayerTable
             myPlayerId={myPlayerId}
             players={room.players}
@@ -320,8 +326,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           justifyContent: 'center',
           alignItems: 'center',
         }}
-      >
-      </Box>
+      ></Box>
     </Box>
   );
 };
