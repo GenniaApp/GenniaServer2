@@ -11,11 +11,12 @@ import { LeaderBoardData } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 
 interface LeaderBoardProps {
-  leaderBoardData: LeaderBoardData;
+  leaderBoardData: LeaderBoardData | null;
 }
 
 export default function LeaderBoard(props: LeaderBoardProps) {
   const { leaderBoardData } = props;
+  if (!leaderBoardData) return null;
   return (
     <TableContainer
       sx={{

@@ -5,7 +5,14 @@ import React, {
   useState,
   useRef,
 } from 'react';
-import { Room, Route, Player, MapData, LeaderBoardData } from '@/lib/types';
+import {
+  Room,
+  SelectedMapTileInfo,
+  Player,
+  MapData,
+  MapQueueData,
+  LeaderBoardData,
+} from '@/lib/types';
 
 interface SnackState {
   open: boolean;
@@ -17,25 +24,32 @@ interface GameContext {
   room: Room;
   socketRef: any;
   mapData: MapData;
+  mapQueueData: MapQueueData | null;
   myPlayerId: string;
   turnsCount: number;
-  leaderBoardData: LeaderBoardData;
+  leaderBoardData: LeaderBoardData | null;
   dialogContent: [Player | null, string];
   openOverDialog: boolean;
   snackState: SnackState;
+  attackQueueRef: any; // AttackQueue
+  selectedMapTileInfo: SelectedMapTileInfo;
 }
 
 interface GameDispatch {
   roomDispatch: React.Dispatch<any>;
   mapDataDispatch: React.Dispatch<any>;
+  mapQueueDataDispatch: React.Dispatch<any>;
   setMyPlayerId: React.Dispatch<React.SetStateAction<string>>;
   setTurnsCount: React.Dispatch<React.SetStateAction<number>>;
-  setLeaderBoardData: React.Dispatch<React.SetStateAction<LeaderBoardData>>;
+  setLeaderBoardData: React.Dispatch<any>;
   setDialogContent: React.Dispatch<
     React.SetStateAction<[Player | null, string]>
   >;
   setOpenOverDialog: React.Dispatch<React.SetStateAction<boolean>>;
   snackStateDispatch: React.Dispatch<any>;
+  setSelectedMapTileInfo: React.Dispatch<
+    React.SetStateAction<SelectedMapTileInfo>
+  >;
 }
 
 const GameContext = createContext<GameContext | undefined>(undefined);
@@ -48,8 +62,12 @@ interface GameProviderProp {
 const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
   const [room, roomDispatch] = useReducer(roomReducer, new Room(''));
   const [mapData, mapDataDispatch] = useReducer(mapDataReducer, [[]]);
+  const [mapQueueData, mapQueueDataDispatch] = useReducer(
+    mapQueueDataReducer,
+    null
+  );
   const socketRef = useRef<any>();
-  const queue = useRef<Queue>(new Queue());
+  const attackQueueRef = useRef<any>();
   const [snackState, snackStateDispatch] = useReducer(snackStateReducer, {
     open: false,
     title: '',
@@ -57,12 +75,19 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
   });
   const [myPlayerId, setMyPlayerId] = useState('');
   const [turnsCount, setTurnsCount] = useState(0);
-  const [leaderBoardData, setLeaderBoardData] = useState<LeaderBoardData>({});
+  const [leaderBoardData, setLeaderBoardData] = useState(null);
   const [dialogContent, setDialogContent] = useState<[Player | null, string]>([
     null,
     '',
   ]);
   const [openOverDialog, setOpenOverDialog] = useState(false);
+  const [selectedMapTileInfo, setSelectedMapTileInfo] =
+    useState<SelectedMapTileInfo>({
+      x: -1,
+      y: -1,
+      half: false,
+      unitsCount: 0,
+    });
 
   return (
     <GameContext.Provider
@@ -70,24 +95,29 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
         room,
         socketRef,
         mapData,
+        mapQueueData,
         myPlayerId,
         turnsCount,
         leaderBoardData,
         dialogContent,
         openOverDialog,
         snackState,
+        attackQueueRef,
+        selectedMapTileInfo,
       }}
     >
       <GameDispatch.Provider
         value={{
           roomDispatch,
           mapDataDispatch,
+          mapQueueDataDispatch,
           setMyPlayerId,
           setTurnsCount,
           setLeaderBoardData,
           setDialogContent,
           setOpenOverDialog,
           snackStateDispatch,
+          setSelectedMapTileInfo,
         }}
       >
         {children}
@@ -136,6 +166,28 @@ const mapDataReducer = (state: MapData, action: any) => {
   }
 };
 
+const mapQueueDataReducer = (state: MapQueueData, action: any) => {
+  switch (action.type) {
+    case 'init': // init mapQueueData with same size as mapData
+      return Array.from(Array(action.width), () =>
+        Array(action.height).fill({
+          className: '',
+          text: '',
+        })
+      );
+    case 'update':
+      return action.payload;
+    case 'change': // change map[x][y]'s className, when className equal to '50%'
+      state[action.x][action.y] = {
+        className: action.className,
+        text: action.text ? action.text : '',
+      };
+      return state;
+    default:
+      throw Error('Unknown action: ' + action.type);
+  }
+};
+
 const snackStateReducer = (state: SnackState, action: any) => {
   switch (action.type) {
     case 'update':
@@ -146,92 +198,5 @@ const snackStateReducer = (state: SnackState, action: any) => {
       throw Error('Unknown action: ' + action.type);
   }
 };
-
-function directionName(item: Route): string {
-  let from = item.from,
-    to = item.to;
-  if (from.x === to.x) {
-    if (from.y < to.y) return 'right';
-    else return 'left';
-  } else {
-    if (from.x < to.x) return 'down';
-    else return 'up';
-  }
-}
-
-class Queue {
-  private items: Route[];
-  private lastItem: Route | undefined;
-
-  constructor() {
-    this.items = new Array<Route>();
-    this.lastItem = undefined;
-  }
-
-  insert(item: Route): void {
-    console.log('Item queued: ', item.to.x, item.to.y);
-    this.items.push(item);
-  }
-
-  clearFromMap(route: Route): void {
-    $(`#td${route.from.x}-${route.from.y}`).removeClass(
-      `queue_${directionName(route)}`
-    );
-  }
-
-  pop(): Route | undefined {
-    let item = this.items.shift();
-    if (this.lastItem) {
-      this.clearFromMap(this.lastItem);
-    }
-    this.lastItem = item;
-    return item;
-  }
-
-  pop_back(): Route | undefined {
-    let item = this.items.pop();
-    if (item) {
-      this.clearFromMap(item);
-      return item;
-    }
-  }
-
-  front(): Route {
-    return this.items[0];
-  }
-
-  end(): Route {
-    return this.items[this.items.length - 1];
-  }
-
-  isEmpty(): boolean {
-    return this.items.length == 0;
-  }
-
-  size(): number {
-    return this.items.length;
-  }
-
-  clear(): void {
-    this.items.forEach((item) => {
-      this.clearFromMap(item);
-    });
-    this.items.length = 0;
-    this.clearLastItem();
-  }
-
-  private clearLastItem(): void {
-    if (this.lastItem) this.clearFromMap(this.lastItem);
-  }
-
-  print(): void {
-    // Print on map
-    this.items.forEach((item) => {
-      $(`#td${item.to.x}-${item.to.y}`).addClass(
-        `queue_${directionName(item)}`
-      );
-    });
-  }
-}
 
 export { GameProvider, useGame, useGameDispatch };

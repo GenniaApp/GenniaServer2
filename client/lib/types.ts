@@ -4,6 +4,13 @@ import GameMap from './map';
 
 export { Point, Player, GameMap };
 
+export interface SelectedMapTileInfo {
+  x: number,
+  y: number,
+  half: boolean,
+  unitsCount: number | null,
+}
+
 export interface Position {
   x: number;
   y: number;
@@ -56,7 +63,7 @@ export class Room {
   ) { }
 
   toJSON() {
-    const { map, gameLoop, generals, ...json } = this;
+    const { gameLoop, generals, ...json } = this;
     return json;
   }
 }
@@ -73,14 +80,24 @@ export enum TileType {
   Swamp = 6,
 }
 
-// TileType
-// color: when color == null 表示什么？ todo
-// unitsCount: number
-export type TileProp = [TileType, number | null, number | null];
+export type TileProp = [TileType,
+  number | null, // color, when color == null it means no player own this tile
+  number | null // unitsCount
+];
 
 export type TilesProp = TileProp[];
 
 export type MapData = TilesProp[];
+
+// 定义一个包含 className: string, text: string 的对象
+
+export interface QueueDisplayData {
+  className: string;
+  text: string;
+}
+
+// className: string, text: string
+export type MapQueueData = QueueDisplayData[][]; //  same size as MapData
 
 export const TileType2Image: Record<TileType, string> = {
   [TileType.King]: '/img/king.png',

@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { TileType, TileProp, Position, TileType2Image } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
-import { useGame } from '@/context/GameContext';
+import { useGame, useGameDispatch } from '@/context/GameContext';
 import { Room } from '@/lib/types';
 
 interface MapTileProps {
@@ -14,8 +14,6 @@ interface MapTileProps {
   tile: TileProp;
   x: number;
   y: number;
-  selectedMapPosition: Position;
-  onChangeSelectedMapPosition: (position: Position) => void;
   possibleNextMapPositions: {
     top?: Position;
     right?: Position;
@@ -41,14 +39,14 @@ export default function MapTile(props: MapTileProps) {
     x,
     y,
     tile,
-    selectedMapPosition,
-    onChangeSelectedMapPosition,
     possibleNextMapPositions,
   } = props;
 
   const [cursorStyle, setCursorStyle] = useState('default');
-  const { room, myPlayerId } = useGame();
-  const [tileType, color, unitCount] = tile;
+  const { room, myPlayerId, selectedMapTileInfo, mapQueueData } = useGame();
+  const { setSelectedMapTileInfo } = useGameDispatch();
+
+  const [tileType, color, unitsCount] = tile;
   const image = TileType2Image[tileType];
 
   const getPlayerIndex = useCallback((room: Room, playerId: string) => {
@@ -83,15 +81,15 @@ export default function MapTile(props: MapTileProps) {
   }, [possibleNextMapPositions, x, y, tileType]);
 
   const isSelected = useMemo(() => {
-    return x === selectedMapPosition.x && y === selectedMapPosition.y;
-  }, [selectedMapPosition, x, y]);
+    return x === selectedMapTileInfo.x && y === selectedMapTileInfo.y;
+  }, [selectedMapTileInfo, x, y]);
 
   const isRevealed = useMemo(() => {
     return (
-      unitCount !== null || // when reveal, swamp / city / plain's unitCount !== null
+      unitsCount !== null || // when reveal, swamp / city / plain's unitsCount !== null
       tileType === TileType.Mountain // Mountain is always revealed
     );
-  }, [unitCount]);
+  }, [unitsCount]);
 
   const stroke = useMemo(() => {
     if (isSelected) {
@@ -109,9 +107,9 @@ export default function MapTile(props: MapTileProps) {
 
   const handleClick = useCallback(() => {
     if (canMove) {
-      onChangeSelectedMapPosition({ x, y });
+      setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
     }
-  }, [canMove, x, y, onChangeSelectedMapPosition]);
+  }, [canMove, x, y, setSelectedMapTileInfo, unitsCount]);
 
   const handleMouseEnter = useCallback(() => {
     if (canMove) {
@@ -151,25 +149,26 @@ export default function MapTile(props: MapTileProps) {
     }
 
     // 玩家单位
-    if (color) {
+    if (color !== null) {
       return ColorArr[color];
     }
     // 中立单位
-    if (!color) {
+    if (color === null) {
       if (tileType === TileType.City) {
         return notOwnedCityFill;
       }
-      if (unitCount) {
+      if (unitsCount) {
         return notOwnedArmyFill;
       }
     }
 
     // 空白单位
     return blankFill;
-  }, [tileType, color, unitCount, isRevealed]);
+  }, [tileType, color, unitsCount, isRevealed]);
 
   return (
     <div
+      className={mapQueueData ? mapQueueData[x][y].className : ''}
       style={{
         position: 'absolute',
         left: tileX,
@@ -208,7 +207,7 @@ export default function MapTile(props: MapTileProps) {
           draggable={false}
         />
       )}
-      {unitCount && (
+      {unitsCount && (
         <div
           style={{
             position: 'absolute',
@@ -226,7 +225,12 @@ export default function MapTile(props: MapTileProps) {
             textShadow: '0 0 2px #000',
           }}
         >
-          {unitCount}
+          {/* 50% */}
+          {mapQueueData
+            ? mapQueueData[x][y].text
+              ? mapQueueData[x][y].text
+              : unitsCount
+            : unitsCount}
         </div>
       )}
 

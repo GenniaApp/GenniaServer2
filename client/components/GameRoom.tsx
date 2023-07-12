@@ -5,9 +5,17 @@ import { useTranslation } from 'next-i18next';
 import ChatBox from '@/components/ChatBox';
 import Swal from 'sweetalert2';
 
-import { Room, Message, Player, MapData, LeaderBoardData } from '@/lib/types';
+import {
+  Room,
+  Message,
+  Player,
+  MapData,
+  LeaderBoardData,
+  Route,
+  Position,
+} from '@/lib/types';
 import Game from '@/components/game/Game';
-import { GameProvider, useGame, useGameDispatch } from '@/context/GameContext';
+import { useGame, useGameDispatch } from '@/context/GameContext';
 import GameSetting from '@/components/GameSetting';
 import GameLoading from '@/components/GameLoading';
 
@@ -21,7 +29,7 @@ function GamingRoom() {
 
   const { t } = useTranslation();
 
-  const { room, socketRef, mapData, myPlayerId } = useGame();
+  const { room, socketRef, myPlayerId, attackQueueRef } = useGame();
   const {
     roomDispatch,
     mapDataDispatch,
@@ -31,6 +39,7 @@ function GamingRoom() {
     setDialogContent,
     setOpenOverDialog,
     snackStateDispatch,
+    mapQueueDataDispatch,
   } = useGameDispatch();
 
   useEffect(() => {
@@ -49,8 +58,80 @@ function GamingRoom() {
   };
 
   useEffect(() => {
+    // Game Logic Init
     if (!roomId) return;
     if (!username) return;
+    class AttackQueue {
+      private items: Route[];
+      private lastItem: Route | undefined;
+
+      constructor() {
+        this.items = new Array<Route>();
+        this.lastItem = undefined;
+      }
+
+      insert(item: Route): void {
+        console.log('Item queued: ', item.to.x, item.to.y);
+        this.items.push(item);
+      }
+
+      clearFromMap(route: Route): void {
+        mapQueueDataDispatch({
+          type: 'change',
+          x: route.to.x,
+          y: route.to.y,
+          className: '',
+        });
+      }
+
+      pop(): Route | undefined {
+        let item = this.items.shift();
+        if (this.lastItem) {
+          this.clearFromMap(this.lastItem);
+        }
+        this.lastItem = item;
+        return item;
+      }
+
+      pop_back(): Route | undefined {
+        let item = this.items.pop();
+        if (item) {
+          this.clearFromMap(item);
+          return item;
+        }
+      }
+
+      front(): Route {
+        return this.items[0];
+      }
+
+      end(): Route {
+        return this.items[this.items.length - 1];
+      }
+
+      isEmpty(): boolean {
+        return this.items.length == 0;
+      }
+
+      size(): number {
+        return this.items.length;
+      }
+
+      clear(): void {
+        this.items.forEach((item) => {
+          this.clearFromMap(item);
+        });
+        this.items.length = 0;
+        this.clearLastItem();
+      }
+
+      private clearLastItem(): void {
+        if (this.lastItem) this.clearFromMap(this.lastItem);
+      }
+    }
+
+    attackQueueRef.current = new AttackQueue();
+
     // myPlayerId could be null for first connect
     socketRef.current = io('localhost:3001', {
       query: { roomId: roomId, username: username, myPlayerId: myPlayerId },
@@ -82,7 +163,7 @@ function GamingRoom() {
     });
 
     socket.on('room_message', (player: Player, content: string) => {
-      console.log(`room_message: ${content}`);
+      console.log(`room_message: ${player.username} ${content}`);
       setMessages((messages) => [...messages, new Message(player, content)]);
     });
     socket.on('game_over', (capturedBy: Player) => {
@@ -103,12 +184,34 @@ function GamingRoom() {
         turnsCount: number,
         leaderBoardData: LeaderBoardData
       ) => {
+        console.log(`game_update: ${turnsCount}`);
         setLoading(false);
         mapDataDispatch({ type: 'update', payload: mapData });
         setTurnsCount(turnsCount);
         setLeaderBoardData(leaderBoardData);
+
+        if (!attackQueueRef.current.isEmpty()) {
+          let item = attackQueueRef.current.pop();
+          socket.emit('attack', item.from, item.to, item.half);
+          console.log('emit attack: ', item.from, item.to, item.half);
+        } else if (attackQueueRef.current.lastItem) {
+          attackQueueRef.current.clear();
+        }
       }
     );
+
+    socket.on('attack_failure', (from: Position, to: Position) => {
+      attackQueueRef.current.clearLastItem();
+      while (!attackQueueRef.current.isEmpty()) {
+        let point = attackQueueRef.current.front().from;
+        if (point.x === to.x && point.y === to.y) {
+          attackQueueRef.current.pop();
+          to = point;
+        } else {
+          break;
+        }
+      }
+    });
 
     socket.on('reject_join', (message: string) => {
       Swal.fire({
@@ -175,7 +278,6 @@ function GamingRoom() {
     });
 
     return () => {
-      console.log('use effect leave room');
       socketRef.current.disconnect();
     };
   }, [roomId, username]);

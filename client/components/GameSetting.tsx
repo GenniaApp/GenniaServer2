@@ -160,7 +160,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         open={snackState.open}
         autoHideDuration={1000}
         onClose={() => {
-          snackStateDispatch('toggle');
+          snackStateDispatch({ type: 'toggle' });
         }}
         title={snackState.title}
         message={snackState.message}

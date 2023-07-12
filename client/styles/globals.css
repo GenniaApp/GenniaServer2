@@ -225,3 +225,42 @@ a {
   margin-top: 10px;
   color: white;
 }
+
+.queue_up::before,
+.queue_down::before,
+.queue_right::before,
+.queue_left::before {
+  z-index: 30;
+  position: absolute;
+  font-size: 1.2rem;
+  color: white;
+  text-shadow: 1px 1px #000;
+}
+
+.queue_up::before {
+  left: 50%;
+  top: -12.5%;
+  content: '↑';
+  transform: translate(-50%, -50%);
+}
+
+.queue_down::before {
+  left: 50%;
+  bottom: -12.5%;
+  content: '↓';
+  transform: translate(-50%, 50%);
+}
+
+.queue_right::before {
+  top: 50%;
+  right: -12.5%;
+  content: '→';
+  transform: translate(50%, -50%);
+}
+
+.queue_left::before {
+  top: 50%;
+  left: -12.5%;
+  content: '←';
+  transform: translate(-50%, -50%);
+}

@@ -62,6 +62,15 @@ class GameMap {
     this.turn = 0;
   }
 
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      width: this.width,
+      height: this.height
+    }
+  }
+
   getFather(conn: number[], curPoint: number): number {
     while (conn[curPoint] !== curPoint) {
       conn[curPoint] = conn[conn[curPoint]];

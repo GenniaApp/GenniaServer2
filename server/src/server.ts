@@ -66,10 +66,6 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
 
 async function handleGame(room: Room, io: Server) {
   if (room.gameStarted === false) {
-    console.info(`Start game`);
-    room.gameStarted = true;
-    io.in(room.id).emit('update_room', room);
-
     room.map = new GameMap(
       'random_map_id',
       'random_map_name',
@@ -80,6 +76,17 @@ async function handleGame(room: Room, io: Server) {
       room.swamp,
       room.players
     );
+    // Now: Client can get map name / width / height !
+    // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
+    //
+    console.info(`Start game`);
+    room.gameStarted = true;
+    io.in(room.id).emit('update_room', room);
+    // set room all user forceStart to false
+    room.players.forEach((player) => {
+      player.forceStart = false;
+    });
+
     room.players = await room.map.generate();
     room.mapGenerated = true;
 
@@ -128,6 +135,9 @@ async function handleGame(room: Room, io: Server) {
         io.in(room.id).emit('game_ended', alivePlayer); // winnner
         room.gameStarted = false;
         room.forceStartNum = 0;
+        room.players.forEach((player) => {
+          player.isDead = false;
+        })
         console.log('Game ended');
         clearInterval(room.gameLoop);
       }

@@ -72,9 +72,7 @@ const Login: React.FC<LoginProps> = (props) => {
             onChange={handleUsernameChange}
             onKeyDown={handleInputKeyDown}
           />
-          {/* todo 临时解决 tailwindcss 和 mui 冲突 */}
           <Button
-            className='bg-[#d24396]'
             variant='contained'
             onClick={() => handlePlayClick(inputname)}
             sx={{ margin: 2, width: '100%', height: '40px', fontSize: '15px' }}
