@@ -63,26 +63,74 @@ function Navbar() {
 
   return (
     <AppBar position='fixed' className='navbar'>
-      <Container maxWidth='xl'>
-        <Toolbar disableGutters>
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size='large'
-              aria-label='account of current user'
-              aria-controls='menu-appbar'
-              aria-haspopup='true'
-              onClick={handleOpenNavMenu}
-              color='inherit'
-            >
-              <MenuIcon />
-            </IconButton>
+      <Container maxWidth='xl' className='dock'>
+        {/* <Toolbar disableGutters> */}
+        <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+          <IconButton
+            size='large'
+            aria-label='account of current user'
+            aria-controls='menu-appbar'
+            aria-haspopup='true'
+            onClick={handleOpenNavMenu}
+            color='inherit'
+          >
+            <MenuIcon />
+          </IconButton>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Image
+              src='/img/favicon.png'
+              width={32}
+              height={32}
+              alt='favicon'
+            />
+            <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
+              Gennia Online
+            </Typography>
+            <Chip
+              label='beta'
+              variant='outlined'
+              color='warning'
+              size='small'
+            />
+          </Box>
+          <Menu
+            id='menu-appbar'
+            anchorEl={anchorElNav}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+            open={Boolean(anchorElNav)}
+            onClose={handleCloseNavMenu}
+            sx={{
+              display: { xs: 'block', md: 'none' },
+            }}
+          >
+            {navItems.map((item) => (
+              <MenuItem key={item.href} onClick={handleCloseNavMenu}>
+                <Link href={item.href}>
+                  <Typography textAlign='center'>{t(item.label)}</Typography>
+                </Link>
+              </MenuItem>
+            ))}
+          </Menu>
+        </Box>
+
+        <Box
+          sx={{
+            flexGrow: 1,
+            display: { xs: 'none', md: 'flex' },
+            alignItems: 'center',
+          }}
+        >
+          <Link href='/'>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Image
-                src='/img/favicon.png'
-                width={32}
-                height={32}
-                alt='favicon'
-              />
+              <Image src='/img/favicon.png' width={32} height={32} alt='logo' />
               <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
                 Gennia Online
               </Typography>
@@ -93,102 +141,43 @@ function Navbar() {
                 size='small'
               />
             </Box>
-            <Menu
-              id='menu-appbar'
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: 'block', md: 'none' },
-              }}
-            >
-              {navItems.map((item) => (
-                <MenuItem key={item.href} onClick={handleCloseNavMenu}>
-                  <Link href={item.href}>
-                    <Typography textAlign='center'>{t(item.label)}</Typography>
-                  </Link>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { xs: 'none', md: 'flex' },
-              alignItems: 'center',
-            }}
-          >
-            <Link href='/'>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Image
-                  src='/img/favicon.png'
-                  width={32}
-                  height={32}
-                  alt='logo'
-                />
-                <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
-                  Gennia Online
-                </Typography>
-                <Chip
-                  label='beta'
-                  variant='outlined'
-                  color='warning'
-                  size='small'
-                />
-              </Box>
-            </Link>
-
-            {navItems.map((item) => (
-              <Link href={item.href} key={item.href}>
-                <Button
-                  id='navbar-link'
-                  onClick={handleCloseNavMenu}
-                  sx={{
-                    color: 'white',
-                    textTransform: 'none',
-                    fontSize: '1rem',
-                  }}
-                >
-                  {t(item.label)}
-                </Button>
-              </Link>
-            ))}
-          </Box>
-          <Box
-            id='lng-selector'
-            sx={{ minWidth: 120, display: 'flex', justifyContent: 'right' }}
-          >
-            <FormControl>
-              <Select
-                color='secondary'
-                className='navbar-language-switch'
-                defaultValue={router.locale ?? 'en'}
+          </Link>
+          {navItems.map((item) => (
+            <Link href={item.href} key={item.href}>
+              <Button
+                id='navbar-link'
+                onClick={handleCloseNavMenu}
+                sx={{
+                  color: 'white',
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                }}
               >
-                {router.locales &&
-                  router.locales.map((lang) => (
-                    <MenuItem
-                      key={lang}
-                      value={lang}
-                      onClick={handleClick(lang)}
-                    >
-                      {lang}
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
-          </Box>
-          {/* 用户界面 todo */}
-          {/* <Box sx={{ flexGrow: 0 }}>
+                {t(item.label)}
+              </Button>
+            </Link>
+          ))}
+        </Box>
+        <Box
+          id='lng-selector'
+        >
+          <FormControl>
+            <Select
+              color='secondary'
+              className='navbar-language-switch'
+              defaultValue={router.locale ?? 'en'}
+            >
+              {router.locales &&
+                router.locales.map((lang) => (
+                  <MenuItem key={lang} value={lang} onClick={handleClick(lang)}>
+                    {lang}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+        </Box>
+        {/* 用户界面 todo */}
+        {/* <Box sx={{ flexGrow: 0 }}>
             <Button
               id="navbar-link"
               variant="text"
@@ -201,7 +190,7 @@ function Navbar() {
               <AccountCircleIcon sx={{ ml: 0.4 }} />
             </Button>
           </Box> */}
-        </Toolbar>
+        {/* </Toolbar> */}
       </Container>
     </AppBar>
   );

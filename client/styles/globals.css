@@ -121,8 +121,8 @@ a {
 /* Navbar css */
 
 @media (min-width: 1200px) {
-  .navbar {
-    padding: 0px 16% 0px 16%;
+  .dock {
+    width: 80dvw;
   }
 }
 
@@ -136,13 +136,27 @@ a {
   .navbar-pc-logo {
     display: none !important;
   }
+  .dock {
+    width: 100dvw
+  }
 }
 
 .navbar {
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  /* background: rgb(99 97 141 / 68%) !important; */
   /* Minimal browser support */
-  backdrop-filter: blur(1px) !important;
+  /* backdrop-filter: blur(3px) !important; */
   height: 60px !important;
+}
+
+.dock {
+  height: 100%;
+  background: rgb(99 97 141 / 68%) !important;
+  border-radius: 0 0 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
 .navbar-pc-logo {
@@ -168,7 +182,7 @@ a {
 
 .menu-container {
   backdrop-filter: blur(3px);
-  background-color: rgba(97, 122, 141, 0.7);
+  background-color: rgb(99 97 141 / 68%);
   border-radius: 10px;
   padding: 8px;
   margin-top: 10px;
