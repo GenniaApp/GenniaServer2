@@ -31,7 +31,7 @@ export default function usePossibleNextMapPositions({
     }
 
     return { x: topRowIndex, y: topColumnIndex };
-  }, [isMapSelected, selectedMapTileInfo, 0]);
+  }, [isMapSelected, selectedMapTileInfo]);
 
   const bottomMovePosition = useMemo(() => {
     if (!isMapSelected) {
@@ -67,7 +67,7 @@ export default function usePossibleNextMapPositions({
       x: leftRowIndex,
       y: leftColumnIndex,
     };
-  }, [isMapSelected, selectedMapTileInfo, 0]);
+  }, [isMapSelected, selectedMapTileInfo]);
 
   const rightMovePosition = useMemo(() => {
     if (!isMapSelected) {

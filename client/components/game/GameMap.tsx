@@ -13,11 +13,6 @@ function GameMap() {
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
   const mapRef = useRef<HTMLDivElement>(null);
 
-  // game start so room map should not be null
-  if (!room.map) {
-    return null;
-  }
-
   // init when GameStarted
   useEffect(() => {
     if (!room.map) return;
@@ -32,61 +27,78 @@ function GameMap() {
       width: room.map.width,
       height: room.map.height,
     });
-  }, [room]);
+  }, [room, mapQueueDataDispatch]);
 
-  function withinMap(point: Position) {
-    if (!room.map) return false;
-    return (
-      0 <= point.x &&
-      point.x < room.map.width &&
-      0 <= point.y &&
-      point.y < room.map.height
-    );
-  }
+  const withinMap = useCallback(
+    (point: Position) => {
+      if (!room.map) return false;
+      return (
+        0 <= point.x &&
+        point.x < room.map.width &&
+        0 <= point.y &&
+        point.y < room.map.height
+      );
+    },
+    [room]
+  );
 
-  function handlePositionChange(newPoint: Position, className: string) {
-    if (withinMap(newPoint)) {
-      attackQueueRef.current.insert({
-        from: selectedMapTileInfo,
-        to: newPoint,
-        half: selectedMapTileInfo.half,
+  const handlePositionChange = useCallback(
+    (newPoint: Position, className: string) => {
+      if (withinMap(newPoint)) {
+        attackQueueRef.current.insert({
+          from: selectedMapTileInfo,
+          to: newPoint,
+          half: selectedMapTileInfo.half,
+        });
+        setSelectedMapTileInfo({
+          // ...selectedMapTileInfo,
+          x: newPoint.x,
+          y: newPoint.y,
+          half: false,
+          unitsCount: 0,
+        });
+        mapQueueDataDispatch({
+          type: 'change',
+          x: selectedMapTileInfo.x,
+          y: selectedMapTileInfo.y,
+          className: className,
+        });
+      }
+    },
+    [
+      selectedMapTileInfo,
+      withinMap,
+      attackQueueRef,
+      setSelectedMapTileInfo,
+      mapQueueDataDispatch,
+    ]
+  );
+  const handleMouseDown = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      setDragging(true);
+      setStartPosition({
+        x: event.clientX - position.x,
+        y: event.clientY - position.y,
       });
-      setSelectedMapTileInfo({
-        // ...selectedMapTileInfo,
-        x: newPoint.x,
-        y: newPoint.y,
-        half: false,
-        unitsCount: 0,
-      });
-      mapQueueDataDispatch({
-        type: 'change',
-        x: selectedMapTileInfo.x,
-        y: selectedMapTileInfo.y,
-        className: className,
-      });
-    }
-  }
+    },
+    [position]
+  );
 
-  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    setDragging(true);
-    setStartPosition({
-      x: event.clientX - position.x,
-      y: event.clientY - position.y,
-    });
-  };
+  const handleMouseMove = useCallback(
+    (event: MouseEvent) => {
+      if (dragging && mapRef.current) {
+        setPosition({
+          x: event.clientX - startPosition.x,
+          y: event.clientY - startPosition.y,
+        });
+      }
+    },
+    [dragging, mapRef, startPosition]
+  );
 
-  const handleMouseMove = (event: MouseEvent) => {
-    if (dragging && mapRef.current) {
-      setPosition({
-        x: event.clientX - startPosition.x,
-        y: event.clientY - startPosition.y,
-      });
-    }
-  };
-
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setDragging(false);
-  };
+  }, []);
 
   const [zoom, setZoom] = useState(1);
   const [tileSize, setTileSize] = useState(50);
@@ -101,113 +113,122 @@ function GameMap() {
   );
 
   const possibleNextMapPositions = usePossibleNextMapPositions({
-    width: room.map.width,
-    height: room.map.height,
+    width: room.map ? room.map.width : 0,
+    height: room.map ? room.map.height : 0,
     selectedMapTileInfo,
   });
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    switch (event.key) {
-      case '1':
-        setZoom(0.7);
-        break;
-      case '2':
-        setZoom(1.0);
-        break;
-      case '3':
-        setZoom(1.3);
-        break;
-      default:
-        break;
-    }
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      switch (event.key) {
+        case '1':
+          setZoom(0.7);
+          break;
+        case '2':
+          setZoom(1.0);
+          break;
+        case '3':
+          setZoom(1.3);
+          break;
+        default:
+          break;
+      }
 
-    let newPoint = { x: -1, y: -1 };
-    let route: Route | undefined;
+      let newPoint = { x: -1, y: -1 };
+      let route: Route | undefined;
 
-    if (!selectedMapTileInfo) return;
-    switch (event.key) {
-      case 'z':
-        // Z to half
-        if (selectedMapTileInfo.half) {
-          // 已经 half 则 取消 half
-          selectedMapTileInfo.half = false;
-          mapQueueDataDispatch({
-            type: 'change',
+      if (!selectedMapTileInfo) return;
+      switch (event.key) {
+        case 'z':
+          // Z to half
+          if (selectedMapTileInfo.half) {
+            // 已经 half 则 取消 half
+            selectedMapTileInfo.half = false;
+            mapQueueDataDispatch({
+              type: 'change',
+              x: selectedMapTileInfo.x,
+              y: selectedMapTileInfo.y,
+              className: '',
+              text: selectedMapTileInfo.unitsCount, // 还原回原来的 unit? todo
+            });
+          } else {
+            selectedMapTileInfo.half = true;
+            mapQueueDataDispatch({
+              type: 'change',
+              x: selectedMapTileInfo.x,
+              y: selectedMapTileInfo.y,
+              className: '',
+              text: '50%',
+            });
+          }
+          break;
+        case 'e':
+          // E to pop_back
+          route = attackQueueRef.current.pop_back();
+          if (route) {
+            setSelectedMapTileInfo({
+              ...selectedMapTileInfo,
+              x: route.from.x,
+              y: route.from.y,
+              //  todo: fix half/unitsCount logic
+            });
+          }
+          break;
+        case 'q':
+          // Q to clear
+          route = attackQueueRef.current.front();
+          if (route) {
+            attackQueueRef.current.clear();
+            setSelectedMapTileInfo({
+              ...selectedMapTileInfo,
+              x: route.from.x,
+              y: route.from.y,
+            });
+          }
+          break;
+        case 'a':
+        case 'ArrowLeft': // 37 Left
+          // todo 这里 x y 方向相反
+          newPoint = {
             x: selectedMapTileInfo.x,
+            y: selectedMapTileInfo.y - 1,
+          };
+          handlePositionChange(newPoint, 'queue_left');
+          break;
+        case 'w':
+        case 'ArrowUp': // 38 Up
+          newPoint = {
+            x: selectedMapTileInfo.x - 1,
             y: selectedMapTileInfo.y,
-            className: '',
-            text: selectedMapTileInfo.unitsCount, // 还原回原来的 unit? todo
-          });
-        } else {
-          selectedMapTileInfo.half = true;
-          mapQueueDataDispatch({
-            type: 'change',
+          };
+          handlePositionChange(newPoint, 'queue_up');
+          break;
+        case 'd':
+        case 'ArrowRight': // 39 Right
+          newPoint = {
             x: selectedMapTileInfo.x,
+            y: selectedMapTileInfo.y + 1,
+          };
+          handlePositionChange(newPoint, 'queue_right');
+          break;
+        case 's':
+        case 'ArrowDown': // 40 Down
+          newPoint = {
+            x: selectedMapTileInfo.x + 1,
             y: selectedMapTileInfo.y,
-            className: '',
-            text: '50%',
-          });
-        }
-        break;
-      case 'e':
-        // E to pop_back
-        route = attackQueueRef.current.pop_back();
-        if (route) {
-          setSelectedMapTileInfo({
-            ...selectedMapTileInfo,
-            x: route.from.x,
-            y: route.from.y,
-            //  todo: fix half/unitsCount logic
-          });
-        }
-        break;
-      case 'q':
-        // Q to clear
-        route = attackQueueRef.current.front();
-        if (route) {
-          attackQueueRef.current.clear();
-          setSelectedMapTileInfo({
-            ...selectedMapTileInfo,
-            x: route.from.x,
-            y: route.from.y,
-          });
-        }
-        break;
-      case 'a':
-      case 'ArrowLeft': // 37 Left
-        // todo 这里 x y 方向相反
-        newPoint = {
-          x: selectedMapTileInfo.x,
-          y: selectedMapTileInfo.y - 1,
-        };
-        handlePositionChange(newPoint, 'queue_left');
-        break;
-      case 'w':
-      case 'ArrowUp': // 38 Up
-        newPoint = {
-          x: selectedMapTileInfo.x - 1,
-          y: selectedMapTileInfo.y,
-        };
-        handlePositionChange(newPoint, 'queue_up');
-        break;
-      case 'd':
-      case 'ArrowRight': // 39 Right
-        newPoint = {
-          x: selectedMapTileInfo.x,
-          y: selectedMapTileInfo.y + 1,
-        };
-        handlePositionChange(newPoint, 'queue_right');
-        break;
-      case 's':
-      case 'ArrowDown': // 40 Down
-        newPoint = {
-          x: selectedMapTileInfo.x + 1,
-          y: selectedMapTileInfo.y,
-        };
-        handlePositionChange(newPoint, 'queue_down');
-        break;
-    }
-  };
+          };
+          handlePositionChange(newPoint, 'queue_down');
+          break;
+      }
+    },
+    [
+      handlePositionChange,
+      mapQueueDataDispatch,
+      selectedMapTileInfo,
+      attackQueueRef,
+      setSelectedMapTileInfo,
+    ]
+  );
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -223,7 +244,7 @@ function GameMap() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [dragging]);
+  }, [dragging, handleMouseMove, handleMouseUp]);
 
   return (
     <div

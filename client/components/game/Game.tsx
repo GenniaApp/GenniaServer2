@@ -25,7 +25,7 @@ export default function Game() {
     socketRef.current.emit('surrender', myPlayerId);
     setDialogContent([null, 'game_surrender']);
     setOpenOverDialog(true);
-  }, []);
+  }, [socketRef, setDialogContent, setOpenOverDialog, myPlayerId]);
 
   return (
     <Box className='Game'>

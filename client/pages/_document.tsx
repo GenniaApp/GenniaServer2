@@ -7,8 +7,8 @@ export default function Document() {
       <title>Gennia</title>
       <link rel='shortcut icon' href='/img/favicon.png' />
       <link
+        href='https://fonts.googleapis.com/css2?family=Nunito|Noto+Sans+SC&display=optional'
         rel='stylesheet'
-        href='https://fonts.googleapis.com/css?family=Nunito|Noto+Sans+SC'
       />
 
       <meta

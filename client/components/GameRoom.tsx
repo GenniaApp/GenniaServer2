@@ -47,20 +47,7 @@ function GamingRoom() {
   useEffect(() => {
     setUsername(localStorage.getItem('username') || t('anonymous'));
     setMyPlayerId(localStorage.getItem('playerId') || '');
-  }, []);
-
-  const navToHome = () => {
-    router.push(`/`);
-  };
-
-  const updateRoomInfo = (room: Room) => {
-    console.log('update_room');
-    console.log(room);
-    if (room.gameStarted && roomUiStatus === RoomUiStatus.gameSetting) {
-      setRoomUiStatus(RoomUiStatus.loading);
-    }
-    roomDispatch({ type: 'update', payload: room });
-  };
+  }, [setUsername, setMyPlayerId, t]);
 
   useEffect(() => {
     // Game Logic Init
@@ -154,7 +141,14 @@ function GamingRoom() {
       setMyPlayerId(playerId);
       localStorage.setItem('playerId', playerId);
     });
-    socket.on('update_room', updateRoomInfo);
+    socket.on('update_room', (room: Room) => {
+      console.log('update_room');
+      console.log(room);
+      if (room.gameStarted && roomUiStatus === RoomUiStatus.gameSetting) {
+        setRoomUiStatus(RoomUiStatus.loading);
+      }
+      roomDispatch({ type: 'update', payload: room });
+    });
 
     socket.on('error', (title: string, message: string) => {
       snackStateDispatch({
@@ -230,7 +224,7 @@ function GamingRoom() {
         allowOutsideClick: false,
         confirmButtonText: 'OK',
       }).then((result) => {
-        navToHome();
+        router.push(`/`);
       });
     });
 
@@ -246,7 +240,7 @@ function GamingRoom() {
         allowOutsideClick: false,
         confirmButtonText: 'OK',
       }).then((result) => {
-        navToHome();
+        router.push(`/`);
       });
     });
 
@@ -271,7 +265,7 @@ function GamingRoom() {
       //   confirmButtonText: 'Quit',
       // }).then((result) => {
       //   /* Read more about isConfirmed, isDenied below */
-      //   navToHome();
+      //   router.push(`/`);
       // });
     });
 
@@ -287,7 +281,27 @@ function GamingRoom() {
     return () => {
       socketRef.current.disconnect();
     };
-  }, [roomId, username]);
+  }, [
+    roomId,
+    username,
+    attackQueueRef,
+    mapDataDispatch,
+    mapQueueDataDispatch,
+    myPlayerId,
+    room,
+    setDialogContent,
+    setLeaderBoardData,
+    setMyPlayerId,
+    setOpenOverDialog,
+    setRoomUiStatus,
+    setTurnsCount,
+    snackStateDispatch,
+    socketRef,
+    t,
+    roomDispatch,
+    roomUiStatus,
+    router,
+  ]);
 
   return (
     <div>

@@ -52,7 +52,6 @@ export default function OverDialog(props: OverDialogProps) {
     <Dialog
       open={open}
       onClose={onClose}
-      className='OverDialog'
       title={<h1 className='OverDialog__Title'>{title}</h1>}
       subtitle={<h4 className='OverDialog__Title'>{subtitle}</h4>}
     >

@@ -60,11 +60,11 @@ export default function MapTile(props: MapTileProps) {
 
   const myPlayerIndex = useMemo(() => {
     return getPlayerIndex(room, myPlayerId);
-  }, [room, myPlayerId]);
+  }, [room, myPlayerId, getPlayerIndex]);
 
   const isOwned = useMemo(() => {
     return color === room.players[myPlayerIndex].color;
-  }, [myPlayerIndex, color]);
+  }, [myPlayerIndex, color, room]);
 
   const isNextPossibleMove = useMemo(() => {
     const isNextPossibleMapPosition = Object.values(
@@ -89,7 +89,7 @@ export default function MapTile(props: MapTileProps) {
       unitsCount !== null || // when reveal, swamp / city / plain's unitsCount !== null
       tileType === TileType.Mountain // Mountain is always revealed
     );
-  }, [unitsCount]);
+  }, [unitsCount, tileType]);
 
   const stroke = useMemo(() => {
     if (isSelected) {
@@ -99,7 +99,7 @@ export default function MapTile(props: MapTileProps) {
     if (isRevealed) {
       return revealedStroke;
     }
-  }, [isSelected, isRevealed, tileType]);
+  }, [isSelected, isRevealed]);
 
   const canMove = useMemo(() => {
     return isOwned || isNextPossibleMove;
