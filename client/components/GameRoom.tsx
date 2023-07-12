@@ -284,12 +284,12 @@ function GamingRoom() {
   }, [roomId, username]);
 
   return (
-    <div>
+    <div className="app-container">
       {/* {!room.gameStarted && roomUiStatus && <GameSetting />}
       {room.gameStarted && loading && <GameLoading />}
       {room.gameStarted && !loading && <Game />} */}
-      {roomUiStatus === RoomUiStatus.gameSetting && <GameSetting />}
-      {roomUiStatus === RoomUiStatus.loading && <GameLoading />}
+      {roomUiStatus === RoomUiStatus.gameSetting && <div className="center-layout"><GameSetting /></div>}
+      {roomUiStatus === RoomUiStatus.loading && <div className="center-layout"><GameLoading /></div>}
       {roomUiStatus === RoomUiStatus.gameRealStarted && <Game />}
       <ChatBox
         socket={socketRef.current}
