@@ -53,7 +53,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
 
   const handleRoomNameBlur = (event: any) => {
     setIsNamedFocused(false);
-    socketRef.current.emit('change_room_name', room.roomName);
+    socketRef.current.emit('change_roomName', room.roomName);
   };
 
   const handleClickForceStart = () => {
