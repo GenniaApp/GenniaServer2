@@ -17,7 +17,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const cors_urls = process.env.CLIENT_URL.split(' ')
+const cors_urls = process.env.CLIENT_URL.split(' ');
 console.log(cors_urls)
 app.use(cors({ origin: cors_urls }));
 

@@ -281,27 +281,7 @@ function GamingRoom() {
     return () => {
       socketRef.current.disconnect();
     };
-  }, [
-    roomId,
-    username,
-    attackQueueRef,
-    mapDataDispatch,
-    mapQueueDataDispatch,
-    myPlayerId,
-    room,
-    setDialogContent,
-    setLeaderBoardData,
-    setMyPlayerId,
-    setOpenOverDialog,
-    setRoomUiStatus,
-    setTurnsCount,
-    snackStateDispatch,
-    socketRef,
-    t,
-    roomDispatch,
-    roomUiStatus,
-    router,
-  ]);
+  }, [roomId, username]);
 
   return (
     <div>

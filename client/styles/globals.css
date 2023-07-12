@@ -45,40 +45,6 @@ a {
 
 /* Game css from https://github.com/dhyegocalota/generals-io-webapp */
 
-.Button--small {
-  font-size: 0.7em;
-}
-
-.Button--regular {
-  font-size: 1em;
-}
-
-.Button--big {
-  font-size: 1.3em;
-}
-
-.Button--blank {
-  background-color: #fff;
-  color: var(--primary-color);
-  box-shadow: 2px 2px 0 var(--primary-color);
-}
-
-.Button--blank:hover {
-  background-color: var(--primary-color);
-  color: #fff;
-  box-shadow: 4px 4px 0 var(--primary-color);
-}
-
-.Button--primary {
-  background-color: var(--primary-color);
-  color: #fff;
-  box-shadow: 2px 2px 0 var(--primary-color);
-}
-
-.Button--primary:hover {
-  box-shadow: 4px 4px 0 var(--primary-color);
-}
-
 .Dialog {
   position: fixed;
   top: 0;
@@ -119,37 +85,6 @@ a {
   /* background-color: rgb(17 24 39 / var(--tw-bg-opacity)); */
   /* font-family: "Quicksand", sans-serif; */
   font-size: 16px;
-}
-
-.Game__Players {
-  position: absolute;
-  top: 64px;
-  right: 5px;
-}
-
-.Player__Name {
-  color: #fff;
-}
-
-.Players {
-  background-color: #fff;
-  border-collapse: collapse;
-  font-size: 0.9em;
-}
-
-.Players th,
-.Players td {
-  padding: 0.25em 0.5em;
-  border: 1.5px solid #1f1f1f;
-}
-
-.Players th:first-child,
-.Players td:first-child {
-  text-align: center;
-}
-
-.Players th {
-  font-weight: normal;
 }
 
 .TurnsCount {
