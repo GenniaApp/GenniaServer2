@@ -18,7 +18,7 @@ dotenv.config();
 
 const app = express();
 const cors_urls = process.env.CLIENT_URL.split(' ');
-console.log(cors_urls)
+console.log(cors_urls);
 app.use(cors({ origin: cors_urls }));
 
 app.get('/get_rooms', (req: Request, res: Response) => {
@@ -88,10 +88,10 @@ async function handleGame(room: Room, io: Server) {
     room.players.forEach((player) => {
       let player_socket = io.sockets.sockets.get(player.socket_id);
       if (player_socket) {
-        let playerPrivateInfo: PlayerPrivateInfo = { king: { x: player.king.x, y: player.king.y } }
+        let playerPrivateInfo: PlayerPrivateInfo = { king: { x: player.king.x, y: player.king.y } };
         player_socket.emit('game_started', playerPrivateInfo);
-      };
-    })
+      }
+    });
 
     io.in(room.id).emit('update_room', room);
 
@@ -107,7 +107,7 @@ async function handleGame(room: Room, io: Server) {
             if (block.player !== player && player.isDead === false) {
               console.log(block.player.username, 'captured', player.username);
               io.in(room.id).emit('captured', block.player, player);
-              io.in(room.id).emit('room_message', block.player, `capture ${player.username}`);
+              io.in(room.id).emit('room_message', block.player, `captured ${player.username}`);
               let player_socket = io.sockets.sockets.get(player.socket_id);
               if (player_socket) {
                 player_socket.emit('game_over', block.player); // captured by block.player
@@ -139,13 +139,15 @@ async function handleGame(room: Room, io: Server) {
         if (!alivePlayer) throw new Error('alivePlayer is null');
         io.in(room.id).emit('game_ended', alivePlayer); // winnner
         console.log('Game ended');
-        clearInterval(room.gameLoop);
 
         room.gameStarted = false;
         room.forceStartNum = 0;
         room.players.forEach((player) => {
           player.reset();
-        })
+        });
+        io.in(room.id).emit('update_room', room);
+
+        clearInterval(room.gameLoop);
       }
 
       let leaderBoard: LeaderBoardData = room.players
@@ -181,12 +183,7 @@ async function handleGame(room: Room, io: Server) {
         }
       } else {
         let mapData = await room.map.getMapData();
-        io.in(room.id).emit(
-          'game_update',
-          mapData,
-          room.map.turn,
-          leaderBoard
-        )
+        io.in(room.id).emit('game_update', mapData, room.map.turn, leaderBoard);
       }
 
       room.map.updateTurn();
@@ -248,7 +245,7 @@ io.on('connection', async (socket) => {
   }
   if (!roomPool[roomId]) {
     try {
-      await createRoom(roomId)
+      await createRoom(roomId);
     } catch (e: any) {
       reject_join(socket, e.message);
     }
@@ -310,6 +307,10 @@ io.on('connection', async (socket) => {
     // boardcast new player message to room
     io.in(room.id).emit('room_message', player, 'joined the room.');
     io.in(room.id).emit('update_room', room);
+
+    if (room.players.length >= room.maxPlayers) {
+      await handleGame(room, io);
+    }
   }
 
   console.log(player.username, 'joined the room.');
@@ -329,7 +330,7 @@ io.on('connection', async (socket) => {
       return;
     }
     player = room.players[playerIndex];
-    console.log(`${player} surrender`)
+    console.log(`${player} surrendered`);
 
     room.map.getBlock(player.king).kingBeDominated();
     // 变成中立单元: todo 延迟一段时间再变为中立单元更合理
