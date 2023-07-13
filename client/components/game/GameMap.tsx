@@ -238,6 +238,30 @@ function GameMap() {
   }, [handleKeyDown, mapRef]);
 
   useEffect(() => {
+    let timeoutId: number | undefined;
+    const handleWheel = (event: WheelEvent) => {
+      // if (event.ctrlKey) { // ctrl + wheel
+      event.preventDefault();
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+      timeoutId = window.setTimeout(() => {
+        const newZoom = zoom + event.deltaY * 0.0008;
+        console.log(event.deltaY, zoom, newZoom);
+        setZoom(newZoom);
+        timeoutId = undefined;
+      }, 50);
+      // }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [zoom]);
+
+  useEffect(() => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
     return () => {
