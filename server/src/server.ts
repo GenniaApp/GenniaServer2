@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 
 import { forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
-import { Room, LeaderBoardData } from './lib/types';
+import { Room, LeaderBoardData, PlayerPrivateInfo } from './lib/types';
 import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
 import Point from './lib/point';
 import Player from './lib/player';
@@ -78,19 +78,22 @@ async function handleGame(room: Room, io: Server) {
       room.swamp,
       room.players
     );
-    // Now: Client can get map name / width / height !
-    // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
-    //
-    console.info(`Start game`);
-    room.gameStarted = true;
-    io.in(room.id).emit('update_room', room);
-    // set room all user forceStart to false
-    room.players.forEach((player) => {
-      player.forceStart = false;
-    });
-
     room.players = await room.map.generate();
     room.mapGenerated = true;
+
+    // Now: Client can get map name / width / height !
+    // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
+    console.info(`Start game`);
+    room.gameStarted = true;
+    room.players.forEach((player) => {
+      let player_socket = io.sockets.sockets.get(player.socket_id);
+      if (player_socket) {
+        let playerPrivateInfo: PlayerPrivateInfo = { king: { x: player.king.x, y: player.king.y } }
+        player_socket.emit('game_started', playerPrivateInfo);
+      };
+    })
+
+    io.in(room.id).emit('update_room', room);
 
     let updTime = 500 / room.gameSpeed;
     room.gameLoop = setInterval(async () => {
@@ -325,14 +328,17 @@ io.on('connection', async (socket) => {
       socket.emit('error', 'Surrender failed', 'Player not found.');
       return;
     }
-    room.players[playerIndex].isDead = true;
-    room.map.getBlock(room.players[playerIndex].king).kingBeDominated();
+    player = room.players[playerIndex];
+    console.log(`${player} surrender`)
 
+    room.map.getBlock(player.king).kingBeDominated();
     // 变成中立单元: todo 延迟一段时间再变为中立单元更合理
-    room.players[playerIndex].land.forEach((block) => {
+    player.land.forEach((block) => {
       block.beNeutralized();
     });
     player.land.length = 0;
+    player.king = null;
+    player.isDead = true;
 
     io.in(room.id).emit('room_message', player, 'surrendered');
   });
@@ -531,7 +537,6 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('attack', async (from: Point, to: Point, isHalf: boolean) => {
-    console.log('attack', player.username, from, to, isHalf)
     let playerIndex = await getPlayerIndexBySocket(room, socket.id);
     if (playerIndex !== -1) {
       let player = room.players[playerIndex];

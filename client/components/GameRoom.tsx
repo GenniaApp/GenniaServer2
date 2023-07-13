@@ -14,6 +14,7 @@ import {
   Route,
   Position,
   RoomUiStatus,
+  PlayerPrivateInfo,
 } from '@/lib/types';
 import Game from '@/components/game/Game';
 import { useGame, useGameDispatch } from '@/context/GameContext';
@@ -42,6 +43,7 @@ function GamingRoom() {
     setOpenOverDialog,
     snackStateDispatch,
     mapQueueDataDispatch,
+    setPlayerPrivateInfo,
   } = useGameDispatch();
 
   useEffect(() => {
@@ -142,6 +144,9 @@ function GamingRoom() {
       console.log(`set_player_id: ${playerId}`);
       setMyPlayerId(playerId);
       localStorage.setItem('playerId', playerId);
+    });
+    socket.on('game_started', (playerPrivateInfo: PlayerPrivateInfo) => {
+      setPlayerPrivateInfo(playerPrivateInfo);
     });
     socket.on('update_room', (room: Room) => {
       console.log('update_room');

@@ -13,6 +13,7 @@ import {
   MapQueueData,
   LeaderBoardData,
   RoomUiStatus,
+  PlayerPrivateInfo,
 } from '@/lib/types';
 
 interface SnackState {
@@ -35,6 +36,7 @@ interface GameContext {
   snackState: SnackState;
   attackQueueRef: any; // AttackQueue
   selectedMapTileInfo: SelectedMapTileInfo;
+  playerPrivateInfo: PlayerPrivateInfo | null;
 }
 
 interface GameDispatch {
@@ -53,6 +55,7 @@ interface GameDispatch {
   setSelectedMapTileInfo: React.Dispatch<
     React.SetStateAction<SelectedMapTileInfo>
   >;
+  setPlayerPrivateInfo: React.Dispatch<any>;
 }
 
 const GameContext = createContext<GameContext | undefined>(undefined);
@@ -78,6 +81,8 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
     message: '',
   });
   const [myPlayerId, setMyPlayerId] = useState('');
+  const [playerPrivateInfo, setPlayerPrivateInfo] =
+    useState<PlayerPrivateInfo | null>(null);
   const [turnsCount, setTurnsCount] = useState(0);
   const [leaderBoardData, setLeaderBoardData] = useState(null);
   const [dialogContent, setDialogContent] = useState<[Player | null, string]>([
@@ -109,6 +114,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
         snackState,
         attackQueueRef,
         selectedMapTileInfo,
+        playerPrivateInfo,
       }}
     >
       <GameDispatch.Provider
@@ -124,6 +130,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
           setOpenOverDialog,
           snackStateDispatch,
           setSelectedMapTileInfo,
+          setPlayerPrivateInfo,
         }}
       >
         {children}

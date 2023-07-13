@@ -21,6 +21,7 @@ class Player {
   }
 
   reset(): void {
+    this.forceStart = false;
     this.isDead = false;
     this.operatedTurn = 0;
     this.land = [];

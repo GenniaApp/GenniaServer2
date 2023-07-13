@@ -4,6 +4,10 @@ import GameMap from './map';
 
 export { Point, Player, GameMap };
 
+export interface PlayerPrivateInfo {
+  king: Position;
+}
+
 export interface SelectedMapTileInfo {
   x: number,
   y: number,

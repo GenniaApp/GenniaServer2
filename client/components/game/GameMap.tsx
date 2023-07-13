@@ -9,7 +9,13 @@ function GameMap() {
   const [dragging, setDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
-  const { attackQueueRef, room, mapData, selectedMapTileInfo } = useGame();
+  const {
+    attackQueueRef,
+    room,
+    mapData,
+    selectedMapTileInfo,
+    playerPrivateInfo,
+  } = useGame();
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
   const mapRef = useRef<HTMLDivElement>(null);
   const timeoutId = useRef<number | undefined>(undefined);
@@ -186,6 +192,16 @@ function GameMap() {
               ...selectedMapTileInfo,
               x: route.from.x,
               y: route.from.y,
+            });
+          }
+          break;
+        case 'g':
+          // G to select king
+          if (playerPrivateInfo) {
+            setSelectedMapTileInfo({
+              ...selectedMapTileInfo,
+              x: playerPrivateInfo.king.x,
+              y: playerPrivateInfo.king.y,
             });
           }
           break;
