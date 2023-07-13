@@ -6,10 +6,6 @@ export default function Document() {
       <Head />
       <title>Gennia</title>
       <link rel='shortcut icon' href='/img/favicon.png' />
-      <link
-        href='https://fonts.googleapis.com/css2?family=Nunito&display=optional'
-        rel='stylesheet'
-      />
 
       <meta
         name='description'

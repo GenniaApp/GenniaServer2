@@ -57,6 +57,9 @@ const ChatBoxInput = styled('div')`
   display: flex;
   align-items: center;
   padding: 10px;
+  &.hidden {
+    display: none;
+  }
 `;
 
 const ChatBoxTextField = styled(TextField)`
@@ -150,7 +153,7 @@ const ChatBox = ({ socket, messages, setMessages }: ChatBoxProp) => {
         ))}
         <div ref={messagesEndRef} />
       </ChatBoxMessages>
-      <ChatBoxInput>
+      <ChatBoxInput className={isExpand ? '' : 'hidden'}>
         <ChatBoxTextField
           autoFocus
           hiddenLabel

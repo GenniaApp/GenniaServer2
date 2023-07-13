@@ -18,17 +18,10 @@ export default function LeaderBoard(props: LeaderBoardProps) {
   const { leaderBoardData } = props;
   if (!leaderBoardData) return null;
   return (
-    <TableContainer
-      sx={{
-        position: 'absolute',
-        right: '5px',
-        top: '0px',
-        width: 'min-content',
-      }}
-    >
+    <TableContainer>
       <Table>
         <TableHead>
-          <TableRow sx={{ backgroundColor: 'black' }}>
+          <TableRow sx={{ backgroundColor: 'transparent' }}>
             <TableCell>Player</TableCell>
             <TableCell>Army</TableCell>
             <TableCell>Land</TableCell>
