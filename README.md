@@ -68,8 +68,11 @@ pnpm run dev
 
 [PM2](https://github.com/Unitech/pm2) is a production process manager for Node.js applications, which is very easy to use.
 
+change `client/.env.production` & `server/.env`
+
 ```shell
 pnpm install pm2 -g
+cd client && pnpm run build
 cd client && pm2 start pnpm --name "gennia-client" -- start --port 3000
 cd server && pm2 start pnpm --name "gennia-server" -- start --port 3001
 ```
