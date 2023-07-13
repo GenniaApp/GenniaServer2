@@ -79,6 +79,11 @@ cd server && pm2 start pnpm --name "gennia-server" -- start --port 3001
 
 ## [Roadmap](https://github.com/orgs/GenniaApp/projects/1)
 
+## JoinUs
+
+- QQ Group : 374889821
+- [Discord](https://discord.gg/TXVmzZAE)
+
 ## License
 
 Distributed under the GNU GENERAL PUBLIC LICENSE VERSION 3. See `LICENSE.txt` for more information.
