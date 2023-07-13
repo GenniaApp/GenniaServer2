@@ -54,8 +54,8 @@ function GamingRoom() {
     if (!roomId) return;
     if (!username) return;
     class AttackQueue {
-      private items: Route[];
-      private lastItem: Route | undefined;
+      public items: Route[];
+      public lastItem: Route | undefined;
 
       constructor() {
         this.items = new Array<Route>();
@@ -70,8 +70,8 @@ function GamingRoom() {
       clearFromMap(route: Route): void {
         mapQueueDataDispatch({
           type: 'change',
-          x: route.to.x,
-          y: route.to.y,
+          x: route.from.x,
+          y: route.from.y,
           className: '',
         });
       }
@@ -117,8 +117,10 @@ function GamingRoom() {
         this.clearLastItem();
       }
 
-      private clearLastItem(): void {
-        if (this.lastItem) this.clearFromMap(this.lastItem);
+      clearLastItem(): void {
+        if (this.lastItem) {
+          this.clearFromMap(this.lastItem);
+        }
       }
     }
 
@@ -196,7 +198,7 @@ function GamingRoom() {
           socket.emit('attack', item.from, item.to, item.half);
           console.log('emit attack: ', item.from, item.to, item.half);
         } else if (attackQueueRef.current.lastItem) {
-          attackQueueRef.current.clear();
+          attackQueueRef.current.clearLastItem();
         }
       }
     );

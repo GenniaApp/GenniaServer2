@@ -62,7 +62,8 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
     socketRef.current.emit('force_start');
   };
 
-  const disabled_ui = useMemo(() => {
+  const disabled_ui: boolean = useMemo(() => {
+    // when player is not host
     if (myPlayerId && room.players) {
       for (let i = 0; i < room.players.length; ++i) {
         if (room.players[i].id === myPlayerId) {
@@ -130,11 +131,11 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             </IconButton>
           }
           title={
-            !isNameFocused ? (
+            !isNameFocused || disabled_ui ? (
               <Typography
                 sx={{ fontSize: '30px', color: '#FFFFFF' }}
                 onClick={() => {
-                  setIsNamedFocused(true);
+                  !disabled_ui && setIsNamedFocused(true);
                 }}
               >
                 {room.roomName}
