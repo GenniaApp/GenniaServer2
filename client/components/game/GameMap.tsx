@@ -12,6 +12,7 @@ function GameMap() {
   const { attackQueueRef, room, mapData, selectedMapTileInfo } = useGame();
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
   const mapRef = useRef<HTMLDivElement>(null);
+  const timeoutId = useRef<number | undefined>(undefined);
 
   // init when GameStarted
   useEffect(() => {
@@ -65,13 +66,7 @@ function GameMap() {
         });
       }
     },
-    [
-      selectedMapTileInfo,
-      withinMap,
-      attackQueueRef,
-      setSelectedMapTileInfo,
-      mapQueueDataDispatch,
-    ]
+    [selectedMapTileInfo, withinMap, attackQueueRef]
   );
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -120,6 +115,7 @@ function GameMap() {
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
+      console.log('keydown: ', event.key);
       switch (event.key) {
         case '1':
           setZoom(0.7);
@@ -230,49 +226,43 @@ function GameMap() {
     ]
   );
 
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [handleKeyDown, mapRef]);
-
-  useEffect(() => {
-    let timeoutId: number | undefined;
-    const handleWheel = (event: WheelEvent) => {
-      // if (event.ctrlKey) { // ctrl + wheel
+  const handleWheel = useCallback(
+    (event: WheelEvent) => {
       event.preventDefault();
-      if (timeoutId !== undefined) {
-        window.clearTimeout(timeoutId);
+      if (timeoutId.current !== undefined) {
+        window.clearTimeout(timeoutId.current);
       }
-      timeoutId = window.setTimeout(() => {
-        const newZoom = zoom + event.deltaY * 0.0008;
+      timeoutId.current = window.setTimeout(() => {
+        const newZoom = zoom + event.deltaY * -0.0008;
         console.log(event.deltaY, zoom, newZoom);
         setZoom(newZoom);
-        timeoutId = undefined;
+        timeoutId.current = undefined;
       }, 50);
-      // }
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: false });
-
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-    };
-  }, [zoom]);
+    },
+    [zoom, timeoutId]
+  );
 
   useEffect(() => {
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [dragging, handleMouseMove, handleMouseUp]);
+    if (mapRef.current) {
+      mapRef.current.addEventListener('wheel', handleWheel, { passive: false });
+      mapRef.current.addEventListener('keydown', handleKeyDown);
+      mapRef.current.addEventListener('mousemove', handleMouseMove);
+      mapRef.current.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        if (mapRef.current) {
+          mapRef.current.removeEventListener('wheel', handleWheel);
+          mapRef.current.removeEventListener('keydown', handleKeyDown);
+          mapRef.current.removeEventListener('mousemove', handleMouseMove);
+          mapRef.current.removeEventListener('mouseup', handleMouseUp);
+        }
+      };
+    }
+  }, [handleKeyDown, handleWheel, handleMouseMove, handleMouseUp]);
 
   return (
     <div
       ref={mapRef}
+      tabIndex={0}
       style={{
         position: 'absolute',
         top: '50%',
