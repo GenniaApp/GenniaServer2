@@ -64,7 +64,6 @@ function Lobby() {
 
   return (
     <Box
-      className='bg-container'
       display='flex'
       flexDirection='column'
       alignItems='center'

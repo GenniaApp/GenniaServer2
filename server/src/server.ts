@@ -135,14 +135,14 @@ async function handleGame(room: Room, io: Server) {
       if (countAlive === 1) {
         if (!alivePlayer) throw new Error('alivePlayer is null');
         io.in(room.id).emit('game_ended', alivePlayer); // winnner
+        console.log('Game ended');
+        clearInterval(room.gameLoop);
+
         room.gameStarted = false;
         room.forceStartNum = 0;
         room.players.forEach((player) => {
-          player.isDead = false;
+          player.reset();
         })
-        console.log('Game ended');
-        clearInterval(room.gameLoop);
-        io.in(room.id).emit('update_room', room);
       }
 
       let leaderBoard: LeaderBoardData = room.players
@@ -531,6 +531,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('attack', async (from: Point, to: Point, isHalf: boolean) => {
+    console.log('attack', player.username, from, to, isHalf)
     let playerIndex = await getPlayerIndexBySocket(room, socket.id);
     if (playerIndex !== -1) {
       let player = room.players[playerIndex];

@@ -59,8 +59,6 @@ function Navbar() {
 
   const { t } = useTranslation();
 
-  const [open, setOpen] = useState(false);
-
   return (
     <AppBar position='fixed' className='navbar'>
       <Container maxWidth='xl' className='dock'>
@@ -158,9 +156,7 @@ function Navbar() {
             </Link>
           ))}
         </Box>
-        <Box
-          id='lng-selector'
-        >
+        <Box id='lng-selector'>
           <FormControl>
             <Select
               color='secondary'

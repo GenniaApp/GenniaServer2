@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Dialog from './Dialog';
 import { Button } from '@mui/material';
 import { useTranslation } from 'next-i18next';
+import { useGame } from '@/context/GameContext';
 
 export default function SurrenderDialog({
   handleSurrender,
@@ -9,6 +10,7 @@ export default function SurrenderDialog({
   handleSurrender: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { openOverDialog } = useGame();
   const { t } = useTranslation();
 
   const handleClose = useCallback(() => {
@@ -17,11 +19,11 @@ export default function SurrenderDialog({
 
   const handleKeydown = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !isOpen) {
+      if (event.key === 'Escape' && !isOpen && !openOverDialog) {
         setIsOpen(true);
       }
     },
-    [isOpen]
+    [isOpen, openOverDialog]
   );
 
   const handleCloseSurrender = useCallback(() => {

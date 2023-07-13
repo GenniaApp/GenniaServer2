@@ -12,11 +12,19 @@ class Player {
     public isDead: boolean = false,
     public operatedTurn: number = 0,
     public land: Block[] = [],
-    public king: Block = new Block(0, 0, TileType.King)
-  ) {}
+    public king: Block | null = null
+  ) { }
+
   toJSON() {
     const { land, king, ...json } = this;
     return json;
+  }
+
+  reset(): void {
+    this.isDead = false;
+    this.operatedTurn = 0;
+    this.land = [];
+    this.king = new Block(0, 0, TileType.King);
   }
 
   setRoomHost(value: boolean): void {

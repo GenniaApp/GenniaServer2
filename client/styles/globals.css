@@ -60,6 +60,7 @@ a {
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
 }
 
@@ -159,7 +160,7 @@ a {
   height: 100%;
   background: rgb(99 97 141 / 68%) !important;
   border-radius: 0 0 10px 10px;
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: space-evenly;
 }
@@ -187,7 +188,7 @@ a {
 
 .menu-container {
   backdrop-filter: blur(3px);
-  background-color: rgb(99 97 141 / 68%);
+  background-color: rgb(99 97 141 / 68%) !important;
   border-radius: 10px;
   padding: 8px;
   margin-top: 10px;

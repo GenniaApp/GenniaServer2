@@ -37,10 +37,10 @@ class GameMap {
     public mountain: number,
     public city: number,
     public swamp: number,
-    public kings: Player[]
+    public players: Player[]
   ) {
-    this.width = Math.ceil(Math.sqrt(kings.length) * 5 + 6 * width);
-    this.height = Math.ceil(Math.sqrt(kings.length) * 5 + 6 * height);
+    this.width = Math.ceil(Math.sqrt(players.length) * 5 + 6 * width);
+    this.height = Math.ceil(Math.sqrt(players.length) * 5 + 6 * height);
     if (mountain + city === 0) {
       this.mountain = this.city = 0;
     } else {
@@ -55,7 +55,7 @@ class GameMap {
     this.swamp = Math.ceil(
       ((this.width * this.height - this.mountain - this.city) / 3) * swamp
     );
-    this.kings = kings;
+    this.players = players;
     this.map = Array.from(Array(this.width), () =>
       Array(this.height).fill(null)
     );
@@ -147,7 +147,7 @@ class GameMap {
       }
     }
     // Generate the king
-    for (let i = 0; i < this.kings.length; ++i) {
+    for (let i = 0; i < this.players.length; ++i) {
       let pos = null;
       while (true) {
         let x = getRandomInt(0, this.width);
@@ -156,19 +156,19 @@ class GameMap {
         let block = this.getBlock(pos);
         if (block.type !== TileType.King) {
           let flag = true;
-          for (let j = 0; j < i; ++j)
-            if (
-              calcDistance(
-                new Point(this.kings[j].king.x, this.kings[j].king.y),
-                new Point(x, y)
-              ) <= 6
-            ) {
+          for (let j = 0; j < i; ++j) {
+            const otherKing = this.players[j].king;
+            if (otherKing && calcDistance(
+              new Point(otherKing.x, otherKing.y),
+              new Point(x, y)
+            ) <= 6) {
               flag = false;
               break;
             }
+          }
           if (flag) {
-            block.initKing(this.kings[i]);
-            this.kings[i].initKing(block);
+            block.initKing(this.players[i]);
+            this.players[i].initKing(block);
             break;
           }
         }
@@ -234,10 +234,10 @@ class GameMap {
       this.map[x][y].type = TileType.Swamp;
     }
     console.log('Swamps generated successfully');
-    let kings = this.kings;
+    let players = this.players;
     return new Promise(function (resolve, reject) {
       console.log('Map generated successfully');
-      resolve(kings);
+      resolve(players);
     });
   }
 

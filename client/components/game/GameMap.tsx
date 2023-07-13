@@ -23,6 +23,13 @@ function GameMap() {
       `init mapQueueData: width=${room.map.width}, height=${room.map.height}`
     );
 
+    setSelectedMapTileInfo({
+      x: -1,
+      y: -1,
+      half: false,
+      unitsCount: 0,
+    });
+
     mapQueueDataDispatch({
       type: 'init',
       width: room.map.width,
@@ -257,7 +264,7 @@ function GameMap() {
         }
       };
     }
-  }, [handleKeyDown, handleWheel, handleMouseMove, handleMouseUp]);
+  }, [mapRef, handleKeyDown, handleWheel, handleMouseMove, handleMouseUp]);
 
   return (
     <div
