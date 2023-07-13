@@ -1,16 +1,44 @@
 ## GenniaServer 2
 
-> **Work In Process** just UI now
+<h1 align="center">
+  <img src="client/public/img/favicon.png" style="height: 90px;"alt="Gennia">
+  <br>
+  <a href="https://gennia.io"> Gennia</a>
+</h1>
+
+> Yet another generals.io clone server & client
+
+![**Gennia Game UI**](gennia.jpg)
 
 What is GenniaServer 2?
 
 - A realtime multiplayer game where the goal is to capture all of the enemy's general without losing your own
 - using react/nextjs/socket/express
-- inspired by [generals.io](https://generals.io), the game mode will be different from generals in the future.
+- inspired by [generals.io](https://generals.io), the game mode will be different from generals.io in the future.
 
 ## How to Play
 
-WIP
+Your goal is to capture other generals.
+
+- Plains produce one unit every 25 turns
+- Cities and generals produce one unit every turn
+- You can move twice per turn.
+- When you capture the enemy general, all his territory belongs to you and his army strength is halved and becomes yours.
+
+| function           | keyboard       |
+| ------------------ | -------------- |
+| Move Up            | w / ArrowUp    |
+| Move Down          | s / ArrowDown  |
+| Move Left          | a / ArrayLeft  |
+| Move Right         | d / ArrayRight |
+| Open Chat          | enter          |
+| Undo Move          | e              |
+| Clear Queued Moves | q              |
+| Select on general  | g              |
+| Toggle 50%         | z              |
+| Set Zoom to Preset | 1 / 2 / 3      |
+| Zoom in / out      | mouse wheel    |
+| Surrender          | escape         |
 
 ## Development
 
@@ -38,7 +66,15 @@ pnpm run dev
 
 ## Deployment
 
-WIP
+[PM2](https://github.com/Unitech/pm2) is a production process manager for Node.js applications, which is very easy to use.
+
+```shell
+pnpm install pm2 -g
+cd client && pm2 start pnpm --name "gennia-client" -- start --port 3000
+cd server && pm2 start pnpm --name "gennia-server" -- start --port 3001
+```
+
+## [Roadmap](https://github.com/orgs/GenniaApp/projects/1)
 
 ## License
 
@@ -47,8 +83,4 @@ Distributed under the GNU GENERAL PUBLIC LICENSE VERSION 3. See `LICENSE.txt` fo
 ## Acknowledgments
 
 - [MadJS](https://github.com/fluffybeastgames/MadJS/)
-- [gennia](https://github.com/GenniaApp/Gennia)
 - [generals-io-webapp](https://github.com/dhyegocalota/generals-io-webapp)
-- [nextjs-socket-chat](https://github.com/jglchen/nextjs-socket-chat)
-
-thx for help from @fluffybeastgames
