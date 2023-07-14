@@ -122,7 +122,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           snackStateDispatch({ type: 'toggle' });
         }}
       >
-        <Alert severity="error" sx={{ width: '100%' }}>
+        <Alert severity='error' sx={{ width: '100%' }}>
           <AlertTitle>{snackState.title}</AlertTitle>
           {snackState.message}
         </Alert>
@@ -248,6 +248,17 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                   }
                   label={t('fog-of-war')}
                 />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={room.deathSpectator}
+                      // @ts-ignore
+                      onChange={handleSettingChange('deathSpectator')}
+                      disabled={disabled_ui}
+                    />
+                  }
+                  label={t('death-spectator')}
+                />
               </FormGroup>
             </Box>
           </TabPanel>
@@ -320,7 +331,12 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         variant='contained'
         color={forceStart ? 'primary' : 'secondary'}
         size='large'
-        sx={{ width: '100%', height: '60px', fontSize: '20px', borderRadius: '10px' }}
+        sx={{
+          width: '100%',
+          height: '60px',
+          fontSize: '20px',
+          borderRadius: '10px',
+        }}
         onClick={handleClickForceStart}
       >
         {t('force-start')}({room.forceStartNum}/{forceStartOK[room.maxPlayers]})

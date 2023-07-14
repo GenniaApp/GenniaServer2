@@ -4,8 +4,10 @@ import GameMap from './map';
 
 export { Point, Player, GameMap };
 
-export interface PlayerPrivateInfo {
+export interface initGameInfo {
   king: Position;
+  mapWidth: number;
+  mapHeight: number;
 }
 
 export interface SelectedMapTileInfo {
@@ -59,6 +61,7 @@ export class Room {
     public city: number = 0.5,
     public swamp: number = 0,
     public fogOfWar: boolean = true,
+    public deathSpectator: boolean = true, // allow dead player to watch game
 
     public map: GameMap | null = null,
     public gameLoop: any = null, // gameLoop function

@@ -9,28 +9,23 @@ function GameMap() {
   const [dragging, setDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
-  const {
-    attackQueueRef,
-    room,
-    mapData,
-    selectedMapTileInfo,
-    playerPrivateInfo,
-  } = useGame();
+  const { attackQueueRef, room, mapData, selectedMapTileInfo, initGameInfo } =
+    useGame();
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
   const mapRef = useRef<HTMLDivElement>(null);
   const timeoutId = useRef<number | undefined>(undefined);
 
   const withinMap = useCallback(
     (point: Position) => {
-      if (!room.map) return false;
+      if (!initGameInfo) return false;
       return (
         0 <= point.x &&
-        point.x < room.map.width &&
+        point.x < initGameInfo.mapWidth &&
         0 <= point.y &&
-        point.y < room.map.height
+        point.y < initGameInfo.mapHeight
       );
     },
-    [room]
+    [initGameInfo]
   );
 
   const handlePositionChange = useCallback(
@@ -197,11 +192,11 @@ function GameMap() {
           break;
         case 'g':
           // G to select king
-          if (playerPrivateInfo) {
+          if (initGameInfo) {
             setSelectedMapTileInfo({
               ...selectedMapTileInfo,
-              x: playerPrivateInfo.king.x,
-              y: playerPrivateInfo.king.y,
+              x: initGameInfo.king.x,
+              y: initGameInfo.king.y,
             });
           }
           break;

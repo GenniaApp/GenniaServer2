@@ -14,7 +14,7 @@ import {
   Route,
   Position,
   RoomUiStatus,
-  PlayerPrivateInfo,
+  initGameInfo,
 } from '@/lib/types';
 import Game from '@/components/game/Game';
 import { useGame, useGameDispatch } from '@/context/GameContext';
@@ -44,7 +44,7 @@ function GamingRoom() {
     snackStateDispatch,
     mapQueueDataDispatch,
     setSelectedMapTileInfo,
-    setPlayerPrivateInfo,
+    setInitGameInfo,
   } = useGameDispatch();
 
   useEffect(() => {
@@ -146,15 +146,9 @@ function GamingRoom() {
       setMyPlayerId(playerId);
       localStorage.setItem('playerId', playerId);
     });
-    socket.on('game_started', (playerPrivateInfo: PlayerPrivateInfo) => {
-      setPlayerPrivateInfo(playerPrivateInfo);
-
-      if (!room.map) return;
-      if (!room.gameStarted) return;
-
-      console.log(
-        `init mapQueueData: width=${room.map.width}, height=${room.map.height}`
-      );
+    socket.on('game_started', (initGameInfo: initGameInfo) => {
+      console.log('Game started:', initGameInfo);
+      setInitGameInfo(initGameInfo);
 
       setSelectedMapTileInfo({
         x: -1,
@@ -165,8 +159,8 @@ function GamingRoom() {
 
       mapQueueDataDispatch({
         type: 'init',
-        width: room.map.width,
-        height: room.map.height,
+        width: initGameInfo.mapWidth,
+        height: initGameInfo.mapHeight,
       });
     });
     socket.on('update_room', (room: Room) => {

@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 
 import { forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
-import { Room, LeaderBoardData, PlayerPrivateInfo } from './lib/types';
+import { Room, LeaderBoardData, initGameInfo, MapData } from './lib/types';
 import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
 import Point from './lib/point';
 import Player from './lib/player';
@@ -89,8 +89,8 @@ async function handleGame(room: Room, io: Server) {
     room.players.forEach((player) => {
       let player_socket = io.sockets.sockets.get(player.socket_id);
       if (player_socket) {
-        let playerPrivateInfo: PlayerPrivateInfo = { king: { x: player.king.x, y: player.king.y } };
-        player_socket.emit('game_started', playerPrivateInfo);
+        let initGameInfo: initGameInfo = { king: { x: player.king.x, y: player.king.y }, mapWidth: room.map.width, mapHeight: room.map.height };
+        player_socket.emit('game_started', initGameInfo);
       }
     });
 
@@ -169,8 +169,12 @@ async function handleGame(room: Room, io: Server) {
         for (let socket of room_sockets) {
           let playerIndex = await getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1) {
-            let mapData = await room.map.getViewPlayer(room.players[playerIndex]);
-            // todo, if player is spectator, return all map data
+            let mapData: MapData;
+            if (room.deathSpectator && room.players[playerIndex].isDead) {
+              mapData = await room.map.getMapData();
+            } else {
+              mapData = await room.map.getViewPlayer(room.players[playerIndex]);
+            }
 
             socket.emit(
               'game_update',
