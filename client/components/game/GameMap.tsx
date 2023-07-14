@@ -81,8 +81,9 @@ function GameMap() {
     },
     [selectedMapTileInfo, withinMap, attackQueueRef]
   );
+
   const handleMouseDown = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
+    (event: MouseEvent) => {
       setDragging(true);
       setStartPosition({
         x: event.clientX - position.x,
@@ -107,6 +108,28 @@ function GameMap() {
   const handleMouseUp = useCallback(() => {
     setDragging(false);
   }, []);
+
+  const handleTouchStart = useCallback(
+    (event: TouchEvent) => {
+      setStartPosition({
+        x: event.targetTouches[0].clientX - position.x,
+        y: event.targetTouches[0].clientY - position.y,
+      });
+    },
+    [mapRef, startPosition]
+  );
+
+  const handleTouchMove = useCallback(
+    (event: TouchEvent) => {
+      if (mapRef.current) {
+        setPosition({
+          x: event.targetTouches[0].clientX - startPosition.x,
+          y: event.targetTouches[0].clientY - startPosition.y,
+        });
+      }
+    },
+    [mapRef, startPosition]
+  );
 
   const [zoom, setZoom] = useState(1);
   const [tileSize, setTileSize] = useState(50);
@@ -271,6 +294,8 @@ function GameMap() {
       mapRef.current.addEventListener('keydown', handleKeyDown);
       mapRef.current.addEventListener('mousemove', handleMouseMove);
       mapRef.current.addEventListener('mouseup', handleMouseUp);
+      mapRef.current.addEventListener('touchstart', handleTouchStart);
+      mapRef.current.addEventListener('touchmove', handleTouchMove);
       return () => {
         if (mapRef.current) {
           mapRef.current.removeEventListener('wheel', handleWheel);
