@@ -105,8 +105,16 @@ a {
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-direction: column;
+}
+
+.center-layout>div>:first-child {
+  margin-top: 80px !important;
+}
+
+.center-layout>div>:last-child {
+  margin-bottom: 80px !important;
 }
 
 /* Game css from https://github.com/dhyegocalota/generals-io-webapp */

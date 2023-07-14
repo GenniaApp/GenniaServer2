@@ -5,6 +5,7 @@ import {
   Box,
   Card,
   Alert,
+  AlertTitle,
   CardHeader,
   CardContent,
   Button,
@@ -120,9 +121,12 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         onClose={() => {
           snackStateDispatch({ type: 'toggle' });
         }}
-        title={snackState.title}
-        message={snackState.message}
-      />
+      >
+        <Alert severity="error" sx={{ width: '100%' }}>
+          <AlertTitle>{snackState.title}</AlertTitle>
+          {snackState.message}
+        </Alert>
+      </Snackbar>
       <Card className='menu-container' sx={{ mb: 2 }}>
         <CardHeader
           avatar={
@@ -316,7 +320,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         variant='contained'
         color={forceStart ? 'primary' : 'secondary'}
         size='large'
-        sx={{ width: '100%', height: '60px', fontSize: '20px' }}
+        sx={{ width: '100%', height: '60px', fontSize: '20px', borderRadius: '10px' }}
         onClick={handleClickForceStart}
       >
         {t('force-start')}({room.forceStartNum}/{forceStartOK[room.maxPlayers]})
