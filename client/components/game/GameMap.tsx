@@ -292,6 +292,7 @@ function GameMap() {
     if (mapRef.current) {
       mapRef.current.addEventListener('wheel', handleWheel, { passive: false });
       mapRef.current.addEventListener('keydown', handleKeyDown);
+      mapRef.current.addEventListener('mousedown', handleMouseDown);
       mapRef.current.addEventListener('mousemove', handleMouseMove);
       mapRef.current.addEventListener('mouseup', handleMouseUp);
       mapRef.current.addEventListener('touchstart', handleTouchStart);
@@ -300,12 +301,24 @@ function GameMap() {
         if (mapRef.current) {
           mapRef.current.removeEventListener('wheel', handleWheel);
           mapRef.current.removeEventListener('keydown', handleKeyDown);
+          mapRef.current.removeEventListener('mousedown', handleMouseDown);
           mapRef.current.removeEventListener('mousemove', handleMouseMove);
           mapRef.current.removeEventListener('mouseup', handleMouseUp);
+          mapRef.current.removeEventListener('touchstart', handleTouchStart);
+          mapRef.current.removeEventListener('touchmove', handleTouchMove);
         }
       };
     }
-  }, [mapRef, handleKeyDown, handleWheel, handleMouseMove, handleMouseUp]);
+  }, [
+    mapRef,
+    handleKeyDown,
+    handleWheel,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+    handleTouchStart,
+    handleTouchMove,
+  ]);
 
   return (
     <div
@@ -319,7 +332,6 @@ function GameMap() {
         width: mapPixelWidth,
         height: mapPixelHeight,
       }}
-      onMouseDown={handleMouseDown}
     >
       {mapData.map((tiles, x) => {
         return tiles.map((tile, y) => {
