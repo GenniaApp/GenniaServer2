@@ -20,29 +20,6 @@ function GameMap() {
   const mapRef = useRef<HTMLDivElement>(null);
   const timeoutId = useRef<number | undefined>(undefined);
 
-  // init when GameStarted
-  useEffect(() => {
-    if (!room.map) return;
-    if (!room.gameStarted) return;
-
-    console.log(
-      `init mapQueueData: width=${room.map.width}, height=${room.map.height}`
-    );
-
-    setSelectedMapTileInfo({
-      x: -1,
-      y: -1,
-      half: false,
-      unitsCount: 0,
-    });
-
-    mapQueueDataDispatch({
-      type: 'init',
-      width: room.map.width,
-      height: room.map.height,
-    });
-  }, [room, mapQueueDataDispatch]);
-
   const withinMap = useCallback(
     (point: Position) => {
       if (!room.map) return false;

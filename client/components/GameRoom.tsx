@@ -43,6 +43,7 @@ function GamingRoom() {
     setOpenOverDialog,
     snackStateDispatch,
     mapQueueDataDispatch,
+    setSelectedMapTileInfo,
     setPlayerPrivateInfo,
   } = useGameDispatch();
 
@@ -147,6 +148,26 @@ function GamingRoom() {
     });
     socket.on('game_started', (playerPrivateInfo: PlayerPrivateInfo) => {
       setPlayerPrivateInfo(playerPrivateInfo);
+
+      if (!room.map) return;
+      if (!room.gameStarted) return;
+
+      console.log(
+        `init mapQueueData: width=${room.map.width}, height=${room.map.height}`
+      );
+
+      setSelectedMapTileInfo({
+        x: -1,
+        y: -1,
+        half: false,
+        unitsCount: 0,
+      });
+
+      mapQueueDataDispatch({
+        type: 'init',
+        width: room.map.width,
+        height: room.map.height,
+      });
     });
     socket.on('update_room', (room: Room) => {
       console.log('update_room');

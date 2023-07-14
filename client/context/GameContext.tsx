@@ -188,8 +188,6 @@ const mapQueueDataReducer = (state: MapQueueData, action: any) => {
           text: '',
         })
       );
-    case 'update':
-      return action.payload;
     case 'change': // change map[x][y]'s className, when className equal to '50%'
       state[action.x][action.y] = {
         className: action.className,
