@@ -85,6 +85,7 @@ async function handleGame(room: Room, io: Server) {
     // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
     console.info(`Start game`);
     room.gameStarted = true;
+    io.in(room.id).emit('update_room', room);
     room.players.forEach((player) => {
       let player_socket = io.sockets.sockets.get(player.socket_id);
       if (player_socket) {
@@ -92,8 +93,6 @@ async function handleGame(room: Room, io: Server) {
         player_socket.emit('game_started', playerPrivateInfo);
       }
     });
-
-    io.in(room.id).emit('update_room', room);
 
     let updTime = 500 / room.gameSpeed;
     room.gameLoop = setInterval(async () => {
@@ -332,6 +331,11 @@ io.on('connection', async (socket) => {
     player = room.players[playerIndex];
     console.log(`${player} surrendered`);
 
+    if (!room.map) {
+      socket.emit('error', 'Surrender failed', 'Map not found.');
+      console.log('Error! Map not found.')
+      return;
+    }
     room.map.getBlock(player.king).kingBeDominated();
     // 变成中立单元: todo 延迟一段时间再变为中立单元更合理
     player.land.forEach((block) => {
