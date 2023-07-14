@@ -116,7 +116,7 @@ function GameMap() {
         y: event.targetTouches[0].clientY - position.y,
       });
     },
-    [mapRef, startPosition]
+    [position]
   );
 
   const handleTouchMove = useCallback(
