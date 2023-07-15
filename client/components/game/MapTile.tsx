@@ -301,7 +301,7 @@ export default function MapTile(props: MapTileProps) {
             fontSize: zoomedFontSize,
             color: '#fff',
             textOverflow: 'ellipsis',
-            overflow: 'hidden',
+            overflow: 'visible',
             textShadow: '0 0 2px #000',
           }}
         >
