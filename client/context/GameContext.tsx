@@ -26,7 +26,7 @@ interface GameContext {
   room: Room;
   socketRef: any;
   mapData: MapData;
-  mapQueueData: MapQueueData | null;
+  mapQueueData: MapQueueData;
   roomUiStatus: RoomUiStatus;
   myPlayerId: string;
   turnsCount: number;
@@ -70,7 +70,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
   const [mapData, mapDataDispatch] = useReducer(mapDataReducer, [[]]);
   const [mapQueueData, mapQueueDataDispatch] = useReducer(
     mapQueueDataReducer,
-    null
+    []
   );
   const socketRef = useRef<any>();
   const attackQueueRef = useRef<any>();

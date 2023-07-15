@@ -55,7 +55,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
 
   const handleRoomNameBlur = (event: any) => {
     setIsNamedFocused(false);
-    socketRef.current.emit('change_roomName', room.roomName);
+    socketRef.current.emit('change_room_setting', 'roomName', room.roomName);
   };
 
   const handleClickForceStart = () => {
@@ -83,8 +83,9 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
   };
 
   const handleSettingChange =
-    (property: string) => (event: Event, newValue: number) => {
-      console.log(`socket emit name: ${property}, ${newValue}`);
+    (property: string) => (event: Event, newValue: any) => {
+      console.log(`change_room_setting: ${property}, ${newValue}`);
+      if (property === 'gameSpeed') newValue = Number.parseFloat(newValue);
       roomDispatch({
         type: 'update_property',
         payload: {
@@ -92,7 +93,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           value: newValue,
         },
       });
-      socketRef.current.emit(`change_${property}`, newValue);
+      socketRef.current.emit('change_room_setting', property, newValue);
     };
   const handleChangeHost = (playerId: string, username: string) => {
     console.log(`change host to ${username}, id ${playerId}`);

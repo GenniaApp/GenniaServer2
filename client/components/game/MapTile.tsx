@@ -248,7 +248,7 @@ export default function MapTile(props: MapTileProps) {
 
   return (
     <div
-      className={mapQueueData ? mapQueueData[x][y].className : ''}
+      className={mapQueueData.length === 0 ? '' : mapQueueData[x][y].className}
       style={{
         position: 'absolute',
         left: tileX,
@@ -308,10 +308,10 @@ export default function MapTile(props: MapTileProps) {
           {/* 50% */}
           {tileHalf
             ? '50%'
-            : mapQueueData
+            : mapQueueData.length === 0
+            ? unitsCount
+            : mapQueueData[x][y].text
             ? mapQueueData[x][y].text
-              ? mapQueueData[x][y].text
-              : unitsCount
             : unitsCount}
         </div>
       )}

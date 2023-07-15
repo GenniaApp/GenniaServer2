@@ -373,141 +373,59 @@ io.on('connection', async (socket) => {
     }
   });
 
-  socket.on('change_gameSpeed', async (value) => {
+  socket.on('change_room_setting', async (property: string, value: number | string | boolean) => {
     try {
       if (player.isRoomHost) {
-        console.log('Changing game speed to ' + value + 'x');
-        room.gameSpeed = value;
-        io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('room_message', player, `changed the game speed to ${value}x.`);
-      } else {
-        socket.emit('error', 'Changement was failed', 'You are not the game host.');
-      }
-    } catch (e: any) {
-      console.log(e.message);
-    }
-  });
+        console.log('Changing Room Setting ', property, value);
+        if (property in room && value !== undefined) {
+          // todo: move validation to Room class
+          switch (property) {
+            case 'roomName':
+              // if value type is not string
+              if (typeof value !== 'string' || value.length > 20) {
+                socket.emit('error', 'Changement was failed', 'Room name is too long.');
+                return;
+              }
+              break;
+            case 'maxPlayers':
+              if (typeof value !== 'number' || value <= 1) {
+                socket.emit('error', 'Changement was failed', 'Max player num is invalid.');
+                return;
+              }
+              break;
+            case 'gameSpeed':
+              if (typeof value !== 'number' || ![0.5, 0.75, 1, 2, 3, 4].includes(value)) {
+                socket.emit('error', 'Changement was failed', `Game speed: ${value} is invalid. typeof value ${typeof value}}`);
+                return;
+              }
+              break;
+            case 'mapWidth':
+            case 'mapHeight':
+            case 'mountain':
+            case 'city':
+            case 'swamp':
+              if (typeof value !== 'number' || value < 0 || value > 1) {
+                socket.emit('error', 'Changement was failed', `Map ${property} is invalid.`);
+                return;
+              }
+              break;
+            case 'fogOfWar':
+            case 'deathSpectator':
+              if (typeof value !== 'boolean') {
+                socket.emit('error', 'Changement was failed', 'Invalid value.');
+                return;
+              }
+              break;
+            default:
+              break;
+          }
 
-  socket.on('change_fogOfWar', async (value: boolean) => {
-    try {
-      if (player.isRoomHost) {
-        console.log('Changing fog of war to ' + value);
-        room.fogOfWar = value;
-        io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('room_message', player, `changed fog of war to ${value}.`);
-      } else {
-        socket.emit('error', 'Changement was failed', 'You are not the game host.');
-      }
-    } catch (e: any) {
-      console.log(e.message);
-    }
-  });
-
-  socket.on('change_roomName', async (value) => {
-    try {
-      if (player.isRoomHost) {
-        // value length should > 0 < 15
-        if (value.length < 1 && value.length > 15) {
-          throw new Error('Room name length should between [1, 15] .');
+          room[property] = value;
+          io.in(room.id).emit('update_room', room);
+          io.in(room.id).emit('room_message', player, `changed ${property} to ${value}.`);
+        } else {
+          socket.emit('error', 'Changement was failed', `Invalid property: ${property} or value: ${value}.`);
         }
-        console.log('Changing room name to ' + value);
-        room.roomName = value;
-        io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('room_message', player, `changed room name to "${value}"`);
-      } else {
-        socket.emit('error', 'Changement was failed', 'You are not the game host.');
-      }
-    } catch (e: any) {
-      socket.emit('error', 'Changement was failed', e.message);
-    }
-  });
-
-  socket.on('change_mapWidth', async (value) => {
-    try {
-      if (player.isRoomHost) {
-        console.log('Changing map width to' + value);
-        room.mapWidth = value;
-        io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('room_message', player, `changed the map width to ${value}.`);
-      } else {
-        socket.emit('error', 'Changement was failed', 'You are not the game host.');
-      }
-    } catch (e: any) {
-      console.log(e.message);
-    }
-  });
-
-  socket.on('change_mapHeight', async (value) => {
-    try {
-      if (player.isRoomHost) {
-        console.log('Changing map height to' + value);
-        room.mapHeight = value;
-        io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('room_message', player, `changed the map height to ${value}.`);
-      } else {
-        socket.emit('error', 'Changement was failed', 'You are not the game host.');
-      }
-    } catch (e: any) {
-      console.log(e.message);
-    }
-  });
-
-  socket.on('change_mountain', async (value) => {
-    try {
-      if (player.isRoomHost) {
-        console.log('Changing mountain to' + value);
-        room.mountain = value;
-        io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('room_message', player, `changed the mountain to ${value}.`);
-      } else {
-        socket.emit('error', 'Changement was failed', 'You are not the game host.');
-      }
-    } catch (e: any) {
-      console.log(e.message);
-    }
-  });
-
-  socket.on('change_city', async (value) => {
-    try {
-      if (player.isRoomHost) {
-        console.log('Changing city to' + value);
-        room.city = value;
-        io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('room_message', player, `changed the city to ${value}.`);
-      } else {
-        socket.emit('error', 'Changement was failed', 'You are not the game host.');
-      }
-    } catch (e: any) {
-      console.log(e.message);
-    }
-  });
-
-  socket.on('change_swamp', async (value) => {
-    try {
-      if (player.isRoomHost) {
-        console.log('Changing swamp to' + value);
-        room.swamp = value;
-        io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('room_message', player, `changed the swamp to ${value}.`);
-      } else {
-        socket.emit('error', 'Changement was failed', 'You are not the game host.');
-      }
-    } catch (e: any) {
-      console.log(e.message);
-    }
-  });
-
-  socket.on('change_maxPlayers', async (value) => {
-    try {
-      if (player.isRoomHost) {
-        if (value <= 1) {
-          socket.emit('error', 'Changement was failed', 'Max player num is invalid.');
-          return;
-        }
-        console.log('Changing max players to' + value);
-        room.maxPlayers = value;
-        io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('room_message', player, `changed the max player num to ${value}.`);
       } else {
         socket.emit('error', 'Changement was failed', 'You are not the game host.');
       }
