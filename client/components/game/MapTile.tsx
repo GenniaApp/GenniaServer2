@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { TileType, TileProp, Position, TileType2Image } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
@@ -47,7 +47,16 @@ export default function MapTile(props: MapTileProps) {
   const { setSelectedMapTileInfo } = useGameDispatch();
 
   const [tileType, color, unitsCount] = tile;
+  const [tileHalf, setTileHalf] = useState(false);
   const image = TileType2Image[tileType];
+
+  useEffect(() => {
+    if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
+      setTileHalf(selectedMapTileInfo.half);
+    } else {
+      setTileHalf(false);
+    }
+  }, [selectedMapTileInfo]);
 
   const getPlayerIndex = useCallback((room: Room, playerId: string) => {
     for (let i = 0; i < room.players.length; ++i) {
@@ -107,7 +116,17 @@ export default function MapTile(props: MapTileProps) {
 
   const handleClick = useCallback(() => {
     if (canMove) {
-      setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
+      if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
+        console.log('Clicked on the current tile, changing tile half state to', !tileHalf);
+        setSelectedMapTileInfo({
+          x,
+          y,
+          half: !tileHalf,
+          unitsCount: unitsCount,
+        });
+      } else {
+        setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
+      }
     }
   }, [canMove, x, y, setSelectedMapTileInfo, unitsCount]);
 
@@ -226,7 +245,9 @@ export default function MapTile(props: MapTileProps) {
           }}
         >
           {/* 50% */}
-          {mapQueueData
+          {tileHalf
+            ? '50%'
+            : mapQueueData
             ? mapQueueData[x][y].text
               ? mapQueueData[x][y].text
               : unitsCount
