@@ -43,8 +43,14 @@ export default function MapTile(props: MapTileProps) {
   } = props;
 
   const [cursorStyle, setCursorStyle] = useState('default');
-  const { room, myPlayerId, selectedMapTileInfo, mapQueueData } = useGame();
-  const { setSelectedMapTileInfo } = useGameDispatch();
+  const {
+    room,
+    myPlayerId,
+    selectedMapTileInfo,
+    mapQueueData,
+    attackQueueRef,
+  } = useGame();
+  const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
 
   const [tileType, color, unitsCount] = tile;
   const [tileHalf, setTileHalf] = useState(false);
@@ -87,7 +93,33 @@ export default function MapTile(props: MapTileProps) {
     });
 
     return isNextPossibleMapPosition && tileType !== TileType.Mountain;
-  }, [possibleNextMapPositions, x, y, tileType]);
+  }, [selectedMapTileInfo, possibleNextMapPositions, x, y, tileType]);
+
+  const whichNextPossibleMove = useMemo(() => {
+    if (isNextPossibleMove) {
+      if (
+        possibleNextMapPositions.bottom &&
+        possibleNextMapPositions.bottom.x === x &&
+        possibleNextMapPositions.bottom.y === y
+      )
+        return 'down';
+      else if (
+        possibleNextMapPositions.left &&
+        possibleNextMapPositions.left.x === x &&
+        possibleNextMapPositions.left.y === y
+      )
+        return 'left';
+      else if (
+        possibleNextMapPositions.right &&
+        possibleNextMapPositions.right.x === x &&
+        possibleNextMapPositions.right.y === y
+      )
+        return 'right';
+      else return 'up';
+    } else {
+      return '';
+    }
+  }, [isNextPossibleMove, selectedMapTileInfo, possibleNextMapPositions, x, y]);
 
   const isSelected = useMemo(() => {
     return x === selectedMapTileInfo.x && y === selectedMapTileInfo.y;
@@ -114,10 +146,39 @@ export default function MapTile(props: MapTileProps) {
     return isOwned || isNextPossibleMove;
   }, [isOwned, isNextPossibleMove]);
 
+  const handlePositionChange = useCallback(
+    (className: string) => {
+      attackQueueRef.current.insert({
+        from: selectedMapTileInfo,
+        to: { x, y },
+        half: selectedMapTileInfo.half,
+      });
+      setSelectedMapTileInfo({
+        // ...selectedMapTileInfo,
+        x,
+        y,
+        half: false,
+        unitsCount: 0,
+      });
+      mapQueueDataDispatch({
+        type: 'change',
+        x: selectedMapTileInfo.x,
+        y: selectedMapTileInfo.y,
+        className: className,
+      });
+    },
+    [selectedMapTileInfo, attackQueueRef]
+  );
+
   const handleClick = useCallback(() => {
-    if (canMove) {
+    if (isNextPossibleMove) {
+      handlePositionChange(`queue_${whichNextPossibleMove}`);
+    } else if (isOwned) {
       if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
-        console.log('Clicked on the current tile, changing tile half state to', !tileHalf);
+        console.log(
+          'Clicked on the current tile, changing tile half state to',
+          !tileHalf
+        );
         setSelectedMapTileInfo({
           x,
           y,
@@ -128,7 +189,7 @@ export default function MapTile(props: MapTileProps) {
         setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
       }
     }
-  }, [canMove, x, y, setSelectedMapTileInfo, unitsCount]);
+  }, [canMove, x, y, selectedMapTileInfo, unitsCount]);
 
   const handleMouseEnter = useCallback(() => {
     if (canMove) {
