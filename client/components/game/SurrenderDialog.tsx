@@ -1,6 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import Dialog from './Dialog';
-import { Button } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+} from '@mui/material';
 import { useTranslation } from 'next-i18next';
 import { useGame } from '@/context/GameContext';
 
@@ -43,13 +49,17 @@ export default function SurrenderDialog({
     <Dialog
       open={isOpen}
       onClose={handleClose}
-      title={t('are-you-sure-to-surrender')}
+      maxWidth='md'
+      aria-labelledby='Surrender Dialog'
+      aria-describedby='Ensure user wants to surrender'
     >
-      <div className='DialogButtons'>
-        <Button variant='contained' onClick={handleCloseSurrender}>
-          {t('surrender')}
-        </Button>
-      </div>
+      <DialogTitle id='surrender-dialog-title'>
+        {t('are-you-sure-to-surrender')}
+      </DialogTitle>
+      <DialogActions sx={{ width: '300px' }}>
+        <Button onClick={handleClose}>{t('cancel')}</Button>
+        <Button onClick={handleCloseSurrender}>{t('surrender')}</Button>
+      </DialogActions>
     </Dialog>
   );
 }

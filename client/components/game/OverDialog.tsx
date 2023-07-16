@@ -1,10 +1,16 @@
 import React from 'react';
-import { Button } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { Player, RoomUiStatus } from '@/lib/types';
 import { useGame, useGameDispatch } from '@/context/GameContext';
-import Dialog from './Dialog';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+} from '@mui/material';
 
 interface OverDialogProps {
   dialogContent: [Player | null, string];
@@ -49,20 +55,13 @@ export default function OverDialog(props: OverDialogProps) {
   };
 
   return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      title={<h1 className='OverDialog__Title'>{title}</h1>}
-      subtitle={<h4 className='OverDialog__Title'>{subtitle}</h4>}
-    >
-      <div className='DialogButtons'>
-        <Button variant='contained' onClick={handleBackRoom}>
-          {t('play-again')}
-        </Button>
-        <Button variant='contained' onClick={handleExit} sx={{ top: 5 }}>
-          {t('exit')}
-        </Button>
-      </div>
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>{subtitle}</DialogContent>
+      <DialogActions sx={{ width: '300px' }}>
+        <Button onClick={handleBackRoom}>{t('play-again')}</Button>
+        <Button onClick={handleExit}>{t('exit')}</Button>
+      </DialogActions>
     </Dialog>
   );
 }

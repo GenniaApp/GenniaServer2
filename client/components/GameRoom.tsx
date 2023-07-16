@@ -30,7 +30,7 @@ function GamingRoom() {
 
   const { t } = useTranslation();
 
-  const { room, roomUiStatus, socketRef, myPlayerId, attackQueueRef, initGameInfo } =
+  const { room, roomUiStatus, socketRef, myPlayerId, attackQueueRef } =
     useGame();
   const {
     roomDispatch,
@@ -187,6 +187,12 @@ function GamingRoom() {
       console.log(`room_message: ${player.username} ${content}`);
       setMessages((messages) => [...messages, new Message(player, content)]);
     });
+    socket.on('captured', (player1: Player, player2: Player) => {
+      setMessages((messages) => [...messages, new Message(player1, t('captured'), player2)]);
+    })
+    socket.on('host_changement', (player1: Player, player2: Player) => {
+      setMessages((messages) => [...messages, new Message(player1, t('transfer-host-to'), player2)]);
+    })
     socket.on('game_over', (capturedBy: Player) => {
       console.log(`game_over: ${capturedBy.username}`);
       setOpenOverDialog(true);

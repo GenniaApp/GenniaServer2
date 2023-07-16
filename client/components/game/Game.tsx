@@ -60,7 +60,7 @@ export default function Game() {
             alignItems: 'center',
             justifyContent: 'space-around',
             overflow: 'auto',
-            padding: '10px',
+            padding: '0',
           }}
         >
           <CardHeader

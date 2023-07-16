@@ -43,7 +43,8 @@ export interface UserData {
 export class Message {
   constructor(
     public player: Player,
-    public content: string
+    public content: string,
+    public target?: Player | null
   ) { }
 }
 

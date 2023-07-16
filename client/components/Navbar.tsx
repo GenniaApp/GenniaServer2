@@ -61,7 +61,7 @@ function Navbar() {
 
   return (
     <AppBar position='fixed' className='navbar'>
-      <Container maxWidth='xl' className='dock'>
+      <Container className='dock'>
         {/* <Toolbar disableGutters> */}
         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
           <IconButton

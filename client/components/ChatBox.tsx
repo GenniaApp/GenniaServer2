@@ -84,6 +84,20 @@ const ChatBoxMessage = ({ message }: { message: Message }) => {
       </span>
       &nbsp;
       <p style={{ display: 'inline' }}>{message.content}</p>
+      &nbsp;
+      {message.target && (
+        <>
+          <span
+            style={{
+              display: 'inline',
+              color: ColorArr[message.target.color],
+            }}
+          >
+            {message.target.username}
+          </span>
+          <p style={{ display: 'inline' }}>.</p>
+        </>
+      )}
       <br />
     </div>
   );

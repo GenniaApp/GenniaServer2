@@ -112,7 +112,6 @@ async function handleGame(room: Room, io: Server) {
               if (block.player !== player && player.isDead === false) {
                 console.log(block.player.username, 'captured', player.username);
                 io.in(room.id).emit('captured', block.player, player);
-                io.in(room.id).emit('room_message', block.player, `captured ${player.username}`);
                 let player_socket = io.sockets.sockets.get(player.socket_id);
                 if (player_socket) {
                   player_socket.emit('game_over', block.player); // captured by block.player
@@ -328,7 +327,7 @@ io.on('connection', async (socket) => {
       return;
     }
     player = room.players[playerIndex];
-    console.log(`${player} surrendered`);
+    console.log(`${player} surrendered.`);
 
     if (!room.map) {
       socket.emit('error', 'Surrender failed', 'Map not found.');
@@ -358,7 +357,7 @@ io.on('connection', async (socket) => {
         room.players[currentHost].setRoomHost(false);
         room.players[newHost].setRoomHost(true);
         io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('room_message', player, `transfered host to ${room.players[newHost].username}.`);
+        io.in(room.id).emit('host_changement', player, room.players[newHost]);
       } else {
         throw new Error('Target player not found.');
       }
