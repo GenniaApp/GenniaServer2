@@ -14,6 +14,7 @@ import {
   LeaderBoardData,
   RoomUiStatus,
   initGameInfo,
+  TileType,
 } from '@/lib/types';
 
 interface SnackState {
@@ -172,7 +173,30 @@ const roomReducer = (state: Room, action: any) => {
 const mapDataReducer = (state: MapData, action: any) => {
   switch (action.type) {
     case 'update':
-      return action.payload;
+      const { mapData, mapWidth, mapHeight } = action;
+      if (!mapData || mapData.length < mapWidth * mapHeight) return state;
+      if (state.length === 1) {
+        state = Array.from(Array(mapWidth), () =>
+          Array(mapHeight).fill([TileType.Fog, null, null])
+        );
+      }
+      console.log(mapData, mapWidth, mapHeight, state);
+      let flattened = state.flat();
+      for (let i = 0, j = 0; i < mapData.length; i++) {
+        if ('number' === typeof mapData[i]) {
+          j += mapData[i];
+        } else {
+          flattened[j++] = mapData[i];
+        }
+      }
+
+      for (let i = 0; i < mapWidth; ++i) {
+        for (let j = 0; j < mapHeight; ++j) {
+          state[i][j] = flattened[i * mapHeight + j];
+        }
+      }
+      console.log(state);
+      return state;
     default:
       throw Error('Unknown action: ' + action.type);
   }

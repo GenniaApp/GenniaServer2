@@ -127,10 +127,9 @@ export default function MapTile(props: MapTileProps) {
 
   const isRevealed = useMemo(() => {
     return (
-      unitsCount !== null || // when reveal, swamp / city / plain's unitsCount !== null
-      tileType === TileType.Mountain // Mountain is always revealed
+      tileType !== TileType.Obstacle && tileType !== TileType.Fog
     );
-  }, [unitsCount, tileType]);
+  }, [tileType]);
 
   const stroke = useMemo(() => {
     if (isSelected) {

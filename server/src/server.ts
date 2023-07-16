@@ -9,6 +9,7 @@ import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
 import Point from './lib/point';
 import Player from './lib/player';
 import GameMap from './lib/map';
+import { MapDiff, MapRecord } from './lib/map-record';
 import xss from 'xss';
 import crypto from 'crypto';
 import cors from 'cors';
@@ -89,111 +90,105 @@ async function handleGame(room: Room, io: Server) {
     room.players.forEach((player) => {
       let player_socket = io.sockets.sockets.get(player.socket_id);
       if (player_socket) {
-        let initGameInfo: initGameInfo = { king: { x: player.king.x, y: player.king.y }, mapWidth: room.map.width, mapHeight: room.map.height };
+        let initGameInfo: initGameInfo = {
+          king: { x: player.king.x, y: player.king.y },
+          mapWidth: room.map.width,
+          mapHeight: room.map.height,
+        };
         player_socket.emit('game_started', initGameInfo);
+        player.patchView = new MapRecord();
       }
     });
 
     let updTime = 500 / room.gameSpeed;
     room.gameLoop = setInterval(async () => {
-      // try {
-      room.players.forEach(async (player) => {
-        if (!room.map) throw new Error('king is null');
-        if (!player.isDead) {
-          let block = room.map.getBlock(player.king);
-          let blockPlayerIndex = await getPlayerIndex(room, block.player.id);
-          if (blockPlayerIndex !== -1) {
-            if (block.player !== player && player.isDead === false) {
-              console.log(block.player.username, 'captured', player.username);
-              io.in(room.id).emit('captured', block.player, player);
-              io.in(room.id).emit('room_message', block.player, `captured ${player.username}`);
-              let player_socket = io.sockets.sockets.get(player.socket_id);
-              if (player_socket) {
-                player_socket.emit('game_over', block.player); // captured by block.player
-              } else {
-                throw new Error('socket is null');
+      try {
+        room.players.forEach(async (player) => {
+          if (!room.map) throw new Error('king is null');
+          if (!player.isDead) {
+            let block = room.map.getBlock(player.king);
+            let blockPlayerIndex = await getPlayerIndex(room, block.player.id);
+            if (blockPlayerIndex !== -1) {
+              if (block.player !== player && player.isDead === false) {
+                console.log(block.player.username, 'captured', player.username);
+                io.in(room.id).emit('captured', block.player, player);
+                io.in(room.id).emit('room_message', block.player, `captured ${player.username}`);
+                let player_socket = io.sockets.sockets.get(player.socket_id);
+                if (player_socket) {
+                  player_socket.emit('game_over', block.player); // captured by block.player
+                } else {
+                  throw new Error('socket is null');
+                }
+                player.isDead = true;
+                room.map.getBlock(player.king).kingBeDominated();
+                player.land.forEach((block) => {
+                  room.map.transferBlock(block, room.players[blockPlayerIndex]);
+                  room.players[blockPlayerIndex].winLand(block);
+                });
+                player.land.length = 0;
               }
-              player.isDead = true;
-              room.map.getBlock(player.king).kingBeDominated();
-              player.land.forEach((block) => {
-                room.map.transferBlock(block, room.players[blockPlayerIndex]);
-                room.players[blockPlayerIndex].winLand(block);
-              });
-              player.land.length = 0;
             }
           }
-        }
-      });
-
-      let alivePlayer = null;
-      let countAlive = 0;
-      for (let player of room.players) {
-        if (!player.isDead) {
-          alivePlayer = player;
-          ++countAlive;
-        }
-      }
-      // Game over, Find Winner
-      if (countAlive === 1) {
-        if (!alivePlayer) throw new Error('alivePlayer is null');
-        io.in(room.id).emit('game_ended', alivePlayer); // winnner
-        console.log('Game ended');
-
-        room.gameStarted = false;
-        room.forceStartNum = 0;
-        room.players.forEach((player) => {
-          player.reset();
-        });
-        io.in(room.id).emit('update_room', room);
-
-        clearInterval(room.gameLoop);
-      }
-
-      let leaderBoard: LeaderBoardData = room.players
-        .map((player) => {
-          let data = room.map.getTotal(player);
-          return {
-            color: player.color,
-            username: player.username,
-            armyCount: data.army,
-            landsCount: data.land,
-          };
-        })
-        .sort((a, b) => {
-          return b.armyCount - a.armyCount || b.landsCount - a.landsCount;
         });
 
-      let room_sockets = await io.in(room.id).fetchSockets();
+        let alivePlayer = null;
+        let countAlive = 0;
+        for (let player of room.players) {
+          if (!player.isDead) {
+            alivePlayer = player;
+            ++countAlive;
+          }
+        }
+        // Game over, Find Winner
+        if (countAlive === 1) {
+          if (!alivePlayer) throw new Error('alivePlayer is null');
+          io.in(room.id).emit('game_ended', alivePlayer); // winnner
+          console.log('Game ended');
 
-      if (room.fogOfWar) {
+          room.gameStarted = false;
+          room.forceStartNum = 0;
+          room.players.forEach((player) => {
+            player.reset();
+          });
+          io.in(room.id).emit('update_room', room);
+
+          clearInterval(room.gameLoop);
+        }
+
+        let leaderBoard: LeaderBoardData = room.players
+          .map((player) => {
+            let data = room.map.getTotal(player);
+            return {
+              color: player.color,
+              username: player.username,
+              armyCount: data.army,
+              landsCount: data.land,
+            };
+          })
+          .sort((a, b) => {
+            return b.armyCount - a.armyCount || b.landsCount - a.landsCount;
+          });
+
+        let room_sockets = await io.in(room.id).fetchSockets();
+
         for (let socket of room_sockets) {
           let playerIndex = await getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1) {
-            let mapData: MapData;
+            let patched: MapDiff = new MapDiff();
             if (room.deathSpectator && room.players[playerIndex].isDead) {
-              mapData = await room.map.getMapData();
-            } else {
-              mapData = await room.map.getViewPlayer(room.players[playerIndex]);
+              patched = await room.players[playerIndex].patchView.patch(room.map.map);
+            } else if (room.players[playerIndex].patchView) {
+              patched = await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
             }
-
-            socket.emit(
-              'game_update',
-              mapData, //todo 减小数据量，例如只返回 diff
-              room.map.turn,
-              leaderBoard
-            );
+            socket.emit('game_update', patched.data, room.map.width, room.map.height, room.map.turn, leaderBoard);
           }
         }
-      } else {
-        let mapData = await room.map.getMapData();
-        io.in(room.id).emit('game_update', mapData, room.map.turn, leaderBoard);
-      }
 
-      room.map.updateTurn();
-      room.map.updateUnit();
-      // } catch (e: any) {
-      //   console.log(e.message);
-      // }
+        room.map.updateTurn();
+        room.map.updateUnit();
+      } catch (e: any) {
+        console.log(e.message);
+      }
     }, updTime);
   }
 }
@@ -337,7 +332,7 @@ io.on('connection', async (socket) => {
 
     if (!room.map) {
       socket.emit('error', 'Surrender failed', 'Map not found.');
-      console.log('Error! Map not found.')
+      console.log('Error! Map not found.');
       return;
     }
     room.map.getBlock(player.king).kingBeDominated();

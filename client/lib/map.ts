@@ -67,8 +67,8 @@ class GameMap {
       id: this.id,
       name: this.name,
       width: this.width,
-      height: this.height
-    }
+      height: this.height,
+    };
   }
 
   getFather(conn: number[], curPoint: number): number {
@@ -158,10 +158,13 @@ class GameMap {
           let flag = true;
           for (let j = 0; j < i; ++j) {
             const otherKing = this.players[j].king;
-            if (otherKing && calcDistance(
-              new Point(otherKing.x, otherKing.y),
-              new Point(x, y)
-            ) <= 6) {
+            if (
+              otherKing &&
+              calcDistance(
+                new Point(otherKing.x, otherKing.y),
+                new Point(x, y)
+              ) <= 6
+            ) {
               flag = false;
               break;
             }
@@ -310,29 +313,6 @@ class GameMap {
     }
   }
 
-  command(
-    player: any,
-    type: string,
-    focusData: { x: number; y: number },
-    dirData: { x: number; y: number }
-  ): void {
-    const focus = new Point(focusData.x, focusData.y);
-    const dir = new Point(dirData.x, dirData.y);
-    const newFocus = focus.move(dir);
-    if (this.commandable(player, focus, newFocus)) {
-      switch (type) {
-        case 'Click':
-          this.moveAllMovableUnit(player, focus, newFocus);
-          break;
-        case 'DoubleClick':
-          this.moveHalfMovableUnit(player, focus, newFocus);
-          break;
-        default:
-          console.warn('Unexpected type of command', type);
-      }
-    }
-  }
-
   commandable(player: any, focus: Point, newFocus: Point): boolean {
     const isOwner = this.ownBlock(player, focus);
     const possibleMove = this.withinMap(focus) && this.withinMap(newFocus);
@@ -356,73 +336,64 @@ class GameMap {
     this.getBlock(newFocus).enterUnit(player, unit);
   }
 
-  // no fog of war
-  getMapData(): Promise<MapData> {
-    const mapDataForPlayer: MapData = Array.from(Array(this.width), () =>
-      Array(this.height).fill([TileType.Fog, null, null])
-    );
-
-    for (let i = 0; i < this.width; i++) {
-      for (let j = 0; j < this.height; j++) {
-        const point = new Point(i, j);
-        mapDataForPlayer[point.x][point.y] = [
-          this.map[point.x][point.y].type,
-          this.map[point.x][point.y].player
-            ? this.map[point.x][point.y].player.color
-            : null,
-          this.map[point.x][point.y].unit,
-        ];
-      }
-    }
-
-    return new Promise(function (resolve, reject) {
-      resolve(mapDataForPlayer);
-    });
-  }
-
-  getViewPlayer(player: any): Promise<MapData> {
+  getViewPlayer(player: any): Promise<Block[][]> {
     // Get the view of the player from the whole map
-    const mapDataForPlayer: MapData = Array.from(Array(this.width), () =>
-      Array(this.height).fill([TileType.Fog, null, null])
+    const viewOfPlayer: Block[][] = Array.from(Array(this.width), () =>
+      Array(this.height).fill(null)
     );
 
     for (let i = 0; i < this.width; i++) {
       for (let j = 0; j < this.height; j++) {
-        const point = new Point(i, j);
-        const block = this.getBlock(point);
+        const origin = this.getBlock(new Point(i, j));
+        const block = new Block(
+          origin.x,
+          origin.y,
+          origin.type,
+          origin.unit,
+          origin.player
+        );
         if (block.type === TileType.Mountain || block.type === TileType.City) {
-          mapDataForPlayer[i][j] = [TileType.Obstacle, null, null];
+          block.setType(TileType.Obstacle);
+          block.setUnit(0);
+          viewOfPlayer[i][j] = block;
         } else {
-          mapDataForPlayer[i][j] = [TileType.Fog, null, null];
+          block.setType(TileType.Fog);
+          block.setUnit(0);
+          block.player = null;
+          viewOfPlayer[i][j] = block;
         }
       }
     }
     for (let i = 0; i < this.width; i++) {
       for (let j = 0; j < this.height; j++) {
         const point = new Point(i, j);
-        if (this.ownBlock(player, point)) {
-          mapDataForPlayer[point.x][point.y] = [
-            this.map[point.x][point.y].type,
-            player.color,
-            this.map[point.x][point.y].unit,
-          ];
+        const origin = this.getBlock(point);
+        if (origin.player === player) {
+          viewOfPlayer[i][j] = new Block(
+            origin.x,
+            origin.y,
+            origin.type,
+            origin.unit,
+            origin.player
+          );
           directions.forEach((dir) => {
             const newPoint = point.move(dir);
             if (this.withinMap(newPoint)) {
-              mapDataForPlayer[newPoint.x][newPoint.y] = [
-                this.map[newPoint.x][newPoint.y].type,
-                this.map[newPoint.x][newPoint.y].player
-                  ? this.map[newPoint.x][newPoint.y].player.color
-                  : null,
-                this.map[newPoint.x][newPoint.y].unit,
-              ];
+              const newOrigin = this.getBlock(newPoint);
+              viewOfPlayer[newPoint.x][newPoint.y] = new Block(
+                newOrigin.x,
+                newOrigin.y,
+                newOrigin.type,
+                newOrigin.unit,
+                newOrigin.player
+              );
             }
           });
         }
       }
     }
     return new Promise(function (resolve, reject) {
-      resolve(mapDataForPlayer);
+      resolve(viewOfPlayer);
     });
   }
 }

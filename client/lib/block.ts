@@ -1,19 +1,16 @@
 // import Player from "@/lib/Player";
 // 循环引用..
-import { TileType, Point } from './types';
+import { TileType, TileProp, Point } from './types';
 
 class Block extends Point {
-  unit: number;
-  player?: any;
-
   constructor(
     public x: number,
     public y: number,
-    public type: TileType
+    public type: TileType,
+    public unit: number = 0,
+    public player: any = null
   ) {
     super(x, y);
-    this.unit = 0;
-    this.player = null;
   }
 
   setUnit(unit: number): void {
@@ -60,13 +57,10 @@ class Block extends Point {
     return Math.max(this.unit - 1, 0);
   }
 
-  getView(): { type: TileType; unit: number; player: any } {
-    return {
-      type: this.type,
-      unit: this.unit,
-      player: this.player,
-    };
+  getView(): TileProp {
+    return [this.type, this.player ? this.player.color : null, this.unit];
   }
+
   beNeutralized(): void {
     this.player = null;
   }

@@ -30,7 +30,7 @@ function GamingRoom() {
 
   const { t } = useTranslation();
 
-  const { room, roomUiStatus, socketRef, myPlayerId, attackQueueRef } =
+  const { room, roomUiStatus, socketRef, myPlayerId, attackQueueRef, initGameInfo } =
     useGame();
   const {
     roomDispatch,
@@ -204,12 +204,14 @@ function GamingRoom() {
       'game_update',
       (
         mapData: MapData,
+        mapWidth: number,
+        mapHeight: number,
         turnsCount: number,
         leaderBoardData: LeaderBoardData
       ) => {
         console.log(`game_update: ${turnsCount}`);
         setRoomUiStatus(RoomUiStatus.gameRealStarted);
-        mapDataDispatch({ type: 'update', payload: mapData });
+        mapDataDispatch({ type: 'update', mapData, mapWidth, mapHeight });
         setTurnsCount(turnsCount);
         setLeaderBoardData(leaderBoardData);
 
