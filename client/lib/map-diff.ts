@@ -3,6 +3,7 @@ import { TileProp, TilesProp, MapDiffData } from './types';
 
 class MapDiff {
   data: MapDiffData = [];
+  prevMap: TilesProp | null = null;
   curSameCnt: number = 0;
   curDiffArr: TilesProp = [];
 
@@ -22,13 +23,6 @@ class MapDiff {
       this.curSameCnt = 0;
     }
   }
-}
-
-class MapRecord {
-  prevMap: TilesProp | null = null;
-  diffArr: Array<MapDiff> = [];
-
-  constructor() { }
 
   patch(data: Block[][]): Promise<MapDiff> {
     let diff: MapDiff = new MapDiff();
@@ -47,9 +41,8 @@ class MapRecord {
       diff.endSame();
     }
     this.prevMap = curMap;
-    this.diffArr.push(diff);
     return new Promise((resolve) => resolve(diff));
   }
 }
 
-export { MapRecord, MapDiff };
+export default MapDiff;

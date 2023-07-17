@@ -14,7 +14,7 @@ import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
 import Point from './lib/point';
 import Player from './lib/player';
 import GameMap from './lib/map';
-import { MapDiff, MapRecord } from './lib/map-record';
+import MapDiff from './lib/map-diff';
 
 dotenv.config();
 
@@ -82,6 +82,8 @@ async function handleGame(room: Room, io: Server) {
     );
     room.players = await room.map.generate();
     room.mapGenerated = true;
+    room.globalMapDiff = new MapDiff();
+    room.globalMapDiff.patch(room.map.map);
 
     // Now: Client can get map name / width / height !
     // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
@@ -97,7 +99,7 @@ async function handleGame(room: Room, io: Server) {
           mapHeight: room.map.height,
         };
         player_socket.emit('game_started', initGameInfo);
-        player.patchView = new MapRecord();
+        player.patchView = new MapDiff();
       }
     });
 
@@ -175,7 +177,7 @@ async function handleGame(room: Room, io: Server) {
           let playerIndex = await getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1) {
             let patched: MapDiff = new MapDiff();
-            if (room.deathSpectator && room.players[playerIndex].isDead) {
+            if (room.deathSpectator && room.players[playerIndex].isDead || !room.fogOfWar) {
               patched = await room.players[playerIndex].patchView.patch(room.map.map);
             } else if (room.players[playerIndex].patchView) {
               patched = await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
@@ -186,6 +188,7 @@ async function handleGame(room: Room, io: Server) {
 
         room.map.updateTurn();
         room.map.updateUnit();
+        room.globalMapDiff.patch(room.map.map);
       } catch (e: any) {
         console.log(e.message);
       }

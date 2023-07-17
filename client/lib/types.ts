@@ -1,9 +1,9 @@
 import Point from './point';
 import Player from './player';
 import GameMap from './map';
-import { MapRecord, MapDiff } from './map-record';
+import MapDiff from './map-diff';
 
-export { Point, Player, GameMap, MapRecord, MapDiff };
+export { Point, Player, GameMap, MapDiff };
 
 export interface initGameInfo {
   king: Position;
@@ -64,7 +64,7 @@ export class Room {
     public swamp: number = 0,
     public fogOfWar: boolean = true,
     public deathSpectator: boolean = true, // allow dead player to watch game
-    public globalMapRecord: MapRecord | null = null,
+    public globalMapDiff: MapDiff | null = null,
     public map: GameMap | null = null,
     public gameLoop: any = null, // gameLoop function
     public players: Player[] = new Array<Player>(),

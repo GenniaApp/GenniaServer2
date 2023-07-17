@@ -1,5 +1,5 @@
 import Block from './block';
-import { MapRecord } from './map-record';
+import MapDiff from './map-diff';
 import { TileType } from './types';
 
 class Player {
@@ -14,7 +14,7 @@ class Player {
     public operatedTurn: number = 0,
     public land: Block[] = [],
     public king: Block | null = null,
-    public patchView: MapRecord | null = null
+    public patchView: MapDiff | null = null
   ) { }
 
   toJSON() {
