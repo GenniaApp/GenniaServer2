@@ -1,5 +1,5 @@
 import Block from './block';
-import MapRecord from './map-record';
+import { MapRecord } from './map-record';
 import { TileType } from './types';
 
 class Player {

@@ -1,12 +1,12 @@
 import Block from './block';
-import { TileProp, TilesProp } from './types';
+import { TileProp, TilesProp, MapDiffData } from './types';
 
 class MapDiff {
-  data: any[] = [];
+  data: MapDiffData = [];
   curSameCnt: number = 0;
   curDiffArr: TilesProp = [];
 
-  constructor() {}
+  constructor() { }
 
   addSame(): void {
     ++this.curSameCnt;
@@ -28,16 +28,16 @@ class MapRecord {
   prevMap: TilesProp | null = null;
   diffArr: Array<MapDiff> = [];
 
-  constructor() {}
+  constructor() { }
 
   patch(data: Block[][]): Promise<MapDiff> {
     let diff: MapDiff = new MapDiff();
     let curMap = data.flat().map((b) => b.getView());
     if (!this.prevMap) {
-      diff.data.push(curMap);
+      diff.data = curMap;
     } else {
       for (let i = 0; i < curMap.length; ++i) {
-        if (this.prevMap[i] === curMap[i]) {
+        if (JSON.stringify(this.prevMap[i]) === JSON.stringify(curMap[i])) {
           diff.addSame();
         } else {
           diff.endSame();
@@ -53,4 +53,3 @@ class MapRecord {
 }
 
 export { MapRecord, MapDiff };
-export default MapRecord;

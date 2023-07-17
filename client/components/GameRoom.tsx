@@ -9,7 +9,7 @@ import {
   Room,
   Message,
   Player,
-  MapData,
+  MapDiffData,
   LeaderBoardData,
   Route,
   Position,
@@ -161,14 +161,14 @@ function GamingRoom() {
 
       mapDataDispatch({
         type: 'init',
-        width: initGameInfo.mapWidth,
-        height: initGameInfo.mapHeight,
+        mapWidth: initGameInfo.mapWidth,
+        mapHeight: initGameInfo.mapHeight,
       });
 
       mapQueueDataDispatch({
         type: 'init',
-        width: initGameInfo.mapWidth,
-        height: initGameInfo.mapHeight,
+        mapWidth: initGameInfo.mapWidth,
+        mapHeight: initGameInfo.mapHeight,
       });
     });
     socket.on('update_room', (room: Room) => {
@@ -223,15 +223,13 @@ function GamingRoom() {
     socket.on(
       'game_update',
       (
-        mapData: MapData,
-        mapWidth: number,
-        mapHeight: number,
+        mapDiff: MapDiffData,
         turnsCount: number,
         leaderBoardData: LeaderBoardData
       ) => {
         console.log(`game_update: ${turnsCount}`);
         setRoomUiStatus(RoomUiStatus.gameRealStarted);
-        mapDataDispatch({ type: 'update', mapData, mapWidth, mapHeight });
+        mapDataDispatch({ type: 'update', mapDiff });
         setTurnsCount(turnsCount);
         setLeaderBoardData(leaderBoardData);
 

@@ -15,6 +15,7 @@ import Point from './lib/point';
 import Player from './lib/player';
 import GameMap from './lib/map';
 import { MapDiff, MapRecord } from './lib/map-record';
+
 dotenv.config();
 
 const app = express();
@@ -179,7 +180,7 @@ async function handleGame(room: Room, io: Server) {
             } else if (room.players[playerIndex].patchView) {
               patched = await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
             }
-            socket.emit('game_update', patched.data, room.map.width, room.map.height, room.map.turn, leaderBoard);
+            socket.emit('game_update', patched.data, room.map.turn, leaderBoard);
           }
         }
 

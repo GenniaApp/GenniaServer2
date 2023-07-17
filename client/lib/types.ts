@@ -1,9 +1,9 @@
 import Point from './point';
 import Player from './player';
 import GameMap from './map';
-import MapRecord from './map-record';
+import { MapRecord, MapDiff } from './map-record';
 
-export { Point, Player, GameMap };
+export { Point, Player, GameMap, MapRecord, MapDiff };
 
 export interface initGameInfo {
   king: Position;
@@ -104,6 +104,8 @@ export type TileProp = [TileType,
 export type TilesProp = TileProp[];
 
 export type MapData = TilesProp[];
+
+export type MapDiffData = (number | TileProp)[]; // number: same count, TileProp: diff
 
 // 定义一个包含 className: string, text: string 的对象
 

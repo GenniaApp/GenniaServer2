@@ -10,6 +10,7 @@ import {
   SelectedMapTileInfo,
   Player,
   MapData,
+  MapDiffData,
   MapQueueData,
   LeaderBoardData,
   RoomUiStatus,
@@ -175,30 +176,41 @@ const roomReducer = (state: Room, action: any) => {
   }
 };
 
-const mapDataReducer = (state: MapData, action: any) => {
+interface MapDataAction {
+  type: 'init' | 'update';
+  mapDiff?: MapDiffData;
+  mapWidth?: number;
+  mapHeight?: number;
+}
+
+const mapDataReducer = (state: MapData, action: MapDataAction) => {
   switch (action.type) {
     case 'init':
-      return Array.from(Array(action.width), () =>
-        Array(action.height).fill([TileType.Fog, null, null])
+      if (!action.mapWidth || !action.mapHeight)
+        throw Error('mapWidth or mapHeight is undefined');
+      return Array.from(Array(action.mapWidth), () =>
+        Array(action.mapHeight).fill([TileType.Fog, null, null])
       );
     case 'update':
-      const { mapData, mapWidth, mapHeight } = action;
-      if (!mapData || mapData.length < mapWidth * mapHeight) return state;
+      const { mapDiff } = action;
+      let mapWidth = state.length;
+      let mapHeight = state[0].length;
+      if (!mapDiff) throw Error('mapDiff is undefined');
+
       let flattened = state.flat();
-      for (let i = 0, j = 0; i < mapData.length; i++) {
-        if ('number' === typeof mapData[i]) {
-          j += mapData[i];
+      for (let i = 0, j = 0; i < mapDiff.length; i++) {
+        let tmp = mapDiff[i]; // Ensure that the type inspection can be passed.
+        if (typeof tmp === 'number') {
+          j += tmp;
         } else {
-          flattened[j++] = mapData[i];
+          flattened[j++] = tmp;
         }
       }
-
       for (let i = 0; i < mapWidth; ++i) {
         for (let j = 0; j < mapHeight; ++j) {
           state[i][j] = flattened[i * mapHeight + j];
         }
       }
-      console.log(state);
       return state;
     default:
       throw Error('Unknown action: ' + action.type);
@@ -208,8 +220,8 @@ const mapDataReducer = (state: MapData, action: any) => {
 const mapQueueDataReducer = (state: MapQueueData, action: any) => {
   switch (action.type) {
     case 'init': // init mapQueueData with same size as mapData
-      return Array.from(Array(action.width), () =>
-        Array(action.height).fill({
+      return Array.from(Array(action.mapWidth), () =>
+        Array(action.mapHeight).fill({
           className: '',
           text: '',
         })
