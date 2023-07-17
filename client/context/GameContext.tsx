@@ -30,6 +30,7 @@ interface GameContext {
   mapQueueData: MapQueueData;
   roomUiStatus: RoomUiStatus;
   myPlayerId: string;
+  isSurrendered: boolean;
   turnsCount: number;
   leaderBoardData: LeaderBoardData | null;
   dialogContent: [Player | null, string];
@@ -46,6 +47,7 @@ interface GameDispatch {
   mapQueueDataDispatch: React.Dispatch<any>;
   setRoomUiStatus: React.Dispatch<React.SetStateAction<RoomUiStatus>>;
   setMyPlayerId: React.Dispatch<React.SetStateAction<string>>;
+  setIsSurrendered: React.Dispatch<React.SetStateAction<boolean>>;
   setTurnsCount: React.Dispatch<React.SetStateAction<number>>;
   setLeaderBoardData: React.Dispatch<any>;
   setDialogContent: React.Dispatch<
@@ -82,6 +84,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
     message: '',
   });
   const [myPlayerId, setMyPlayerId] = useState('');
+  const [isSurrendered, setIsSurrendered] = useState(false);
   const [initGameInfo, setInitGameInfo] = useState<initGameInfo | null>(null);
   const [turnsCount, setTurnsCount] = useState(0);
   const [leaderBoardData, setLeaderBoardData] = useState(null);
@@ -107,6 +110,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
         mapQueueData,
         roomUiStatus,
         myPlayerId,
+        isSurrendered,
         turnsCount,
         leaderBoardData,
         dialogContent,
@@ -124,6 +128,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
           mapQueueDataDispatch,
           setRoomUiStatus,
           setMyPlayerId,
+          setIsSurrendered,
           setTurnsCount,
           setLeaderBoardData,
           setDialogContent,
@@ -172,15 +177,13 @@ const roomReducer = (state: Room, action: any) => {
 
 const mapDataReducer = (state: MapData, action: any) => {
   switch (action.type) {
+    case 'init':
+      return Array.from(Array(action.width), () =>
+        Array(action.height).fill([TileType.Fog, null, null])
+      );
     case 'update':
       const { mapData, mapWidth, mapHeight } = action;
       if (!mapData || mapData.length < mapWidth * mapHeight) return state;
-      if (state.length === 1) {
-        state = Array.from(Array(mapWidth), () =>
-          Array(mapHeight).fill([TileType.Fog, null, null])
-        );
-      }
-      console.log(mapData, mapWidth, mapHeight, state);
       let flattened = state.flat();
       for (let i = 0, j = 0; i < mapData.length; i++) {
         if ('number' === typeof mapData[i]) {

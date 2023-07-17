@@ -18,7 +18,7 @@ class Player {
   ) { }
 
   toJSON() {
-    const { land, king, ...json } = this;
+    const { land, king, patchView, ...json } = this;
     return json;
   }
 

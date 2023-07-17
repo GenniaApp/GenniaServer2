@@ -45,6 +45,7 @@ function GamingRoom() {
     mapQueueDataDispatch,
     setSelectedMapTileInfo,
     setInitGameInfo,
+    setIsSurrendered,
   } = useGameDispatch();
 
   useEffect(() => {
@@ -149,12 +150,19 @@ function GamingRoom() {
     socket.on('game_started', (initGameInfo: initGameInfo) => {
       console.log('Game started:', initGameInfo);
       setInitGameInfo(initGameInfo);
+      setIsSurrendered(false);
 
       setSelectedMapTileInfo({
         x: -1,
         y: -1,
         half: false,
         unitsCount: 0,
+      });
+
+      mapDataDispatch({
+        type: 'init',
+        width: initGameInfo.mapWidth,
+        height: initGameInfo.mapHeight,
       });
 
       mapQueueDataDispatch({
@@ -188,11 +196,17 @@ function GamingRoom() {
       setMessages((messages) => [...messages, new Message(player, content)]);
     });
     socket.on('captured', (player1: Player, player2: Player) => {
-      setMessages((messages) => [...messages, new Message(player1, t('captured'), player2)]);
-    })
+      setMessages((messages) => [
+        ...messages,
+        new Message(player1, t('captured'), player2),
+      ]);
+    });
     socket.on('host_changement', (player1: Player, player2: Player) => {
-      setMessages((messages) => [...messages, new Message(player1, t('transfer-host-to'), player2)]);
-    })
+      setMessages((messages) => [
+        ...messages,
+        new Message(player1, t('transfer-host-to'), player2),
+      ]);
+    });
     socket.on('game_over', (capturedBy: Player) => {
       console.log(`game_over: ${capturedBy.username}`);
       setOpenOverDialog(true);

@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'next-i18next';
 import { useGame } from '@/context/GameContext';
+import { useRouter } from 'next/router';
 
 export default function SurrenderDialog({
   handleSurrender,
@@ -16,8 +17,9 @@ export default function SurrenderDialog({
   handleSurrender: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { openOverDialog } = useGame();
+  const { openOverDialog, isSurrendered } = useGame();
   const { t } = useTranslation();
+  const router = useRouter();
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
@@ -37,6 +39,11 @@ export default function SurrenderDialog({
     handleSurrender();
   }, [handleSurrender]);
 
+  const handleExit = useCallback(() => {
+    setIsOpen(false);
+    router.push('/');
+  }, []);
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeydown);
 
@@ -53,12 +60,20 @@ export default function SurrenderDialog({
       aria-labelledby='Surrender Dialog'
       aria-describedby='Ensure user wants to surrender'
     >
-      <DialogTitle id='surrender-dialog-title'>
-        {t('are-you-sure-to-surrender')}
+      <DialogTitle>
+        {isSurrendered
+          ? t('are-you-sure-to-exit')
+          : t('are-you-sure-to-surrender')}
       </DialogTitle>
       <DialogActions sx={{ width: '300px' }}>
-        <Button onClick={handleClose}>{t('cancel')}</Button>
-        <Button onClick={handleCloseSurrender}>{t('surrender')}</Button>
+        {isSurrendered ? (
+          <Button onClick={handleExit}>{t('exit')}</Button>
+        ) : (
+          <>
+            <Button onClick={handleClose}>{t('cancel')}</Button>
+            <Button onClick={handleCloseSurrender}>{t('surrender')}</Button>
+          </>
+        )}
       </DialogActions>
     </Dialog>
   );

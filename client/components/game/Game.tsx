@@ -17,15 +17,16 @@ export default function Game() {
     myPlayerId,
     turnsCount,
     leaderBoardData,
-    dialogContent,
     openOverDialog,
   } = useGame();
-  const { setOpenOverDialog, setDialogContent } = useGameDispatch();
+  const { setOpenOverDialog, setDialogContent, setIsSurrendered } =
+    useGameDispatch();
   const { t } = useTranslation();
   const [gameDockExpand, setGameDockExpand] = useState(true);
 
   const handleSurrender = useCallback(() => {
     socketRef.current.emit('surrender', myPlayerId);
+    setIsSurrendered(true);
     setDialogContent([null, 'game_surrender']);
     setOpenOverDialog(true);
   }, [socketRef, setDialogContent, setOpenOverDialog, myPlayerId]);
@@ -85,7 +86,6 @@ export default function Game() {
       <SurrenderDialog handleSurrender={handleSurrender} />
       <OverDialog
         open={openOverDialog}
-        dialogContent={dialogContent}
         onClose={() => {
           setOpenOverDialog(false);
         }}

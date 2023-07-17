@@ -13,15 +13,14 @@ import {
 } from '@mui/material';
 
 interface OverDialogProps {
-  dialogContent: [Player | null, string];
   open: boolean;
   onClose: () => void;
 }
 
 export default function OverDialog(props: OverDialogProps) {
-  const { myPlayerId, room } = useGame();
+  const { myPlayerId, room, dialogContent } = useGame();
   const { setRoomUiStatus, setOpenOverDialog } = useGameDispatch();
-  const { dialogContent, open, onClose } = props;
+  const { open, onClose } = props;
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -29,6 +28,10 @@ export default function OverDialog(props: OverDialogProps) {
   let subtitle: string = '';
   let player = dialogContent[0];
 
+  if (dialogContent[1] === 'game_surrender') {
+    title = t('you-surrender');
+    subtitle = '';
+  }
   if (player) {
     if (dialogContent[1] === 'game_over') {
       title = t('game-over');
@@ -38,10 +41,6 @@ export default function OverDialog(props: OverDialogProps) {
       title = player.id === myPlayerId ? t('you-win') : t('game-over');
       subtitle = `${t('winner')}: ${player.username}`;
     }
-    if (dialogContent[1] === 'game_surrender') {
-      title = t('you-surrender');
-      subtitle = '';
-    }
   }
 
   const handleExit = () => {
@@ -50,7 +49,7 @@ export default function OverDialog(props: OverDialogProps) {
   };
 
   const handleBackRoom = () => {
-    setRoomUiStatus(RoomUiStatus.gameSetting);
+    if (!room.gameStarted) setRoomUiStatus(RoomUiStatus.gameSetting);
     setOpenOverDialog(false);
   };
 
@@ -59,7 +58,9 @@ export default function OverDialog(props: OverDialogProps) {
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>{subtitle}</DialogContent>
       <DialogActions sx={{ width: '300px' }}>
-        <Button onClick={handleBackRoom}>{t('play-again')}</Button>
+        <Button onClick={handleBackRoom}>
+          {room.gameStarted ? t('spectate') : t('play-again')}
+        </Button>
         <Button onClick={handleExit}>{t('exit')}</Button>
       </DialogActions>
     </Dialog>

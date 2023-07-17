@@ -1,6 +1,11 @@
 import express from 'express';
 import { Request, Response } from 'express';
 import { Server, Socket } from 'socket.io';
+import xss from 'xss';
+import crypto from 'crypto';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
 
 import { forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
@@ -10,11 +15,6 @@ import Point from './lib/point';
 import Player from './lib/player';
 import GameMap from './lib/map';
 import { MapDiff, MapRecord } from './lib/map-record';
-import xss from 'xss';
-import crypto from 'crypto';
-import cors from 'cors';
-
-import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
@@ -283,7 +283,6 @@ io.on('connection', async (socket) => {
       .randomBytes(Math.ceil(10 / 2))
       .toString('hex')
       .slice(0, 10);
-    console.log(`Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId}`);
 
     let playerColor = 0;
     for (let i = 0; i < room.players.length; ++i) {
@@ -292,6 +291,7 @@ io.on('connection', async (socket) => {
       }
     }
     player = new Player(playerId, socket.id, username, playerColor);
+    console.log(`Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId} color ${playerColor}`);
 
     if (room.players.length === 0) {
       player.setRoomHost(true);
@@ -327,14 +327,18 @@ io.on('connection', async (socket) => {
       return;
     }
     player = room.players[playerIndex];
-    console.log(`${player} surrendered.`);
+    console.log(`${player.username} surrendered.`);
 
     if (!room.map) {
       socket.emit('error', 'Surrender failed', 'Map not found.');
       console.log('Error! Map not found.');
       return;
     }
-    room.map.getBlock(player.king).kingBeDominated();
+    if (player.king) {
+      room.map.getBlock(player.king).kingBeDominated();
+    } else {
+      console.log('Error! king is null', player);
+    }
     // 变成中立单元: todo 延迟一段时间再变为中立单元更合理
     player.land.forEach((block) => {
       block.beNeutralized();

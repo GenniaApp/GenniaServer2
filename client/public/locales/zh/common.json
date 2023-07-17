@@ -44,10 +44,12 @@
   "surrender": "投降",
   "play-again": "再玩一次",
   "exit": "退出",
+  "spectate": "观战",
   "death-spectator": "死亡观战",
   "transfer-host": "转移房主",
   "transfer-host-to": "将房主转给了",
   "are-you-sure-to-surrender": "你确定要投降？",
+  "are-you-sure-to-exit": "你确定要退出？",
   "type-a-message": "开始聊天，回车发送",
   "open-source-team": "开源团队",
   "all-right-reserved": "版权所有"

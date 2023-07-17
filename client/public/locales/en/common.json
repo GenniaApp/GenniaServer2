@@ -43,9 +43,11 @@
   "exit": "Exit",
   "surrender": "surrender",
   "death-spectator": "deathSpectator",
+  "spectate": "Spectate",
   "transfer-host": "Transfer Host",
   "transfer-host-to": "transferred host to ",
   "are-you-sure-to-surrender": "Are you sure you want to surrender?",
+  "are-you-sure-to-exit": "Are you sure you want to exit?",
   "type-a-message": "Click to Chat, Enter to send",
   "open-source-team": "Open Source Team",
   "all-right-reserved": "All Rights Reserved"
