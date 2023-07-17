@@ -1,10 +1,20 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { Box, TextField, Button, Typography } from '@mui/material';
+import {
+  Box,
+  ButtonGroup,
+  Card,
+  CardHeader,
+  CardContent,
+  TextField,
+  Button,
+  Typography,
+} from '@mui/material';
 import { TileType, CustomMapTileData, TileType2Image } from '@/lib/types';
 import CustomMapTile from '@/components/game/CustomMapTile';
 import { useTranslation } from 'next-i18next';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
+import { AspectRatioRounded, InfoRounded } from '@mui/icons-material';
 
 const name2TileType: Record<string, TileType> = {
   king: TileType.King,
@@ -308,58 +318,104 @@ function MapEditor() {
 
   return (
     <div className='app-container'>
-      <div
+      <Box
         className='menu-container'
-        style={{
+        sx={{
+          borderRadius: '10px 0 0 10px !important',
+          padding: '10px !important',
           position: 'absolute',
-          top: '64px',
+          top: '60px',
+          bottom: '60px',
+          right: 0,
+          height: 'calc(100dvh - 60px - 60px)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          overflow: 'auto'
         }}
       >
-        <div>
-          <TextField
-            id='map-name'
-            label='Map Name'
-            type='text'
-            value={mapName}
-            onChange={(e) => setMapName(e.target.value)}
-          />
-        </div>
-        <div>
-          <TextField
-            id='map-desc'
-            label='Map Description'
-            type='text'
-            value={mapDescription}
-            onChange={(e) => setMapDescription(e.target.value)}
-            multiline
-            maxRows={8}
-          />
-        </div>
-        <div>
-          <TextField
-            id='map-width'
-            label='Map Width'
-            type='number'
-            value={mapWidth}
-            onChange={handleMapWidthChange}
-          />
-          <TextField
-            id='map-height'
-            label='Map Height'
-            type='number'
-            value={mapHeight}
-            onChange={handleMapHeightChange}
-          />
-
-          <Button variant='contained' onClick={handleSaveDraft}>
+        <Card
+          className='menu-container'
+          sx={{
+            width: '100%',
+          }}
+        >
+          <CardHeader avatar={<InfoRounded />} title={t('basic-info')} />
+          <CardContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <TextField
+              id='map-name'
+              label='Map Name'
+              size='small'
+              type='text'
+              value={mapName}
+              onChange={(e) => setMapName(e.target.value)}
+              sx={{ marginY: '10px' }}
+            />
+            <TextField
+              id='map-desc'
+              label='Map Description'
+              size='small'
+              type='text'
+              value={mapDescription}
+              onChange={(e) => setMapDescription(e.target.value)}
+              multiline
+              minRows={3}
+              maxRows={8}
+            />
+          </CardContent>
+        </Card>
+        <Card
+          className='menu-container'
+          sx={{
+            width: '100%',
+          }}
+        >
+          <CardHeader avatar={<AspectRatioRounded />} title={t('map-size')} />
+          <CardContent
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <TextField
+              id='map-width'
+              label='Map Width'
+              size='small'
+              type='number'
+              value={mapWidth}
+              onChange={handleMapWidthChange}
+              sx={{ marginBottom: '10px' }}
+            />
+            <TextField
+              id='map-height'
+              label='Map Height'
+              size='small'
+              type='number'
+              value={mapHeight}
+              onChange={handleMapHeightChange}
+            />
+          </CardContent>
+        </Card>
+        <ButtonGroup size='large'>
+          <Button variant='contained' color='info' onClick={handleSaveDraft}>
             Save Draft
           </Button>
           <Button variant='contained' onClick={handlePublish}>
             Publish
           </Button>
-          {draftSaved && <span>Draft saved.</span>}
-        </div>
-      </div>
+        </ButtonGroup>
+        {draftSaved && <span>Draft saved.</span>}
+      </Box>
 
       <div
         ref={mapRef}
@@ -390,21 +446,34 @@ function MapEditor() {
         })}
       </div>
 
-      <div
+      <Box
         className='menu-container'
-        style={{
+        sx={{
           position: 'absolute',
-          top: '50%',
-          transform: 'translateY(-50%)',
+          top: '60px',
+          bottom: '60px',
+          left: 0,
+          width: '90px',
+          height: 'calc(100dvh - 60px - 60px)',
+          borderRadius: '0 10px 10px 0 !important',
+          overflow: 'auto',
         }}
       >
-        <Box display='flex' flexDirection='column'>
+        <Box
+          display='flex'
+          flexDirection='column'
+          justifyContent='space-between'
+          height='100%'
+        >
           {Object.keys(name2TileType).map((tileName) => (
             <Box
               key={tileName}
               display='flex'
               flexDirection='column'
               alignItems='center'
+              borderRadius='10px'
+              padding='5px'
+              marginY='5px'
               my={0.5}
               bgcolor={
                 selectedTileType === name2TileType[tileName] ? '#c54a95' : ''
@@ -413,12 +482,13 @@ function MapEditor() {
                 setSelectedTileType(name2TileType[tileName]);
                 setSelectedProperty(null);
               }}
+              sx={{ cursor: 'pointer' }}
             >
               {tileName === 'plain' ? (
                 <div
                   style={{
-                    width: 50,
-                    height: 50,
+                    width: 40,
+                    height: 40,
                     backgroundColor: '#808080',
                     border: '#000 solid 1px',
                   }}
@@ -427,8 +497,8 @@ function MapEditor() {
                 <Image
                   src={TileType2Image[name2TileType[tileName]]}
                   alt={tileName}
-                  width={50}
-                  height={50}
+                  width={40}
+                  height={40}
                   draggable={false}
                 />
               )}
@@ -442,6 +512,9 @@ function MapEditor() {
               display='flex'
               flexDirection='column'
               alignItems='center'
+              borderRadius='10px'
+              padding='5px'
+              marginY='5px'
               my={0.5}
               bgcolor={selectedProperty === property ? '#c54a95' : ''}
               onClick={() => {
@@ -454,14 +527,15 @@ function MapEditor() {
                   sx={{
                     width: 40,
                     height: 40,
+                    color: '#fff !important',
                   }}
                 />
               ) : (
                 <TextField
                   id={property}
-                  label={property}
                   type='number'
                   variant='standard'
+                  hiddenLabel
                   inputProps={{
                     min: property2min[property],
                     max: property2max[property],
@@ -477,7 +551,7 @@ function MapEditor() {
             </Box>
           ))}
         </Box>
-      </div>
+      </Box>
     </div>
   );
 }
