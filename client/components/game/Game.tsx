@@ -36,8 +36,6 @@ export default function Game() {
       <Box
         sx={{
           position: 'absolute',
-          left: '0',
-          height: '100dvh',
           width: 'max-content',
           display: 'flex',
           flexDirection: 'column',
