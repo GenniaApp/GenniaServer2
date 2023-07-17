@@ -17,8 +17,8 @@ deploy:
 	cd client && pm2 start pnpm --time --name "gennia-client" -- start --port 3000
 	cd server && pm2 start pnpm --time --name "gennia-server" -- start --port 3001
 
-.PHONY: reload
-reload: # change `reload` to `restart` if you don't care about 0-second downtime
+.PHONY: restart
+restart:
 	cd client && pnpm run build
-	pm2 reload gennia-client
-	pm2 reload gennia-server
+	pm2 restart gennia-client
+	pm2 restart gennia-server
