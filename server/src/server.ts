@@ -285,7 +285,7 @@ io.on('connection', async (socket) => {
       .toString('hex')
       .slice(0, 10);
 
-    let playerColor = 0;
+    let playerColor = 1; // 0 is reserved for neutral
     for (let i = 0; i < room.players.length; ++i) {
       if (room.players[i].color === playerColor) {
         ++playerColor;

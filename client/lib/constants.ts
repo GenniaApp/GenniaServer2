@@ -1,4 +1,5 @@
 export const ColorArr = [
+  '#808080', // gray, neutral not player!
   '#d81b60',
   '#03a9f4',
   '#ff9800',
