@@ -7,7 +7,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 
-import { forceStartOK } from './lib/constants';
+import { ColorArr, forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
 import { Room, LeaderBoardData, initGameInfo, MapData } from './lib/types';
 import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
@@ -285,12 +285,14 @@ io.on('connection', async (socket) => {
       .toString('hex')
       .slice(0, 10);
 
-    let playerColor = 1; // 0 is reserved for neutral
-    for (let i = 0; i < room.players.length; ++i) {
-      if (room.players[i].color === playerColor) {
-        ++playerColor;
-      }
-    }
+    let allColor = Array.from({ length: ColorArr.length }, (_, i) => i);
+    let occupiedColor = room.players.map((player) => player.color);
+    occupiedColor.push(0); // 0 is reserved for neutral block
+    let availableColor = allColor.filter((color) => {
+      return !occupiedColor.includes(color);
+    });
+    let playerColor = availableColor[0]
+
     player = new Player(playerId, socket.id, username, playerColor);
     console.log(`Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId} color ${playerColor}`);
 
