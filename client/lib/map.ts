@@ -350,8 +350,13 @@ class GameMap {
           origin.y,
           origin.type,
           origin.unit,
-          origin.player
+          origin.player,
+          origin.isRevealed
         );
+        if (block.isRevealed) {
+          viewOfPlayer[i][j] = block;
+          continue;
+        }
         if (block.type === TileType.Mountain || block.type === TileType.City) {
           block.setType(TileType.Obstacle);
           block.setUnit(0);

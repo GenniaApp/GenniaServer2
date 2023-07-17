@@ -8,7 +8,8 @@ class Block extends Point {
     public y: number,
     public type: TileType,
     public unit: number = 0,
-    public player: any = null
+    public player: any = null,
+    public isRevealed: boolean = false,
   ) {
     super(x, y);
   }

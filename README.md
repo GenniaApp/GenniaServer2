@@ -68,7 +68,7 @@ pnpm run dev
 
 [PM2](https://pm2.keymetrics.io/docs/usage/quick-start/) is a production process manager for Node.js applications, which is very easy to use.
 
-- see `make deploy` and `make reload` in Makefile
+- see `make deploy` and `make restart` in Makefile
 - to set the application to restart on startup see: https://pm2.keymetrics.io/docs/usage/startup/
 
 ## [Roadmap](https://github.com/orgs/GenniaApp/projects/1)

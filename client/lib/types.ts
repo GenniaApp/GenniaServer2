@@ -101,7 +101,7 @@ export enum RoomUiStatus {
 
 export type TileProp = [TileType,
   number | null, // color, when color == null it means no player own this tile
-  number | null // unitsCount
+  number | null, // unitsCount
 ];
 
 export type TilesProp = TileProp[];
@@ -110,7 +110,13 @@ export type MapData = TilesProp[];
 
 export type MapDiffData = (number | TileProp)[]; // number: same count, TileProp: diff
 
-// 定义一个包含 className: string, text: string 的对象
+
+export type CustomMapTileData = [TileType,
+  number | null, // color, when color == null it means no player own this tile
+  number | null, // unitsCount
+  boolean, // isRevealed 
+  number, // King Priority: todo 暂时没有什么用
+];
 
 export interface QueueDisplayData {
   className: string;
