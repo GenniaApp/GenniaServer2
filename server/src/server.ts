@@ -6,7 +6,6 @@ import crypto from 'crypto';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
-
 import { ColorArr, forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
 import { Room, LeaderBoardData, initGameInfo, MapData } from './lib/types';
@@ -15,6 +14,7 @@ import Point from './lib/point';
 import Player from './lib/player';
 import GameMap from './lib/map';
 import MapDiff from './lib/map-diff';
+import GameRecord from './lib/game-record';
 
 dotenv.config();
 
@@ -84,6 +84,8 @@ async function handleGame(room: Room, io: Server) {
     room.mapGenerated = true;
     room.globalMapDiff = new MapDiff();
     room.globalMapDiff.patch(room.map.map);
+    room.gameRecord = new GameRecord();
+    room.gameRecord.addMapDiff(room.globalMapDiff);
 
     // Now: Client can get map name / width / height !
     // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
@@ -170,6 +172,7 @@ async function handleGame(room: Room, io: Server) {
           .sort((a, b) => {
             return b.armyCount - a.armyCount || b.landsCount - a.landsCount;
           });
+        room.gameRecord.addLeaderBoardData(leaderBoard);
 
         let room_sockets = await io.in(room.id).fetchSockets();
 
@@ -177,7 +180,7 @@ async function handleGame(room: Room, io: Server) {
           let playerIndex = await getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1) {
             let patched: MapDiff = new MapDiff();
-            if (room.deathSpectator && room.players[playerIndex].isDead || !room.fogOfWar) {
+            if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar) {
               patched = await room.players[playerIndex].patchView.patch(room.map.map);
             } else if (room.players[playerIndex].patchView) {
               patched = await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
@@ -189,6 +192,7 @@ async function handleGame(room: Room, io: Server) {
         room.map.updateTurn();
         room.map.updateUnit();
         room.globalMapDiff.patch(room.map.map);
+        room.gameRecord.addMapDiff(room.globalMapDiff);
       } catch (e: any) {
         console.log(e.message);
       }
@@ -294,7 +298,7 @@ io.on('connection', async (socket) => {
     let availableColor = allColor.filter((color) => {
       return !occupiedColor.includes(color);
     });
-    let playerColor = availableColor[0]
+    let playerColor = availableColor[0];
 
     player = new Player(playerId, socket.id, username, playerColor);
     console.log(`Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId} color ${playerColor}`);
@@ -439,6 +443,9 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('player_message', async (message) => {
+    if (room.gameStarted) {
+      room.gameRecord.addMessage({ turn: room.map.turn, player, content: message });
+    }
     io.in(room.id).emit('room_message', player, ': ' + message);
   });
 

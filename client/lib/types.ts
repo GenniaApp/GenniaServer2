@@ -2,6 +2,7 @@ import Point from './point';
 import Player from './player';
 import GameMap from './map';
 import MapDiff from './map-diff';
+import GameRecord from './game-record';
 
 export { Point, Player, GameMap, MapDiff };
 
@@ -44,7 +45,8 @@ export class Message {
   constructor(
     public player: Player,
     public content: string,
-    public target?: Player | null
+    public target?: Player | null,
+    public turn?: number
   ) { }
 }
 
@@ -65,6 +67,7 @@ export class Room {
     public fogOfWar: boolean = true,
     public deathSpectator: boolean = true, // allow dead player to watch game
     public globalMapDiff: MapDiff | null = null,
+    public gameRecord: GameRecord | null = null,
     public map: GameMap | null = null,
     public gameLoop: any = null, // gameLoop function
     public players: Player[] = new Array<Player>(),
