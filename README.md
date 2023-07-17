@@ -66,16 +66,10 @@ pnpm run dev
 
 ## Deployment
 
-[PM2](https://github.com/Unitech/pm2) is a production process manager for Node.js applications, which is very easy to use.
+[PM2](https://pm2.keymetrics.io/docs/usage/quick-start/) is a production process manager for Node.js applications, which is very easy to use.
 
-change `client/.env.production` & `server/.env`
-
-```shell
-pnpm install pm2 -g
-cd client && pnpm run build
-cd client && pm2 start pnpm --name "gennia-client" -- start --port 3000
-cd server && pm2 start pnpm --name "gennia-server" -- start --port 3001
-```
+- see `make deploy` and `make reload` in Makefile
+- to set the application to restart on startup see: https://pm2.keymetrics.io/docs/usage/startup/
 
 ## [Roadmap](https://github.com/orgs/GenniaApp/projects/1)
 
