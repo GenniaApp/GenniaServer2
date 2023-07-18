@@ -24,24 +24,24 @@ class MapDiff {
     }
   }
 
-  patch(data: Block[][]): Promise<MapDiff> {
-    let diff: MapDiff = new MapDiff();
-    let curMap = data.flat().map((b) => b.getView());
+  patch(blockMap: Block[][]): Promise<void> {
+    let curMap = blockMap.flat().map((b) => b.getView());
     if (!this.prevMap) {
-      diff.data = curMap;
+      this.data = curMap;
     } else {
+      this.data = [];
       for (let i = 0; i < curMap.length; ++i) {
         if (JSON.stringify(this.prevMap[i]) === JSON.stringify(curMap[i])) {
-          diff.addSame();
+          this.addSame();
         } else {
-          diff.endSame();
-          diff.addDiff(curMap[i]);
+          this.endSame();
+          this.addDiff(curMap[i]);
         }
       }
-      diff.endSame();
+      this.endSame();
     }
     this.prevMap = curMap;
-    return new Promise((resolve) => resolve(diff));
+    return new Promise((resolve) => {resolve()});
   }
 }
 

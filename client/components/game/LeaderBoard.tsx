@@ -18,7 +18,7 @@ interface LeaderBoardProps {
 
 type LeaderBoardData = {
   color: number;
-  username: string;
+  username: string | null;
   armyCount: number;
   landsCount: number;
 }[];
@@ -27,11 +27,17 @@ export default function LeaderBoard(props: LeaderBoardProps) {
   const { room } = useGame();
   let { leaderBoardTable } = props;
   if (!leaderBoardTable) return null;
+
+  const fetchUsernameByColor = function (color: number) {
+    let res = room.players.filter((player) => player.color === color);
+    if (res.length) return res[0].username;
+    else return null;
+  }
+
   let leaderBoardData: LeaderBoardData = leaderBoardTable.map((row) => {
     return {
       color: row[0],
-      username: room.players.filter((player) => player.color === row[0])[0]
-        .username,
+      username: fetchUsernameByColor(row[0]),
       armyCount: row[1],
       landsCount: row[2]
     };

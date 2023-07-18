@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 
 import { ColorArr, forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
-import { Room, initGameInfo, MapData, LeaderBoardTable, LeaderBoardRow } from './lib/types';
+import { Room, initGameInfo, MapDiffData, LeaderBoardTable, LeaderBoardRow } from './lib/types';
 import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
 import Point from './lib/point';
 import Player from './lib/player';
@@ -84,10 +84,7 @@ async function handleGame(room: Room, io: Server) {
     room.players = await room.map.generate();
     room.mapGenerated = true;
     room.globalMapDiff = new MapDiff();
-    room.globalMapDiff.patch(room.map.map);
-    room.gameRecord = new GameRecord(
-      room.players.map(player => player.minify())
-    );
+    room.gameRecord = new GameRecord(room.players.map((player) => player.minify()));
 
     // Now: Client can get map name / width / height !
     // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
@@ -170,24 +167,23 @@ async function handleGame(room: Room, io: Server) {
           .sort((a, b) => {
             return b[1] - a[1] || b[2] - a[2];
           });
+        room.gameRecord.addGameUpdate(room.globalMapDiff.data, room.map.turn, leaderBoardData);
 
         let room_sockets = await io.in(room.id).fetchSockets();
 
         for (let socket of room_sockets) {
           let playerIndex = await getPlayerIndexBySocket(room, socket.id);
-          if (playerIndex !== -1) {
-            let patched: MapDiff = new MapDiff();
+          if (playerIndex !== -1 && room.players[playerIndex].patchView) {
             if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar) {
-              patched = await room.players[playerIndex].patchView.patch(room.map.map);
-            } else if (room.players[playerIndex].patchView) {
-              patched = await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
+              await room.players[playerIndex].patchView.patch(room.map.map);
+            } else {
+              await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
             }
-            socket.emit('game_update', patched.data, room.map.turn, leaderBoardData);
+            socket.emit('game_update', room.players[playerIndex].patchView.data, room.map.turn, leaderBoardData);
           }
         }
 
-        room.globalMapDiff.patch(room.map.map);
-        room.gameRecord.addGameUpdate(room.globalMapDiff.data, room.map.turn, leaderBoardData);
+        await room.globalMapDiff.patch(room.map.map);
         room.map.updateTurn();
         room.map.updateUnit();
       } catch (e: any) {
