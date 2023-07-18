@@ -64,7 +64,8 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
     }
     io.in(room.id).emit('update_room', room);
   } catch (e: any) {
-    console.log(e.message);
+    console.error(JSON.stringify(e, ["message", "arguments", "type", "name"]));
+    console.log(e.stack)
   }
 }
 
@@ -85,7 +86,6 @@ async function handleGame(room: Room, io: Server) {
     room.globalMapDiff = new MapDiff();
     room.globalMapDiff.patch(room.map.map);
     room.gameRecord = new GameRecord();
-    room.gameRecord.addMapDiff(room.globalMapDiff);
 
     // Now: Client can get map name / width / height !
     // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
@@ -159,7 +159,7 @@ async function handleGame(room: Room, io: Server) {
           clearInterval(room.gameLoop);
         }
 
-        let leaderBoard: LeaderBoardData = room.players
+        let leaderBoardData: LeaderBoardData = room.players
           .map((player) => {
             let data = room.map.getTotal(player);
             return {
@@ -172,7 +172,6 @@ async function handleGame(room: Room, io: Server) {
           .sort((a, b) => {
             return b.armyCount - a.armyCount || b.landsCount - a.landsCount;
           });
-        room.gameRecord.addLeaderBoardData(leaderBoard);
 
         let room_sockets = await io.in(room.id).fetchSockets();
 
@@ -185,16 +184,17 @@ async function handleGame(room: Room, io: Server) {
             } else if (room.players[playerIndex].patchView) {
               patched = await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
             }
-            socket.emit('game_update', patched.data, room.map.turn, leaderBoard);
+            socket.emit('game_update', patched.data, room.map.turn, leaderBoardData);
           }
         }
 
+        room.globalMapDiff.patch(room.map.map);
+        room.gameRecord.addGameUpdate(room.globalMapDiff.data, room.map.turn, leaderBoardData)
         room.map.updateTurn();
         room.map.updateUnit();
-        room.globalMapDiff.patch(room.map.map);
-        room.gameRecord.addMapDiff(room.globalMapDiff);
       } catch (e: any) {
-        console.log(e.message);
+        console.error(JSON.stringify(e, ["message", "arguments", "type", "name"]));
+        console.log(e.stack);
       }
     }, updTime);
   }
@@ -253,6 +253,8 @@ io.on('connection', async (socket) => {
       await createRoom(roomId);
     } catch (e: any) {
       reject_join(socket, e.message);
+      console.error(JSON.stringify(e, ["message", "arguments", "type", "name"]));
+      console.log(e.stack)
     }
     // return;
   }
@@ -376,7 +378,6 @@ io.on('connection', async (socket) => {
         throw new Error('Target player not found.');
       }
     } catch (e: any) {
-      console.log(e.message);
       socket.emit('error', 'Host changement failed', e.message);
     }
   });
@@ -470,7 +471,8 @@ io.on('connection', async (socket) => {
         await handleGame(room, io);
       }
     } catch (e: any) {
-      console.log(e.message);
+      console.log(e.stack)
+      console.error(JSON.stringify(e, ["message", "arguments", "type", "name"]));
     }
   });
 

@@ -23,11 +23,11 @@ export async function createRoom(
       success: true,
       roomId: roomId,
     };
-  } catch (err: any) {
-    console.log(err);
+  } catch (e: any) {
+    console.error(JSON.stringify(e, ["message", "arguments", "type", "name"]));
     return {
       success: false,
-      message: err.message,
+      message: e.message,
     };
   }
 }
