@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 
 import { ColorArr, forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
-import { Room, LeaderBoardData, initGameInfo, MapData } from './lib/types';
+import { Room, initGameInfo, MapData, LeaderBoardTable, LeaderBoardRow } from './lib/types';
 import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
 import Point from './lib/point';
 import Player from './lib/player';
@@ -159,18 +159,17 @@ async function handleGame(room: Room, io: Server) {
           clearInterval(room.gameLoop);
         }
 
-        let leaderBoardData: LeaderBoardData = room.players
+        let leaderBoardData: LeaderBoardTable = room.players
           .map((player) => {
             let data = room.map.getTotal(player);
-            return {
-              color: player.color,
-              username: player.username,
-              armyCount: data.army,
-              landsCount: data.land,
-            };
+            return [
+              player.color,
+              data.army,
+              data.land,
+            ] as LeaderBoardRow;
           })
           .sort((a, b) => {
-            return b.armyCount - a.armyCount || b.landsCount - a.landsCount;
+            return b[1] - a[1] || b[2] - a[2];
           });
 
         let room_sockets = await io.in(room.id).fetchSockets();

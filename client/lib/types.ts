@@ -3,6 +3,7 @@ import Player from './player';
 import GameMap from './map';
 import MapDiff from './map-diff';
 import GameRecord from './game-record';
+import { type } from 'os';
 
 export { Point, Player, GameMap, MapDiff };
 
@@ -29,12 +30,13 @@ export interface Route {
   to: Position;
 }
 
-export type LeaderBoardData = {
-  color: number;
-  username: string;
-  armyCount: number;
-  landsCount: number;
-}[];
+export type LeaderBoardRow = [
+  number, // color
+  number, // armyCount
+  number // landCount
+];
+
+export type LeaderBoardTable = LeaderBoardRow[];
 
 export interface UserData {
   name: string;

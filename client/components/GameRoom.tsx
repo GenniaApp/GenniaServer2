@@ -10,7 +10,7 @@ import {
   Message,
   Player,
   MapDiffData,
-  LeaderBoardData,
+  LeaderBoardTable,
   Route,
   Position,
   RoomUiStatus,
@@ -225,7 +225,7 @@ function GamingRoom() {
       (
         mapDiff: MapDiffData,
         turnsCount: number,
-        leaderBoardData: LeaderBoardData
+        leaderBoardData: LeaderBoardTable
       ) => {
         console.log(`game_update: ${turnsCount}`);
         setRoomUiStatus(RoomUiStatus.gameRealStarted);

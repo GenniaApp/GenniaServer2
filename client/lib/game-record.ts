@@ -1,10 +1,9 @@
-import Block from './block';
-import { MapDiffData, TileProp, TilesProp, LeaderBoardData, Message } from './types';
+import { LeaderBoardTable, MapDiffData, Message } from './types';
 
 interface GameRecordPerTurn {
   turn: number;
   mapDiffData: MapDiffData | null;
-  leaderBoardData: LeaderBoardData | null;
+  leaderBoardData: LeaderBoardTable | null;
 }
 
 class GameRecord {
@@ -13,7 +12,7 @@ class GameRecord {
 
   constructor() { }
 
-  addGameUpdate(mapDiffData: MapDiffData, turn: number, leaderBoardData: LeaderBoardData): void {
+  addGameUpdate(mapDiffData: MapDiffData, turn: number, leaderBoardData: LeaderBoardTable): void {
     this.gameRecord.push({ mapDiffData, turn, leaderBoardData });
   }
 

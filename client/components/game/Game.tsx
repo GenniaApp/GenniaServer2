@@ -76,7 +76,7 @@ export default function Game() {
             }
           />
           <CardContent sx={{ display: gameDockExpand ? '' : 'none' }}>
-            <LeaderBoard leaderBoardData={leaderBoardData} />
+            <LeaderBoard leaderBoardTable={leaderBoardData} />
           </CardContent>
         </Card>
       </Box>
