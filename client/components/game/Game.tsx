@@ -27,7 +27,7 @@ export default function Game() {
   const handleSurrender = useCallback(() => {
     socketRef.current.emit('surrender', myPlayerId);
     setIsSurrendered(true);
-    setDialogContent([null, 'game_surrender']);
+    setDialogContent([null, 'game_surrender', null]);
     setOpenOverDialog(true);
   }, [socketRef, setDialogContent, setOpenOverDialog, myPlayerId]);
 

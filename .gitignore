@@ -1,2 +1,3 @@
 .DS_Store
 .vscode/
+server/records/*

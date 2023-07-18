@@ -1,6 +1,6 @@
 import Block from './block';
 import MapDiff from './map-diff';
-import { TileType } from './types';
+import { UserData, TileType } from './types';
 
 class Player {
   constructor(
@@ -15,7 +15,13 @@ class Player {
     public land: Block[] = [],
     public king: Block | null = null,
     public patchView: MapDiff | null = null
-  ) { }
+  ) {}
+
+  minify(withId?: boolean): UserData {
+    return withId
+      ? { id: this.id, username: this.username, color: this.color }
+      : { username: this.username, color: this.color };
+  }
 
   toJSON() {
     const { land, king, patchView, ...json } = this;

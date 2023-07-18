@@ -3,7 +3,6 @@ import Player from './player';
 import GameMap from './map';
 import MapDiff from './map-diff';
 import GameRecord from './game-record';
-import { type } from 'os';
 
 export { Point, Player, GameMap, MapDiff };
 
@@ -39,15 +38,16 @@ export type LeaderBoardRow = [
 export type LeaderBoardTable = LeaderBoardRow[];
 
 export interface UserData {
-  name: string;
+  id?: string;
+  username: string;
   color: number;
 }
 
 export class Message {
   constructor(
-    public player: Player,
+    public player: UserData,
     public content: string,
-    public target?: Player | null,
+    public target?: UserData | null,
     public turn?: number
   ) { }
 }

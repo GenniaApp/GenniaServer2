@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 import {
   Room,
   Message,
-  Player,
+  UserData,
   MapDiffData,
   LeaderBoardTable,
   Route,
@@ -191,31 +191,31 @@ function GamingRoom() {
       });
     });
 
-    socket.on('room_message', (player: Player, content: string) => {
+    socket.on('room_message', (player: UserData, content: string) => {
       console.log(`room_message: ${player.username} ${content}`);
       setMessages((messages) => [...messages, new Message(player, content)]);
     });
-    socket.on('captured', (player1: Player, player2: Player) => {
+    socket.on('captured', (player1: UserData, player2: UserData) => {
       setMessages((messages) => [
         ...messages,
         new Message(player1, t('captured'), player2),
       ]);
     });
-    socket.on('host_changement', (player1: Player, player2: Player) => {
+    socket.on('host_changement', (player1: UserData, player2: UserData) => {
       setMessages((messages) => [
         ...messages,
         new Message(player1, t('transfer-host-to'), player2),
       ]);
     });
-    socket.on('game_over', (capturedBy: Player) => {
+    socket.on('game_over', (capturedBy: UserData) => {
       console.log(`game_over: ${capturedBy.username}`);
       setOpenOverDialog(true);
       setRoomUiStatus(RoomUiStatus.gameOverConfirm);
-      setDialogContent([capturedBy, 'game_over']);
+      setDialogContent([capturedBy, 'game_over', null]);
     });
-    socket.on('game_ended', (winner: Player) => {
+    socket.on('game_ended', (winner: UserData, replayLink: string) => {
       console.log(`game_ended: ${winner.username}`);
-      setDialogContent([winner, 'game_ended']);
+      setDialogContent([winner, 'game_ended', replayLink]);
       setRoomUiStatus(RoomUiStatus.gameOverConfirm);
       setOpenOverDialog(true);
     });

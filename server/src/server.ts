@@ -64,8 +64,8 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
     }
     io.in(room.id).emit('update_room', room);
   } catch (e: any) {
-    console.error(JSON.stringify(e, ["message", "arguments", "type", "name"]));
-    console.log(e.stack)
+    console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
+    console.log(e.stack);
   }
 }
 
@@ -85,7 +85,9 @@ async function handleGame(room: Room, io: Server) {
     room.mapGenerated = true;
     room.globalMapDiff = new MapDiff();
     room.globalMapDiff.patch(room.map.map);
-    room.gameRecord = new GameRecord();
+    room.gameRecord = new GameRecord(
+      room.players.map(player => player.minify())
+    );
 
     // Now: Client can get map name / width / height !
     // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
@@ -116,10 +118,10 @@ async function handleGame(room: Room, io: Server) {
             if (blockPlayerIndex !== -1) {
               if (block.player !== player && player.isDead === false) {
                 console.log(block.player.username, 'captured', player.username);
-                io.in(room.id).emit('captured', block.player, player);
+                io.in(room.id).emit('captured', block.player.minify(), player.minify());
                 let player_socket = io.sockets.sockets.get(player.socket_id);
                 if (player_socket) {
-                  player_socket.emit('game_over', block.player); // captured by block.player
+                  player_socket.emit('game_over', block.player.minify()); // captured by block.player
                 } else {
                   throw new Error('socket is null');
                 }
@@ -146,7 +148,8 @@ async function handleGame(room: Room, io: Server) {
         // Game over, Find Winner
         if (countAlive === 1) {
           if (!alivePlayer) throw new Error('alivePlayer is null');
-          io.in(room.id).emit('game_ended', alivePlayer); // winnner
+          let link = room.gameRecord.outPutToJSON(process.cwd());
+          io.in(room.id).emit('game_ended', alivePlayer.minify(true), link); // winnner
           console.log('Game ended');
 
           room.gameStarted = false;
@@ -162,11 +165,7 @@ async function handleGame(room: Room, io: Server) {
         let leaderBoardData: LeaderBoardTable = room.players
           .map((player) => {
             let data = room.map.getTotal(player);
-            return [
-              player.color,
-              data.army,
-              data.land,
-            ] as LeaderBoardRow;
+            return [player.color, data.army, data.land] as LeaderBoardRow;
           })
           .sort((a, b) => {
             return b[1] - a[1] || b[2] - a[2];
@@ -188,11 +187,11 @@ async function handleGame(room: Room, io: Server) {
         }
 
         room.globalMapDiff.patch(room.map.map);
-        room.gameRecord.addGameUpdate(room.globalMapDiff.data, room.map.turn, leaderBoardData)
+        room.gameRecord.addGameUpdate(room.globalMapDiff.data, room.map.turn, leaderBoardData);
         room.map.updateTurn();
         room.map.updateUnit();
       } catch (e: any) {
-        console.error(JSON.stringify(e, ["message", "arguments", "type", "name"]));
+        console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
         console.log(e.stack);
       }
     }, updTime);
@@ -252,8 +251,8 @@ io.on('connection', async (socket) => {
       await createRoom(roomId);
     } catch (e: any) {
       reject_join(socket, e.message);
-      console.error(JSON.stringify(e, ["message", "arguments", "type", "name"]));
-      console.log(e.stack)
+      console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
+      console.log(e.stack);
     }
     // return;
   }
@@ -282,7 +281,7 @@ io.on('connection', async (socket) => {
       room.players = room.players.filter((p) => p !== player);
       player = room.players[playerIndex];
       room.players[playerIndex].socket_id = socket.id;
-      io.in(room.id).emit('room_message', player, 're-joined the lobby.');
+      io.in(room.id).emit('room_message', player.minify(), 're-joined the lobby.');
       io.in(room.id).emit('update_room', room);
     }
   }
@@ -313,7 +312,7 @@ io.on('connection', async (socket) => {
     room.players.push(player);
 
     // boardcast new player message to room
-    io.in(room.id).emit('room_message', player, 'joined the room.');
+    io.in(room.id).emit('room_message', player.minify(), 'joined the room.');
     io.in(room.id).emit('update_room', room);
 
     if (room.players.length >= room.maxPlayers) {
@@ -358,7 +357,7 @@ io.on('connection', async (socket) => {
     player.king = null;
     player.isDead = true;
 
-    io.in(room.id).emit('room_message', player, 'surrendered');
+    io.in(room.id).emit('room_message', player.minify(), 'surrendered');
   });
 
   socket.on('change_host', async (playerId) => {
@@ -372,7 +371,7 @@ io.on('connection', async (socket) => {
         room.players[currentHost].setRoomHost(false);
         room.players[newHost].setRoomHost(true);
         io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('host_changement', player, room.players[newHost]);
+        io.in(room.id).emit('host_changement', player.minify(), room.players[newHost]);
       } else {
         throw new Error('Target player not found.');
       }
@@ -430,7 +429,7 @@ io.on('connection', async (socket) => {
 
           room[property] = value;
           io.in(room.id).emit('update_room', room);
-          io.in(room.id).emit('room_message', player, `changed ${property} to ${value}.`);
+          io.in(room.id).emit('room_message', player.minify(), `changed ${property} to ${value}.`);
         } else {
           socket.emit('error', 'Changement was failed', `Invalid property: ${property} or value: ${value}.`);
         }
@@ -444,9 +443,9 @@ io.on('connection', async (socket) => {
 
   socket.on('player_message', async (message) => {
     if (room.gameStarted) {
-      room.gameRecord.addMessage({ turn: room.map.turn, player, content: message });
+      room.gameRecord.addMessage({ turn: room.map.turn, player: player.minify(), content: message });
     }
-    io.in(room.id).emit('room_message', player, ': ' + message);
+    io.in(room.id).emit('room_message', player.minify(), ': ' + message);
   });
 
   socket.on('disconnect', async () => {
@@ -470,8 +469,8 @@ io.on('connection', async (socket) => {
         await handleGame(room, io);
       }
     } catch (e: any) {
-      console.log(e.stack)
-      console.error(JSON.stringify(e, ["message", "arguments", "type", "name"]));
+      console.log(e.stack);
+      console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
     }
   });
 

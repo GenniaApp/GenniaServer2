@@ -8,14 +8,14 @@ import React, {
 import {
   Room,
   SelectedMapTileInfo,
-  Player,
   MapData,
   MapDiffData,
   MapQueueData,
-  LeaderBoardData,
+  LeaderBoardTable,
   RoomUiStatus,
   initGameInfo,
   TileType,
+  UserData,
 } from '@/lib/types';
 
 interface SnackState {
@@ -33,8 +33,8 @@ interface GameContext {
   myPlayerId: string;
   isSurrendered: boolean;
   turnsCount: number;
-  leaderBoardData: LeaderBoardData | null;
-  dialogContent: [Player | null, string];
+  leaderBoardData: LeaderBoardTable | null;
+  dialogContent: [UserData | null, string, string | null];
   openOverDialog: boolean;
   snackState: SnackState;
   attackQueueRef: any; // AttackQueue
@@ -52,7 +52,7 @@ interface GameDispatch {
   setTurnsCount: React.Dispatch<React.SetStateAction<number>>;
   setLeaderBoardData: React.Dispatch<any>;
   setDialogContent: React.Dispatch<
-    React.SetStateAction<[Player | null, string]>
+    React.SetStateAction<[UserData | null, string, string | null]>
   >;
   setOpenOverDialog: React.Dispatch<React.SetStateAction<boolean>>;
   snackStateDispatch: React.Dispatch<any>;
@@ -89,9 +89,10 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
   const [initGameInfo, setInitGameInfo] = useState<initGameInfo | null>(null);
   const [turnsCount, setTurnsCount] = useState(0);
   const [leaderBoardData, setLeaderBoardData] = useState(null);
-  const [dialogContent, setDialogContent] = useState<[Player | null, string]>([
+  const [dialogContent, setDialogContent] = useState<[UserData | null, string, string | null]>([
     null,
     '',
+    null
   ]);
   const [openOverDialog, setOpenOverDialog] = useState(false);
   const [selectedMapTileInfo, setSelectedMapTileInfo] =

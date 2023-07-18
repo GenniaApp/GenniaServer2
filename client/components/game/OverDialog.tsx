@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
+  Typography,
 } from '@mui/material';
 
 interface OverDialogProps {
@@ -39,7 +40,9 @@ export default function OverDialog(props: OverDialogProps) {
     }
     if (dialogContent[1] === 'game_ended') {
       title = player.id === myPlayerId ? t('you-win') : t('game-over');
-      subtitle = `${t('winner')}: ${player.username}`;
+      subtitle = `${t('winner')}: ${player.username}! ${t('replay-link')}: ${
+        dialogContent[2]
+      }`;
     }
   }
 
