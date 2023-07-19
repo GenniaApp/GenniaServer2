@@ -266,7 +266,7 @@ export default function MapTile(props: MapTileProps) {
           width: zoomedSize,
           height: zoomedSize,
           backgroundColor: bgcolor,
-          border: stroke ? `${stroke} solid 1px` : '',
+          border: stroke ? `${stroke} solid 1px` : `${bgcolor} solid 1px`,
         }}
       />
       {image && (
