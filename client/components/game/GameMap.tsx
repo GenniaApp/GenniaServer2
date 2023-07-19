@@ -2,18 +2,19 @@ import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import usePossibleNextMapPositions from '@/lib/use-possible-next-map-positions';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 import MapTile from './MapTile';
-
+import useMapDrag from '@/hooks/useMapDrag';
 import { Route, Position } from '@/lib/types';
 
 function GameMap() {
-  const [dragging, setDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const { attackQueueRef, room, mapData, selectedMapTileInfo, initGameInfo } =
     useGame();
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
   const mapRef = useRef<HTMLDivElement>(null);
-  const timeoutId = useRef<number | undefined>(undefined);
+  const [zoom, setZoom] = useState(1);
+  const [tileSize, setTileSize] = useState(50);
+
+  useMapDrag(mapRef, position, setPosition, zoom, setZoom);
 
   const withinMap = useCallback(
     (point: Position) => {
@@ -53,58 +54,6 @@ function GameMap() {
     },
     [selectedMapTileInfo, withinMap, attackQueueRef]
   );
-
-  const handleMouseDown = useCallback(
-    (event: MouseEvent) => {
-      setDragging(true);
-      setStartPosition({
-        x: event.clientX - position.x,
-        y: event.clientY - position.y,
-      });
-    },
-    [position]
-  );
-
-  const handleMouseMove = useCallback(
-    (event: MouseEvent) => {
-      if (dragging && mapRef.current) {
-        setPosition({
-          x: event.clientX - startPosition.x,
-          y: event.clientY - startPosition.y,
-        });
-      }
-    },
-    [dragging, mapRef, startPosition]
-  );
-
-  const handleMouseUp = useCallback(() => {
-    setDragging(false);
-  }, []);
-
-  const handleTouchStart = useCallback(
-    (event: TouchEvent) => {
-      setStartPosition({
-        x: event.targetTouches[0].clientX - position.x,
-        y: event.targetTouches[0].clientY - position.y,
-      });
-    },
-    [position]
-  );
-
-  const handleTouchMove = useCallback(
-    (event: TouchEvent) => {
-      if (mapRef.current) {
-        setPosition({
-          x: event.targetTouches[0].clientX - startPosition.x,
-          y: event.targetTouches[0].clientY - startPosition.y,
-        });
-      }
-    },
-    [mapRef, startPosition]
-  );
-
-  const [zoom, setZoom] = useState(1);
-  const [tileSize, setTileSize] = useState(50);
 
   const mapPixelWidth = useMemo(
     () => tileSize * (room.map ? room.map.width : 0),
@@ -244,53 +193,16 @@ function GameMap() {
     ]
   );
 
-  const handleWheel = useCallback(
-    (event: WheelEvent) => {
-      event.preventDefault();
-      if (timeoutId.current !== undefined) {
-        window.clearTimeout(timeoutId.current);
-      }
-      timeoutId.current = window.setTimeout(() => {
-        const newZoom = zoom + event.deltaY * -0.0008;
-        console.log(event.deltaY, zoom, newZoom);
-        setZoom(newZoom);
-        timeoutId.current = undefined;
-      }, 50);
-    },
-    [zoom, timeoutId]
-  );
-
   useEffect(() => {
-    if (mapRef.current) {
-      mapRef.current.addEventListener('wheel', handleWheel, { passive: false });
-      mapRef.current.addEventListener('keydown', handleKeyDown);
-      mapRef.current.addEventListener('mousedown', handleMouseDown);
-      mapRef.current.addEventListener('mousemove', handleMouseMove);
-      mapRef.current.addEventListener('mouseup', handleMouseUp);
-      mapRef.current.addEventListener('touchstart', handleTouchStart);
-      mapRef.current.addEventListener('touchmove', handleTouchMove);
+    const mapNode = mapRef.current;
+    if (mapNode) {
+      mapNode.addEventListener('keydown', handleKeyDown);
       return () => {
-        if (mapRef.current) {
-          mapRef.current.removeEventListener('wheel', handleWheel);
-          mapRef.current.removeEventListener('keydown', handleKeyDown);
-          mapRef.current.removeEventListener('mousedown', handleMouseDown);
-          mapRef.current.removeEventListener('mousemove', handleMouseMove);
-          mapRef.current.removeEventListener('mouseup', handleMouseUp);
-          mapRef.current.removeEventListener('touchstart', handleTouchStart);
-          mapRef.current.removeEventListener('touchmove', handleTouchMove);
-        }
+        mapNode.removeEventListener('keydown', handleKeyDown);
       };
     }
-  }, [
-    mapRef,
-    handleKeyDown,
-    handleWheel,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-    handleTouchStart,
-    handleTouchMove,
-  ]);
+    return () => {};
+  }, [mapRef, handleKeyDown]);
 
   return (
     <div

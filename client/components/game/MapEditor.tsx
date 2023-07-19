@@ -10,11 +10,17 @@ import {
   Button,
   Typography,
 } from '@mui/material';
-import { TileType, CustomMapTileData, TileType2Image } from '@/lib/types';
+import {
+  Position,
+  TileType,
+  CustomMapTileData,
+  TileType2Image,
+} from '@/lib/types';
 import CustomMapTile from '@/components/game/CustomMapTile';
 import { useTranslation } from 'next-i18next';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import { AspectRatioRounded, InfoRounded } from '@mui/icons-material';
+import useMapDrag from '@/hooks/useMapDrag';
 
 const name2TileType: Record<string, TileType> = {
   king: TileType.King,
@@ -56,10 +62,10 @@ function MapEditor() {
   const [zoom, setZoom] = useState(1);
   const [tileSize, setTileSize] = useState(40);
   const { t } = useTranslation();
-  const [dragging, setDragging] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const mapRef = useRef<HTMLDivElement>(null);
+
+  useMapDrag(mapRef, position, setPosition, zoom, setZoom);
 
   const mapPixelWidth = useMemo(
     () => tileSize * mapWidth,
@@ -244,84 +250,16 @@ function MapEditor() {
     }
   }, []);
 
-  const handleMouseDown = useCallback(
-    (event: MouseEvent) => {
-      setDragging(true);
-      setStartPosition({
-        x: event.clientX - position.x,
-        y: event.clientY - position.y,
-      });
-    },
-    [position]
-  );
-
-  const handleMouseMove = useCallback(
-    (event: MouseEvent) => {
-      if (dragging && mapRef.current) {
-        setPosition({
-          x: event.clientX - startPosition.x,
-          y: event.clientY - startPosition.y,
-        });
-      }
-    },
-    [dragging, mapRef, startPosition]
-  );
-
-  const handleMouseUp = useCallback(() => {
-    setDragging(false);
-  }, []);
-
-  const handleTouchStart = useCallback(
-    (event: TouchEvent) => {
-      setStartPosition({
-        x: event.targetTouches[0].clientX - position.x,
-        y: event.targetTouches[0].clientY - position.y,
-      });
-    },
-    [position]
-  );
-
-  const handleTouchMove = useCallback(
-    (event: TouchEvent) => {
-      if (mapRef.current) {
-        setPosition({
-          x: event.targetTouches[0].clientX - startPosition.x,
-          y: event.targetTouches[0].clientY - startPosition.y,
-        });
-      }
-    },
-    [mapRef, startPosition]
-  );
-
   useEffect(() => {
-    if (mapRef.current) {
-      let mapNode = mapRef.current;
+    const mapNode = mapRef.current;
+    if (mapNode) {
       mapNode.addEventListener('keydown', handleKeyDown);
-      mapNode.addEventListener('mousedown', handleMouseDown);
-      mapNode.addEventListener('mousemove', handleMouseMove);
-      mapNode.addEventListener('mouseup', handleMouseUp);
-      mapNode.addEventListener('touchstart', handleTouchStart);
-      mapNode.addEventListener('touchmove', handleTouchMove);
       return () => {
-        if (mapNode) {
-          mapNode.removeEventListener('keydown', handleKeyDown);
-          mapNode.removeEventListener('mousedown', handleMouseDown);
-          mapNode.removeEventListener('mousemove', handleMouseMove);
-          mapNode.removeEventListener('mouseup', handleMouseUp);
-          mapNode.removeEventListener('touchstart', handleTouchStart);
-          mapNode.removeEventListener('touchmove', handleTouchMove);
-        }
+        mapNode.removeEventListener('keydown', handleKeyDown);
       };
     }
-  }, [
-    mapRef,
-    handleKeyDown,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-    handleTouchStart,
-    handleTouchMove,
-  ]);
+    return () => {};
+  }, [mapRef, handleKeyDown]);
 
   return (
     <div className='app-container'>
