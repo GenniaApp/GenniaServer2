@@ -27,7 +27,14 @@ import {
 import { mapDataReducer } from '@/context/GameReducer';
 import CustomMapTile from '@/components/game/CustomMapTile';
 import { SpeedOptions } from '@/lib/constants';
-import { Position, LeaderBoardTable, Message } from '@/lib/types';
+import {
+  Position,
+  LeaderBoardTable,
+  Message,
+  UserData,
+  TileProp,
+  TileType,
+} from '@/lib/types';
 import LeaderBoard from './LeaderBoard';
 import { useTranslation } from 'next-i18next';
 import GameLoading from '@/components/GameLoading';
@@ -47,6 +54,8 @@ export default function GameReplay(props: any) {
     useState<LeaderBoardTable | null>(null);
   const [isPlay, setIsPlay] = useState(false);
   const [mapData, mapDataDispatch] = useReducer(mapDataReducer, [[]]);
+  const [limitedView, setLimitedView] = useState<TileProp[][]>([[]]);
+  const [checkedPlayers, setCheckedPlayers] = useState<UserData[]>([]);
   const { t } = useTranslation();
   const [notFounderror, setNotFoundError] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -158,6 +167,48 @@ export default function GameReplay(props: any) {
     }
   }, [gameRecord, isPlay, playSpeed]);
 
+  useEffect(() => {
+    if (checkedPlayers && checkedPlayers.length > 0) {
+      const directions = [
+        [-1, -1],
+        [0, -1],
+        [1, -1],
+        [-1, 0],
+        [0, 0],
+        [1, 0],
+        [-1, 1],
+        [0, 1],
+        [1, 1],
+      ];
+      let colors = checkedPlayers.map((player) => player.color);
+      let tmp = Array.from(Array(mapWidth), () =>
+        Array(mapHeight).fill([TileType.Fog, null, null])
+      );
+      for (let i = 0; i < mapWidth; ++i) {
+        for (let j = 0; j < mapHeight; ++j) {
+          if (
+            mapData[i][j][0] === TileType.City ||
+            mapData[i][j][0] === TileType.Mountain
+          ) {
+            tmp[i][j] = [TileType.Obstacle, null, null];
+          }
+        }
+      }
+      for (let i = 0; i < mapWidth; ++i) {
+        for (let j = 0; j < mapHeight; ++j) {
+          if (mapData[i][j][1] && colors.includes(mapData[i][j][1] as number)) {
+            for (let dir of directions) {
+              tmp[i + dir[0]][j + dir[1]] = mapData[i + dir[0]][j + dir[1]];
+            }
+          }
+        }
+      }
+      setLimitedView(tmp);
+    } else {
+      setLimitedView(mapData);
+    }
+  }, [turnsCount, mapData, checkedPlayers]);
+
   const changeTurn = (current_turn: number) => {
     if (gameRecord) {
       if (current_turn >= maxTurn) current_turn = maxTurn;
@@ -206,7 +257,7 @@ export default function GameReplay(props: any) {
     );
   } else {
     return (
-      <Box className='app-container'>
+      <Box sx={{ width: '100dvw', height: '100dvh' }}>
         <Box
           className='menu-container'
           sx={{
@@ -312,8 +363,10 @@ export default function GameReplay(props: any) {
           leaderBoardTable={leaderBoardData}
           players={gameRecord.players}
           turnsCount={turnsCount}
+          checkedPlayers={checkedPlayers}
+          setCheckedPlayers={setCheckedPlayers}
         />
-
+        <ChatBox socket={null} messages={messages} />
         <div
           ref={mapRef}
           tabIndex={0}
@@ -326,7 +379,7 @@ export default function GameReplay(props: any) {
             height: mapPixelHeight,
           }}
         >
-          {mapData.map((tiles, x) => {
+          {limitedView.map((tiles, x) => {
             return tiles.map((tile, y) => {
               return (
                 <CustomMapTile
@@ -342,7 +395,6 @@ export default function GameReplay(props: any) {
             });
           })}
         </div>
-        <ChatBox socket={null} messages={messages} />
       </Box>
     );
   }

@@ -345,7 +345,6 @@ function GamingRoom() {
       <ChatBox
         socket={socketRef.current}
         messages={messages}
-        setMessages={setMessages}
       />
     </div>
   );

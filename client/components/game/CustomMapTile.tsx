@@ -20,6 +20,7 @@ interface MapTileProps {
   fontSize?: number;
 }
 
+const notRevealedFill = '#363636';
 const notOwnedArmyFill = '#D7D7D7';
 const notOwnedCityFill = '#757575';
 const MountainFill = '#bbbbbb';
@@ -56,6 +57,11 @@ export default function CustomMapTile(props: MapTileProps) {
   );
 
   const bgcolor = useMemo(() => {
+    // 
+    if (tileType === TileType.Fog || tileType === TileType.Obstacle) {
+      return notRevealedFill;
+    }
+
     // 山
     if (tileType === TileType.Mountain) {
       return MountainFill;

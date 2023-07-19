@@ -9,19 +9,22 @@ import {
   Card,
   CardHeader,
   CardContent,
+  Checkbox,
   IconButton,
 } from '@mui/material';
 import StartRoundedIcon from '@mui/icons-material/StartRounded';
 import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 
 import { useState } from 'react';
-import { Player, LeaderBoardTable } from '@/lib/types';
+import { Player, LeaderBoardTable, UserData } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 
 interface LeaderBoardProps {
   turnsCount: number;
   players: Player[];
   leaderBoardTable: LeaderBoardTable | null;
+  checkedPlayers?: UserData[];
+  setCheckedPlayers?: (value: UserData[]) => void;
 }
 
 type LeaderBoardData = {
@@ -32,7 +35,13 @@ type LeaderBoardData = {
 }[];
 
 export default function LeaderBoard(props: LeaderBoardProps) {
-  const { players, turnsCount, leaderBoardTable } = props;
+  const {
+    players,
+    turnsCount,
+    leaderBoardTable,
+    checkedPlayers,
+    setCheckedPlayers,
+  } = props;
   const [gameDockExpand, setGameDockExpand] = useState(true);
   if (!leaderBoardTable) return null;
 
@@ -94,6 +103,9 @@ export default function LeaderBoard(props: LeaderBoardProps) {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: 'transparent' }}>
+                  {checkedPlayers && setCheckedPlayers && (
+                    <TableCell>View</TableCell>
+                  )}
                   <TableCell>Player</TableCell>
                   <TableCell>Army</TableCell>
                   <TableCell>Land</TableCell>
@@ -105,6 +117,29 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                     key={index}
                     sx={{ backgroundColor: ColorArr[player.color] }}
                   >
+                    {checkedPlayers && setCheckedPlayers && (
+                      <TableCell>
+                        <Checkbox
+                          defaultChecked={false}
+                          onChange={(event: any) => {
+                            if (event.target.checked) {
+                              let newCheckedPlayers = checkedPlayers;
+                              newCheckedPlayers.push({
+                                username: player.username,
+                                color: player.color,
+                              } as UserData);
+                              setCheckedPlayers(newCheckedPlayers);
+                            } else {
+                              setCheckedPlayers(
+                                checkedPlayers.filter(
+                                  (p) => p.color !== player.color
+                                )
+                              );
+                            }
+                          }}
+                        />
+                      </TableCell>
+                    )}
                     <TableCell>{player.username}</TableCell>
                     <TableCell>{player.armyCount}</TableCell>
                     <TableCell>{player.landsCount}</TableCell>
