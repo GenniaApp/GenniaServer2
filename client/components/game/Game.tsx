@@ -10,7 +10,8 @@ import StartRoundedIcon from '@mui/icons-material/StartRounded';
 import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 
 export default function Game() {
-  const { socketRef, myPlayerId, turnsCount, leaderBoardData } = useGame();
+  const { room, socketRef, myPlayerId, turnsCount, leaderBoardData } =
+    useGame();
   const { setOpenOverDialog, setDialogContent, setIsSurrendered } =
     useGameDispatch();
   const { t } = useTranslation();
@@ -68,7 +69,10 @@ export default function Game() {
             }
           />
           <CardContent sx={{ display: gameDockExpand ? '' : 'none' }}>
-            <LeaderBoard leaderBoardTable={leaderBoardData} />
+            <LeaderBoard
+              leaderBoardTable={leaderBoardData}
+              players={room.players}
+            />
           </CardContent>
         </Card>
       </Box>

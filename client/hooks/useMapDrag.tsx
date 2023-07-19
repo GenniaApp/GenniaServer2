@@ -10,7 +10,7 @@ const useMapDrag = (
 ) => {
   const [dragging, setDragging] = useState(false);
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
-  const timeoutId = useRef<number | undefined>(undefined);
+  const timeoutId = useRef<any>(undefined);
 
   const handleMouseDown = useCallback(
     (event: MouseEvent) => {

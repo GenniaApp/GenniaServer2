@@ -5,6 +5,8 @@ import xss from 'xss';
 import crypto from 'crypto';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
 import { ColorArr, forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
@@ -35,6 +37,28 @@ app.get('/create_room', async (req: Request, res: Response) => {
     res.status(500).json(result);
   }
 });
+
+
+app.get('/get_replay/:replayId', (req: Request, res: Response) => {
+  const replayId = req.params.replayId;
+  const replayFilePath = path.join(process.cwd(), 'records', `${replayId}.json`);
+
+  fs.readFile(replayFilePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(404).json({ error: 'Replay not found' });
+    } else {
+      try {
+        const replayData = JSON.parse(data);
+        res.status(200).json(replayData);
+      } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Failed to parse replay data' });
+      }
+    }
+  });
+});
+
 
 const server = app.listen(process.env.PORT, () => {
   console.log(`Application started on port ${process.env.PORT}!`);
@@ -84,7 +108,7 @@ async function handleGame(room: Room, io: Server) {
     room.players = await room.map.generate();
     room.mapGenerated = true;
     room.globalMapDiff = new MapDiff();
-    room.gameRecord = new GameRecord(room.players.map((player) => player.minify()));
+    room.gameRecord = new GameRecord(room.players, room.map.width, room.map.height);
 
     // Now: Client can get map name / width / height !
     // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
@@ -147,7 +171,7 @@ async function handleGame(room: Room, io: Server) {
           if (!alivePlayer) throw new Error('alivePlayer is null');
           let link = room.gameRecord.outPutToJSON(process.cwd());
           io.in(room.id).emit('game_ended', alivePlayer.minify(true), link); // winnner
-          console.log('Game ended');
+          console.log('Game ended, replay link: ', link);
 
           room.gameStarted = false;
           room.forceStartNum = 0;
@@ -167,7 +191,6 @@ async function handleGame(room: Room, io: Server) {
           .sort((a, b) => {
             return b[1] - a[1] || b[2] - a[2];
           });
-        room.gameRecord.addGameUpdate(room.globalMapDiff.data, room.map.turn, leaderBoardData);
 
         let room_sockets = await io.in(room.id).fetchSockets();
 
@@ -184,6 +207,7 @@ async function handleGame(room: Room, io: Server) {
         }
 
         await room.globalMapDiff.patch(room.map.map);
+        room.gameRecord.addGameUpdate(room.globalMapDiff.data, room.map.turn, leaderBoardData);
         room.map.updateTurn();
         room.map.updateUnit();
       } catch (e: any) {

@@ -9,7 +9,7 @@ const GameLoading: React.FC<GameLoadingProps> = (props) => {
 
   return (
     <Dialog open>
-      <DialogTitle>{t('game-starting')}</DialogTitle>
+      <DialogTitle>{t('game-loading')}</DialogTitle>
       <CircularProgress />
     </Dialog>
   );

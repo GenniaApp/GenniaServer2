@@ -137,3 +137,15 @@ export const TileType2Image: Record<TileType, string> = {
   [TileType.Mountain]: '/img/mountain.png',
   [TileType.Swamp]: '/img/swamp.png',
 };
+
+export interface SnackState {
+  open: boolean;
+  title: string;
+  message: string;
+}
+
+export interface GameRecordPerTurn {
+  turn: number;
+  data: MapDiffData;
+  lead: LeaderBoardTable;
+}

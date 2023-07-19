@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { UserData, RoomUiStatus } from '@/lib/types';
@@ -16,6 +16,7 @@ import {
 export default function OverDialog() {
   const { myPlayerId, room, dialogContent, openOverDialog } = useGame();
   const { setRoomUiStatus, setOpenOverDialog } = useGameDispatch();
+  const [replayLink, setReplayLink] = React.useState('');
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -34,11 +35,16 @@ export default function OverDialog() {
     }
     if (game_status === 'game_ended') {
       title = userData.id === myPlayerId ? t('you-win') : t('game-over');
-      subtitle = `${t('winner')}: ${userData.username}! ${t(
-        'replay-link'
-      )}: ${replay_link}`;
+      subtitle = `${t('winner')}: ${userData.username}!`;
     }
   }
+
+  useEffect(() => {
+    let [userData, game_status, replay_link] = dialogContent;
+    if (game_status === 'game_ended' && replay_link) {
+      setReplayLink(replay_link);
+    }
+  }, [dialogContent]);
 
   const handleExit = () => {
     router.push('/');
@@ -47,6 +53,11 @@ export default function OverDialog() {
 
   const handleBackRoom = () => {
     if (!room.gameStarted) setRoomUiStatus(RoomUiStatus.gameSetting);
+    setOpenOverDialog(false);
+  };
+
+  const handleWatchReplay = () => {
+    router.push(`/replays/${replayLink}`);
     setOpenOverDialog(false);
   };
 
@@ -65,6 +76,9 @@ export default function OverDialog() {
         <Button onClick={handleBackRoom}>
           {room.gameStarted ? t('spectate') : t('play-again')}
         </Button>
+        {replayLink && (
+          <Button onClick={handleWatchReplay}>{t('watch-replay')}</Button>
+        )}
         <Button onClick={handleExit}>{t('exit')}</Button>
       </DialogActions>
     </Dialog>

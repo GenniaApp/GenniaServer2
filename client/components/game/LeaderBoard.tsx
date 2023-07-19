@@ -7,14 +7,13 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import { LeaderBoardTable } from '@/lib/types';
+import { Player, LeaderBoardTable } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
-import { useGame } from '@/context/GameContext';
 
 interface LeaderBoardProps {
+  players: Player[];
   leaderBoardTable: LeaderBoardTable | null;
 }
-
 
 type LeaderBoardData = {
   color: number;
@@ -24,22 +23,22 @@ type LeaderBoardData = {
 }[];
 
 export default function LeaderBoard(props: LeaderBoardProps) {
-  const { room } = useGame();
+  const { players } = props;
   let { leaderBoardTable } = props;
   if (!leaderBoardTable) return null;
 
   const fetchUsernameByColor = function (color: number) {
-    let res = room.players.filter((player) => player.color === color);
+    let res = players.filter((player) => player.color === color);
     if (res.length) return res[0].username;
     else return null;
-  }
+  };
 
   let leaderBoardData: LeaderBoardData = leaderBoardTable.map((row) => {
     return {
       color: row[0],
       username: fetchUsernameByColor(row[0]),
       armyCount: row[1],
-      landsCount: row[2]
+      landsCount: row[2],
     };
   });
   return (

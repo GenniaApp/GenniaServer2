@@ -330,9 +330,6 @@ function GamingRoom() {
 
   return (
     <div className='app-container'>
-      {/* {!room.gameStarted && roomUiStatus && <GameSetting />}
-      {room.gameStarted && loading && <GameLoading />}
-      {room.gameStarted && !loading && <Game />} */}
       {roomUiStatus === RoomUiStatus.gameSetting && (
         <div className='center-layout'>
           <GameSetting />
