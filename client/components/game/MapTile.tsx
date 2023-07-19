@@ -62,7 +62,7 @@ export default function MapTile(props: MapTileProps) {
     } else {
       setTileHalf(false);
     }
-  }, [selectedMapTileInfo]);
+  }, [selectedMapTileInfo, x, y]);
 
   const getPlayerIndex = useCallback((room: Room, playerId: string) => {
     for (let i = 0; i < room.players.length; ++i) {
@@ -93,7 +93,7 @@ export default function MapTile(props: MapTileProps) {
     });
 
     return isNextPossibleMapPosition && tileType !== TileType.Mountain;
-  }, [selectedMapTileInfo, possibleNextMapPositions, x, y, tileType]);
+  }, [possibleNextMapPositions, x, y, tileType]);
 
   const whichNextPossibleMove = useMemo(() => {
     if (isNextPossibleMove) {
@@ -119,16 +119,14 @@ export default function MapTile(props: MapTileProps) {
     } else {
       return '';
     }
-  }, [isNextPossibleMove, selectedMapTileInfo, possibleNextMapPositions, x, y]);
+  }, [isNextPossibleMove, possibleNextMapPositions, x, y]);
 
   const isSelected = useMemo(() => {
     return x === selectedMapTileInfo.x && y === selectedMapTileInfo.y;
   }, [selectedMapTileInfo, x, y]);
 
   const isRevealed = useMemo(() => {
-    return (
-      tileType !== TileType.Obstacle && tileType !== TileType.Fog
-    );
+    return tileType !== TileType.Obstacle && tileType !== TileType.Fog;
   }, [tileType]);
 
   const stroke = useMemo(() => {

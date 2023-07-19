@@ -59,7 +59,7 @@ export class Room {
     public gameStarted: boolean = false,
     public forceStartNum: number = 0,
     public mapGenerated: boolean = false,
-    public maxPlayers: number = 2,
+    public maxPlayers: number = 8,
     public gameSpeed: number = 1, // valid value: [0.25, 0.5, 0.75, 1, 2, 3, 4];
     public mapWidth: number = 0.75,
     public mapHeight: number = 0.75,

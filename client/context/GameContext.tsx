@@ -24,6 +24,9 @@ interface SnackState {
   message: string;
 }
 
+// userData, game_status, replay_link
+type DialogContentData = [UserData | null, string, string | null];
+
 interface GameContext {
   room: Room;
   socketRef: any;
@@ -34,7 +37,7 @@ interface GameContext {
   isSurrendered: boolean;
   turnsCount: number;
   leaderBoardData: LeaderBoardTable | null;
-  dialogContent: [UserData | null, string, string | null];
+  dialogContent: DialogContentData;
   openOverDialog: boolean;
   snackState: SnackState;
   attackQueueRef: any; // AttackQueue
@@ -51,9 +54,7 @@ interface GameDispatch {
   setIsSurrendered: React.Dispatch<React.SetStateAction<boolean>>;
   setTurnsCount: React.Dispatch<React.SetStateAction<number>>;
   setLeaderBoardData: React.Dispatch<any>;
-  setDialogContent: React.Dispatch<
-    React.SetStateAction<[UserData | null, string, string | null]>
-  >;
+  setDialogContent: React.Dispatch<React.SetStateAction<DialogContentData>>;
   setOpenOverDialog: React.Dispatch<React.SetStateAction<boolean>>;
   snackStateDispatch: React.Dispatch<any>;
   setSelectedMapTileInfo: React.Dispatch<
@@ -89,10 +90,10 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
   const [initGameInfo, setInitGameInfo] = useState<initGameInfo | null>(null);
   const [turnsCount, setTurnsCount] = useState(0);
   const [leaderBoardData, setLeaderBoardData] = useState(null);
-  const [dialogContent, setDialogContent] = useState<[UserData | null, string, string | null]>([
+  const [dialogContent, setDialogContent] = useState<DialogContentData>([
     null,
     '',
-    null
+    null,
   ]);
   const [openOverDialog, setOpenOverDialog] = useState(false);
   const [selectedMapTileInfo, setSelectedMapTileInfo] =

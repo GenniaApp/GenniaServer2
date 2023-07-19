@@ -340,7 +340,8 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         }}
         onClick={handleClickForceStart}
       >
-        {t('force-start')}({room.forceStartNum}/{forceStartOK[room.maxPlayers]})
+        {t('force-start')}({room.forceStartNum}/
+        {forceStartOK[room.players.length]})
       </Button>
       <Box
         sx={{

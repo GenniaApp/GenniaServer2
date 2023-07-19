@@ -174,9 +174,6 @@ function GamingRoom() {
     socket.on('update_room', (room: Room) => {
       console.log('update_room');
       console.log(room);
-      if (room.gameStarted && roomUiStatus === RoomUiStatus.gameSetting) {
-        setRoomUiStatus(RoomUiStatus.loading);
-      }
       roomDispatch({ type: 'update', payload: room });
     });
 
@@ -214,10 +211,10 @@ function GamingRoom() {
       setDialogContent([capturedBy, 'game_over', null]);
     });
     socket.on('game_ended', (winner: UserData, replayLink: string) => {
-      console.log(`game_ended: ${winner.username}`);
+      console.log(`game_ended: ${winner.username} ${replayLink}`);
       setDialogContent([winner, 'game_ended', replayLink]);
-      setRoomUiStatus(RoomUiStatus.gameOverConfirm);
       setOpenOverDialog(true);
+      setRoomUiStatus(RoomUiStatus.gameOverConfirm);
     });
 
     socket.on(
@@ -325,6 +322,12 @@ function GamingRoom() {
     };
   }, [roomId, username]);
 
+  useEffect(() => {
+    if (room.gameStarted && roomUiStatus === RoomUiStatus.gameSetting) {
+      setRoomUiStatus(RoomUiStatus.loading);
+    }
+  }, [room, roomUiStatus]);
+
   return (
     <div className='app-container'>
       {/* {!room.gameStarted && roomUiStatus && <GameSetting />}
@@ -340,7 +343,8 @@ function GamingRoom() {
           <GameLoading />
         </div>
       )}
-      {roomUiStatus === RoomUiStatus.gameRealStarted && <Game />}
+      {(roomUiStatus === RoomUiStatus.gameRealStarted ||
+        roomUiStatus === RoomUiStatus.gameOverConfirm) && <Game />}
       <ChatBox
         socket={socketRef.current}
         messages={messages}

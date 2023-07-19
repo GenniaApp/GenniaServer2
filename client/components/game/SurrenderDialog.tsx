@@ -42,7 +42,7 @@ export default function SurrenderDialog({
   const handleExit = useCallback(() => {
     setIsOpen(false);
     router.push('/');
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeydown);

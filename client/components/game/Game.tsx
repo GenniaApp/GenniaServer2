@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Box, Card, CardHeader, CardContent, IconButton } from '@mui/material';
 import SurrenderDialog from './SurrenderDialog';
-import TurnsCount from './TurnsCount';
 import GameMap from './GameMap';
 import LeaderBoard from './LeaderBoard';
 import OverDialog from './OverDialog';
@@ -11,25 +10,18 @@ import StartRoundedIcon from '@mui/icons-material/StartRounded';
 import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 
 export default function Game() {
-  const {
-    room,
-    socketRef,
-    myPlayerId,
-    turnsCount,
-    leaderBoardData,
-    openOverDialog,
-  } = useGame();
+  const { socketRef, myPlayerId, turnsCount, leaderBoardData } = useGame();
   const { setOpenOverDialog, setDialogContent, setIsSurrendered } =
     useGameDispatch();
   const { t } = useTranslation();
   const [gameDockExpand, setGameDockExpand] = useState(true);
 
-  const handleSurrender = useCallback(() => {
+  const handleSurrender = () => {
     socketRef.current.emit('surrender', myPlayerId);
     setIsSurrendered(true);
     setDialogContent([null, 'game_surrender', null]);
     setOpenOverDialog(true);
-  }, [socketRef, setDialogContent, setOpenOverDialog, myPlayerId]);
+  };
 
   return (
     <Box className='Game'>
@@ -82,12 +74,7 @@ export default function Game() {
       </Box>
       <GameMap />
       <SurrenderDialog handleSurrender={handleSurrender} />
-      <OverDialog
-        open={openOverDialog}
-        onClose={() => {
-          setOpenOverDialog(false);
-        }}
-      />
+      <OverDialog />
     </Box>
   );
 }

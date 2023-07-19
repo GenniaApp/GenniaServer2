@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
-import { Player, RoomUiStatus } from '@/lib/types';
+import { UserData, RoomUiStatus } from '@/lib/types';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 import {
   Button,
@@ -13,36 +13,30 @@ import {
   Typography,
 } from '@mui/material';
 
-interface OverDialogProps {
-  open: boolean;
-  onClose: () => void;
-}
-
-export default function OverDialog(props: OverDialogProps) {
-  const { myPlayerId, room, dialogContent } = useGame();
+export default function OverDialog() {
+  const { myPlayerId, room, dialogContent, openOverDialog } = useGame();
   const { setRoomUiStatus, setOpenOverDialog } = useGameDispatch();
-  const { open, onClose } = props;
   const { t } = useTranslation();
   const router = useRouter();
 
   let title: string = '';
   let subtitle: string = '';
-  let player = dialogContent[0];
+  let [userData, game_status, replay_link] = dialogContent;
 
-  if (dialogContent[1] === 'game_surrender') {
+  if (game_status === 'game_surrender') {
     title = t('you-surrender');
     subtitle = '';
   }
-  if (player) {
-    if (dialogContent[1] === 'game_over') {
+  if (userData) {
+    if (game_status === 'game_over') {
       title = t('game-over');
-      subtitle = `${t('captured-by')}: ${player.username}`;
+      subtitle = `${t('captured-by')}: ${userData.username}`;
     }
-    if (dialogContent[1] === 'game_ended') {
-      title = player.id === myPlayerId ? t('you-win') : t('game-over');
-      subtitle = `${t('winner')}: ${player.username}! ${t('replay-link')}: ${
-        dialogContent[2]
-      }`;
+    if (game_status === 'game_ended') {
+      title = userData.id === myPlayerId ? t('you-win') : t('game-over');
+      subtitle = `${t('winner')}: ${userData.username}! ${t(
+        'replay-link'
+      )}: ${replay_link}`;
     }
   }
 
@@ -56,8 +50,15 @@ export default function OverDialog(props: OverDialogProps) {
     setOpenOverDialog(false);
   };
 
+  if (openOverDialog) console.log('OverDialog rendered');
+
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog
+      open={openOverDialog}
+      onClose={() => {
+        setOpenOverDialog(false);
+      }}
+    >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>{subtitle}</DialogContent>
       <DialogActions sx={{ width: '300px' }}>

@@ -61,8 +61,14 @@ function MapEditor() {
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const mapRef = useRef<HTMLDivElement>(null);
 
-  const mapPixelWidth = useMemo(() => tileSize * mapWidth, [tileSize]);
-  const mapPixelHeight = useMemo(() => tileSize * mapHeight, [tileSize]);
+  const mapPixelWidth = useMemo(
+    () => tileSize * mapWidth,
+    [tileSize, mapWidth]
+  );
+  const mapPixelHeight = useMemo(
+    () => tileSize * mapHeight,
+    [tileSize, mapHeight]
+  );
 
   const property2var: Record<string, any> = {
     team: team,
@@ -289,20 +295,21 @@ function MapEditor() {
 
   useEffect(() => {
     if (mapRef.current) {
-      mapRef.current.addEventListener('keydown', handleKeyDown);
-      mapRef.current.addEventListener('mousedown', handleMouseDown);
-      mapRef.current.addEventListener('mousemove', handleMouseMove);
-      mapRef.current.addEventListener('mouseup', handleMouseUp);
-      mapRef.current.addEventListener('touchstart', handleTouchStart);
-      mapRef.current.addEventListener('touchmove', handleTouchMove);
+      let mapNode = mapRef.current;
+      mapNode.addEventListener('keydown', handleKeyDown);
+      mapNode.addEventListener('mousedown', handleMouseDown);
+      mapNode.addEventListener('mousemove', handleMouseMove);
+      mapNode.addEventListener('mouseup', handleMouseUp);
+      mapNode.addEventListener('touchstart', handleTouchStart);
+      mapNode.addEventListener('touchmove', handleTouchMove);
       return () => {
-        if (mapRef.current) {
-          mapRef.current.removeEventListener('keydown', handleKeyDown);
-          mapRef.current.removeEventListener('mousedown', handleMouseDown);
-          mapRef.current.removeEventListener('mousemove', handleMouseMove);
-          mapRef.current.removeEventListener('mouseup', handleMouseUp);
-          mapRef.current.removeEventListener('touchstart', handleTouchStart);
-          mapRef.current.removeEventListener('touchmove', handleTouchMove);
+        if (mapNode) {
+          mapNode.removeEventListener('keydown', handleKeyDown);
+          mapNode.removeEventListener('mousedown', handleMouseDown);
+          mapNode.removeEventListener('mousemove', handleMouseMove);
+          mapNode.removeEventListener('mouseup', handleMouseUp);
+          mapNode.removeEventListener('touchstart', handleTouchStart);
+          mapNode.removeEventListener('touchmove', handleTouchMove);
         }
       };
     }
@@ -332,7 +339,7 @@ function MapEditor() {
           flexDirection: 'column',
           justifyContent: 'space-between',
           alignItems: 'center',
-          overflow: 'auto'
+          overflow: 'auto',
         }}
       >
         <Card
