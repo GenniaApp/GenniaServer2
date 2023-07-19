@@ -9,6 +9,7 @@ import React, {
 import { useRouter } from 'next/router';
 import {
   Box,
+  Slider,
   IconButton,
   Radio,
   RadioGroup,
@@ -17,8 +18,12 @@ import {
   FormControlLabel,
 } from '@mui/material';
 
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import StopIcon from '@mui/icons-material/Stop';
+import {
+  FastRewindRounded,
+  PlayArrowRounded,
+  PauseRounded,
+  FastForwardRounded,
+} from '@mui/icons-material';
 import { mapDataReducer } from '@/context/GameReducer';
 import CustomMapTile from '@/components/game/CustomMapTile';
 import { SpeedOptions } from '@/lib/constants';
@@ -153,13 +158,8 @@ export default function GameReplay(props: any) {
     }
   }, [gameRecord, isPlay, playSpeed]);
 
-  const handleChangeTurn = (event: any) => {
+  const changeTurn = (current_turn: number) => {
     if (gameRecord) {
-      if (event.target.value === '') {
-        setTurnsCount(event.target.value);
-        return;
-      }
-      let current_turn = Number.parseInt(event.target.value);
       if (current_turn >= maxTurn) current_turn = maxTurn;
 
       setTurnsCount(current_turn);
@@ -177,6 +177,10 @@ export default function GameReplay(props: any) {
         jumpToTurn: current_turn - 1,
       });
     }
+  };
+
+  const handleChangeTurn = (event: any) => {
+    changeTurn(event.target.value as number);
   };
 
   if (notFounderror) {
@@ -207,63 +211,101 @@ export default function GameReplay(props: any) {
           className='menu-container'
           sx={{
             position: 'absolute',
-            top: '60px',
-            bottom: '60px',
-            right: 0,
-            width: '90px',
-            height: 'calc(100dvh - 60px - 60px)',
-            borderRadius: '0 10px 10px 0 !important',
-            overflow: 'auto',
+            left: '50%',
+            transform: 'translate(-50%, 0) translate(0, 0)',
+            width: 'max-content',
+            height: 'max-content',
+            bottom: '65px',
+            borderRadius: '10px !important',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'column',
+            zIndex: 1000,
+            padding: '10px !important',
+            boxShadow: '2',
+            '@media screen and (max-width: 900px)': {
+              width: '100dvw',
+            },
           }}
         >
-          <IconButton
-            onClick={() => {
-              setIsPlay(!isPlay);
-            }}
-          >
-            {isPlay ? <StopIcon /> : <PlayArrowIcon />}
-          </IconButton>
           <Box
             display='flex'
-            flexDirection='column'
+            flexDirection='row'
             justifyContent='space-between'
           >
-            <Typography align='center'>{t('game-speed')}</Typography>
-            <RadioGroup
-              aria-label='game-speed'
-              name='game-speed'
-              value={playSpeed}
-              row
-              onChange={(event) => {
-                setIsPlay(false);
-                setPlaySpeed(Number.parseFloat(event.target.value));
-              }}
-            >
-              {SpeedOptions.map((value) => (
-                <FormControlLabel
-                  key={value}
-                  value={value}
-                  control={<Radio size='small' />}
-                  label={`${value}x`}
-                />
-              ))}
-            </RadioGroup>
-
-            <Typography align='center'>{t('jump-to-turn')}</Typography>
-            <TextField
-              id='turn'
-              type='number'
-              variant='standard'
-              hiddenLabel
-              value={turnsCount}
-              onChange={handleChangeTurn}
-              inputProps={{
-                min: 1,
-                max: maxTurn,
-                style: { textAlign: 'center' },
-              }}
-            />
+            <IconButton disabled={turnsCount === 1}>
+              <FastRewindRounded
+                onClick={() => changeTurn(turnsCount > 1 ? turnsCount - 1 : 1)}
+                fontSize='large'
+              />
+            </IconButton>
+            <IconButton onClick={() => setIsPlay(!isPlay)}>
+              {isPlay ? (
+                <PauseRounded sx={{ fontSize: '3rem' }} />
+              ) : (
+                <PlayArrowRounded sx={{ fontSize: '3rem' }} />
+              )}
+            </IconButton>
+            <IconButton disabled={turnsCount === maxTurn}>
+              <FastForwardRounded
+                onClick={() =>
+                  changeTurn(turnsCount < maxTurn ? turnsCount + 1 : maxTurn)
+                }
+                fontSize='large'
+              />
+            </IconButton>
           </Box>
+          <Slider
+            size='medium'
+            value={turnsCount}
+            min={0}
+            step={1}
+            max={maxTurn}
+            onChange={handleChangeTurn}
+            sx={{
+              color: '#fff',
+              height: 8,
+              '& .MuiSlider-thumb': {
+                width: 16,
+                height: 16,
+                transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
+                '&:before': {
+                  boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
+                },
+                '&:hover, &.Mui-focusVisible': {
+                  boxShadow: `0px 0px 0px 8px rgb(255 255 255 / 16%)`,
+                },
+                '&.Mui-active': {
+                  width: 26,
+                  height: 26,
+                },
+              },
+              '& .MuiSlider-rail': {
+                opacity: 0.28,
+              },
+            }}
+          />
+          <RadioGroup
+            sx={{ width: '100%' }}
+            aria-label='game-speed'
+            name='game-speed'
+            value={playSpeed}
+            row
+            onChange={(event) => {
+              setIsPlay(false);
+              setPlaySpeed(Number.parseFloat(event.target.value));
+            }}
+          >
+            {SpeedOptions.map((value) => (
+              <FormControlLabel
+                key={value}
+                value={value}
+                control={<Radio size='small' />}
+                label={`${value}x`}
+              />
+            ))}
+          </RadioGroup>
         </Box>
 
         <LeaderBoard
@@ -300,7 +342,7 @@ export default function GameReplay(props: any) {
             });
           })}
         </div>
-        <ChatBox socket={null} messages={messages} setMessages={setMessages} />
+        <ChatBox socket={null} messages={messages} />
       </Box>
     );
   }
