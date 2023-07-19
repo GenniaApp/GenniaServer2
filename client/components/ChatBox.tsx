@@ -104,12 +104,11 @@ const ChatBoxMessage = ({ message }: { message: Message }) => {
 };
 
 interface ChatBoxProp {
-  socket: Socket;
+  socket: Socket | null;
   messages: Message[];
-  setMessages: any;
 }
 
-const ChatBox = ({ socket, messages, setMessages }: ChatBoxProp) => {
+const ChatBox = ({ socket, messages }: ChatBoxProp) => {
   const [inputValue, setInputValue] = useState('');
   const [isExpand, setIsExpand] = useState(true);
   const textFieldRef = useRef<any>(null);
@@ -148,7 +147,7 @@ const ChatBox = ({ socket, messages, setMessages }: ChatBoxProp) => {
   const handleSendMessage = () => {
     if (inputValue.trim() !== '') {
       setInputValue('');
-      socket.emit('player_message', inputValue);
+      if (socket) socket.emit('player_message', inputValue);
     }
   };
 
@@ -167,22 +166,24 @@ const ChatBox = ({ socket, messages, setMessages }: ChatBoxProp) => {
         ))}
         <div ref={messagesEndRef} />
       </ChatBoxMessages>
-      <ChatBoxInput className={isExpand ? '' : 'hidden'}>
-        <ChatBoxTextField
-          autoFocus
-          hiddenLabel
-          label={t('type-a-message')}
-          variant='outlined'
-          size='small'
-          value={inputValue}
-          onChange={handleInputChange}
-          inputRef={textFieldRef}
-          onKeyDown={handleInputKeyDown}
-        />
-        {/* <ChatBoxButton variant='contained' onClick={handleSendMessage}>
+      {socket && (
+        <ChatBoxInput className={isExpand ? '' : 'hidden'}>
+          <ChatBoxTextField
+            autoFocus
+            hiddenLabel
+            label={t('type-a-message')}
+            variant='outlined'
+            size='small'
+            value={inputValue}
+            onChange={handleInputChange}
+            inputRef={textFieldRef}
+            onKeyDown={handleInputKeyDown}
+          />
+          {/* <ChatBoxButton variant='contained' onClick={handleSendMessage}>
           {t('send')}
         </ChatBoxButton> */}
-      </ChatBoxInput>
+        </ChatBoxInput>
+      )}
     </ChatBoxContainer>
   );
 };

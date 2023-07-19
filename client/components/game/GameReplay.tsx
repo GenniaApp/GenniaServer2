@@ -22,12 +22,13 @@ import StopIcon from '@mui/icons-material/Stop';
 import { mapDataReducer } from '@/context/GameReducer';
 import CustomMapTile from '@/components/game/CustomMapTile';
 import { SpeedOptions } from '@/lib/constants';
-import { Position, LeaderBoardTable } from '@/lib/types';
+import { Position, LeaderBoardTable, Message } from '@/lib/types';
 import LeaderBoard from './LeaderBoard';
 import { useTranslation } from 'next-i18next';
 import GameLoading from '@/components/GameLoading';
 import useMapDrag from '@/hooks/useMapDrag';
 import GameRecord from '@/lib/game-record';
+import ChatBox from '@/components/ChatBox';
 import Swal from 'sweetalert2';
 
 export default function GameReplay(props: any) {
@@ -43,7 +44,7 @@ export default function GameReplay(props: any) {
   const [mapData, mapDataDispatch] = useReducer(mapDataReducer, [[]]);
   const { t } = useTranslation();
   const [notFounderror, setNotFoundError] = useState('');
-
+  const [messages, setMessages] = useState<Message[]>([]);
   const [zoom, setZoom] = useState(1);
   const [tileSize, setTileSize] = useState(40);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
@@ -126,7 +127,7 @@ export default function GameReplay(props: any) {
 
       const updateTurn = () => {
         console.log('updateTurn', tmp_turn);
-        if (tmp_turn >= gameRecord.gameRecordTurns.length) {
+        if (tmp_turn > gameRecord.gameRecordTurns.length) {
           clearInterval(intervalId.current);
           setIsPlay(false);
           return;
@@ -135,6 +136,13 @@ export default function GameReplay(props: any) {
         mapDataDispatch({ type: 'update', mapDiff: data });
         setLeaderBoardData(lead);
         setTurnsCount(tmp_turn);
+        setMessages(
+          gameRecord.messagesRecord.filter((message) => {
+            if (message.turn) return message.turn <= tmp_turn;
+            else return true;
+          })
+        );
+
         tmp_turn++;
       };
       if (isPlay) {
@@ -155,6 +163,13 @@ export default function GameReplay(props: any) {
       if (current_turn >= maxTurn) current_turn = maxTurn;
 
       setTurnsCount(current_turn);
+
+      setMessages(
+        gameRecord.messagesRecord.filter((message) => {
+          if (message.turn) return message.turn <= current_turn;
+          else return true;
+        })
+      );
 
       mapDataDispatch({
         type: 'jump-to-turn',
@@ -220,6 +235,7 @@ export default function GameReplay(props: any) {
               value={playSpeed}
               row
               onChange={(event) => {
+                setIsPlay(false);
                 setPlaySpeed(Number.parseFloat(event.target.value));
               }}
             >
@@ -284,6 +300,7 @@ export default function GameReplay(props: any) {
             });
           })}
         </div>
+        <ChatBox socket={null} messages={messages} setMessages={setMessages} />
       </Box>
     );
   }
