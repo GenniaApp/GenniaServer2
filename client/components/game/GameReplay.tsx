@@ -9,9 +9,6 @@ import React, {
 import { useRouter } from 'next/router';
 import {
   Box,
-  Card,
-  CardHeader,
-  CardContent,
   IconButton,
   Radio,
   RadioGroup,
@@ -25,18 +22,9 @@ import StopIcon from '@mui/icons-material/Stop';
 import { mapDataReducer } from '@/context/GameReducer';
 import CustomMapTile from '@/components/game/CustomMapTile';
 import { SpeedOptions } from '@/lib/constants';
-import {
-  Position,
-  TileType,
-  CustomMapTileData,
-  TileType2Image,
-  MapData,
-  LeaderBoardTable,
-} from '@/lib/types';
+import { Position, LeaderBoardTable } from '@/lib/types';
 import LeaderBoard from './LeaderBoard';
 import { useTranslation } from 'next-i18next';
-import StartRoundedIcon from '@mui/icons-material/StartRounded';
-import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 import GameLoading from '@/components/GameLoading';
 import useMapDrag from '@/hooks/useMapDrag';
 import GameRecord from '@/lib/game-record';
@@ -54,7 +42,6 @@ export default function GameReplay(props: any) {
   const [isPlay, setIsPlay] = useState(false);
   const [mapData, mapDataDispatch] = useReducer(mapDataReducer, [[]]);
   const { t } = useTranslation();
-  const [gameDockExpand, setGameDockExpand] = useState(true);
   const [notFounderror, setNotFoundError] = useState('');
 
   const [zoom, setZoom] = useState(1);
@@ -263,56 +250,11 @@ export default function GameReplay(props: any) {
           </Box>
         </Box>
 
-        <Box
-          sx={{
-            position: 'absolute',
-            width: 'max-content',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'transparent',
-          }}
-        >
-          <Card
-            sx={{
-              width: '100%',
-              height: 'max-content',
-              marginTop: '80px',
-              marginBottom: '80px',
-              backdropFilter: 'blur(3px)',
-              backgroundColor: 'rgb(99 97 141 / 68%)',
-              borderRadius: '0 10px 10px 0',
-              zIndex: 66,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'space-around',
-              overflow: 'auto',
-              padding: '0',
-            }}
-          >
-            <CardHeader
-              sx={{ width: '100%' }}
-              title={gameDockExpand ? `Turn ${turnsCount}` : `${turnsCount}`}
-              action={
-                <IconButton onClick={() => setGameDockExpand(!gameDockExpand)}>
-                  {gameDockExpand ? (
-                    <MenuOpenRoundedIcon />
-                  ) : (
-                    <StartRoundedIcon />
-                  )}
-                </IconButton>
-              }
-            />
-            <CardContent sx={{ display: gameDockExpand ? '' : 'none' }}>
-              <LeaderBoard
-                leaderBoardTable={leaderBoardData}
-                players={gameRecord.players}
-              />
-            </CardContent>
-          </Card>
-        </Box>
+        <LeaderBoard
+          leaderBoardTable={leaderBoardData}
+          players={gameRecord.players}
+          turnsCount={turnsCount}
+        />
 
         <div
           ref={mapRef}

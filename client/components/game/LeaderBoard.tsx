@@ -6,11 +6,20 @@ import {
   TableBody,
   TableHead,
   TableRow,
+  Card,
+  CardHeader,
+  CardContent,
+  IconButton,
 } from '@mui/material';
+import StartRoundedIcon from '@mui/icons-material/StartRounded';
+import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
+
+import { useState } from 'react';
 import { Player, LeaderBoardTable } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 
 interface LeaderBoardProps {
+  turnsCount: number;
   players: Player[];
   leaderBoardTable: LeaderBoardTable | null;
 }
@@ -23,8 +32,8 @@ type LeaderBoardData = {
 }[];
 
 export default function LeaderBoard(props: LeaderBoardProps) {
-  const { players } = props;
-  let { leaderBoardTable } = props;
+  const { players, turnsCount, leaderBoardTable } = props;
+  const [gameDockExpand, setGameDockExpand] = useState(true);
   if (!leaderBoardTable) return null;
 
   const fetchUsernameByColor = function (color: number) {
@@ -42,28 +51,70 @@ export default function LeaderBoard(props: LeaderBoardProps) {
     };
   });
   return (
-    <TableContainer>
-      <Table>
-        <TableHead>
-          <TableRow sx={{ backgroundColor: 'transparent' }}>
-            <TableCell>Player</TableCell>
-            <TableCell>Army</TableCell>
-            <TableCell>Land</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {leaderBoardData.map((player, index) => (
-            <TableRow
-              key={index}
-              sx={{ backgroundColor: ColorArr[player.color] }}
-            >
-              <TableCell>{player.username}</TableCell>
-              <TableCell>{player.armyCount}</TableCell>
-              <TableCell>{player.landsCount}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box
+      sx={{
+        position: 'absolute',
+        width: 'max-content',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'transparent',
+      }}
+    >
+      <Card
+        sx={{
+          width: '100%',
+          height: 'max-content',
+          marginTop: '80px',
+          marginBottom: '80px',
+          backdropFilter: 'blur(3px)',
+          backgroundColor: 'rgb(99 97 141 / 68%)',
+          borderRadius: '0 10px 10px 0',
+          zIndex: 66,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          overflow: 'auto',
+          padding: '0',
+        }}
+      >
+        <CardHeader
+          sx={{ width: '100%' }}
+          title={gameDockExpand ? `Turn ${turnsCount}` : `${turnsCount}`}
+          action={
+            <IconButton onClick={() => setGameDockExpand(!gameDockExpand)}>
+              {gameDockExpand ? <MenuOpenRoundedIcon /> : <StartRoundedIcon />}
+            </IconButton>
+          }
+        />
+        <CardContent sx={{ display: gameDockExpand ? '' : 'none' }}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: 'transparent' }}>
+                  <TableCell>Player</TableCell>
+                  <TableCell>Army</TableCell>
+                  <TableCell>Land</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {leaderBoardData.map((player, index) => (
+                  <TableRow
+                    key={index}
+                    sx={{ backgroundColor: ColorArr[player.color] }}
+                  >
+                    <TableCell>{player.username}</TableCell>
+                    <TableCell>{player.armyCount}</TableCell>
+                    <TableCell>{player.landsCount}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
