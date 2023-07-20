@@ -207,7 +207,7 @@ export default function GameReplay(props: any) {
     } else {
       setLimitedView(mapData);
     }
-  }, [turnsCount, mapData, checkedPlayers]);
+  }, [mapData, checkedPlayers]);
 
   const changeTurn = (current_turn: number) => {
     if (gameRecord) {
@@ -285,11 +285,11 @@ export default function GameReplay(props: any) {
             flexDirection='row'
             justifyContent='space-between'
           >
-            <IconButton disabled={turnsCount === 1}>
-              <FastRewindRounded
-                onClick={() => changeTurn(turnsCount > 1 ? turnsCount - 1 : 1)}
-                fontSize='large'
-              />
+            <IconButton
+              disabled={turnsCount === 1}
+              onClick={() => changeTurn(turnsCount > 1 ? turnsCount - 1 : 1)}
+            >
+              <FastRewindRounded fontSize='large' />
             </IconButton>
             <IconButton onClick={() => setIsPlay(!isPlay)}>
               {isPlay ? (
@@ -298,13 +298,13 @@ export default function GameReplay(props: any) {
                 <PlayArrowRounded sx={{ fontSize: '3rem' }} />
               )}
             </IconButton>
-            <IconButton disabled={turnsCount === maxTurn}>
-              <FastForwardRounded
-                onClick={() =>
-                  changeTurn(turnsCount < maxTurn ? turnsCount + 1 : maxTurn)
-                }
-                fontSize='large'
-              />
+            <IconButton
+              disabled={turnsCount === maxTurn}
+              onClick={() =>
+                changeTurn(turnsCount < maxTurn ? turnsCount + 1 : maxTurn)
+              }
+            >
+              <FastForwardRounded fontSize='large' />
             </IconButton>
           </Box>
           <Slider
