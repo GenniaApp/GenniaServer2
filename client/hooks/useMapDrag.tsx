@@ -32,7 +32,7 @@ const useMapDrag = (
         });
       }
     },
-    [dragging, mapRef, startPosition]
+    [dragging, mapRef.current, startPosition]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -58,7 +58,7 @@ const useMapDrag = (
         });
       }
     },
-    [mapRef, startPosition]
+    [mapRef.current, startPosition]
   );
 
   const handleWheel = useCallback(
