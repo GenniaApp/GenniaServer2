@@ -242,7 +242,7 @@ a {
 .menu-container {
   backdrop-filter: blur(3px);
   background-color: rgb(99 97 141 / 68%) !important;
-  border-radius: 10px;
+  border-radius: 10px !important;
   padding: 8px;
   margin-top: 10px;
   color: white;
