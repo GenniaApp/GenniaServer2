@@ -123,11 +123,13 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                           defaultChecked={false}
                           onChange={(event: any) => {
                             if (event.target.checked) {
-                              let newCheckedPlayers = checkedPlayers;
-                              newCheckedPlayers.push({
-                                username: player.username,
-                                color: player.color,
-                              } as UserData);
+                              let newCheckedPlayers = [
+                                ...checkedPlayers,
+                                {
+                                  username: player.username,
+                                  color: player.color,
+                                } as UserData,
+                              ];
                               setCheckedPlayers(newCheckedPlayers);
                             } else {
                               setCheckedPlayers(

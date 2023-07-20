@@ -50,6 +50,7 @@ export const mapDataReducer = (
       if (!mapDiff) throw Error('mapDiff is undefined');
 
       let flattened = state.flat();
+      let newState = [...state];
       for (let i = 0, j = 0; i < mapDiff.length; i++) {
         let tmp = mapDiff[i]; // Ensure that the type inspection can be passed.
         if (typeof tmp === 'number') {
@@ -60,10 +61,10 @@ export const mapDataReducer = (
       }
       for (let i = 0; i < mapWidth; ++i) {
         for (let j = 0; j < mapHeight; ++j) {
-          state[i][j] = flattened[i * mapHeight + j];
+          newState[i][j] = flattened[i * mapHeight + j];
         }
       }
-      return state;
+      return newState;
     }
     case 'jump-to-turn': {
       const { gameRecordTurns, jumpToTurn } = action;
@@ -73,11 +74,11 @@ export const mapDataReducer = (
         throw Error('jump to turn action invalid');
 
       // init
-      let tmp_state = Array.from(Array(mapWidth), () =>
+      let newState = Array.from(Array(mapWidth), () =>
         Array(mapHeight).fill([TileType.Fog, null, null])
       );
 
-      let flattened = tmp_state.flat();
+      let flattened = newState.flat();
       for (let i = 0; i <= jumpToTurn; ++i) {
         let mapDiff = gameRecordTurns[i].data;
 
@@ -93,11 +94,11 @@ export const mapDataReducer = (
 
       for (let i = 0; i < mapWidth; ++i) {
         for (let j = 0; j < mapHeight; ++j) {
-          tmp_state[i][j] = flattened[i * mapHeight + j];
+          newState[i][j] = flattened[i * mapHeight + j];
         }
       }
 
-      return tmp_state;
+      return newState;
     }
     default:
       throw Error('Unknown action: ' + action.type);
@@ -114,11 +115,12 @@ export const mapQueueDataReducer = (state: MapQueueData, action: any) => {
         })
       );
     case 'change': // change map[x][y]'s className, when className equal to '50%'
-      state[action.x][action.y] = {
+      let newState = [...state];
+      newState[action.x][action.y] = {
         className: action.className,
         text: action.text ? action.text : '',
       };
-      return state;
+      return newState;
     default:
       throw Error('Unknown action: ' + action.type);
   }
