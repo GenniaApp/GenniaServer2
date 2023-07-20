@@ -49,9 +49,14 @@ function GamingRoom() {
   } = useGameDispatch();
 
   useEffect(() => {
-    setUsername(localStorage.getItem('username') || t('anonymous'));
-    setMyPlayerId(localStorage.getItem('playerId') || '');
-  }, [setUsername, setMyPlayerId, t]);
+    let tmp: string | null = localStorage.getItem('username');
+    if (!tmp) {
+      router.push('/');
+    } else {
+      setUsername(tmp);
+      setMyPlayerId(localStorage.getItem('playerId') || '');
+    }
+  }, [setUsername, setMyPlayerId]);
 
   useEffect(() => {
     // Game Logic Init

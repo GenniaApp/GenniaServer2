@@ -253,18 +253,13 @@ io.on('connection', async (socket) => {
   console.log(`new connect: ${username} ${roomId} ${myPlayerId}`);
 
   // validate roomId and username
-  if (!username) {
-    reject_join(socket, `Username: ${username} is invalid`);
-    return;
-  }
   if (!roomId) {
     reject_join(socket, `roomId: ${username} is invalid`);
     return;
   }
   username = xss(username);
   if (!username.length) {
-    reject_join(socket, `Xss Username: ${username} is invalid`);
-    return;
+    username = 'Anonymous';
   }
   if (!roomPool[roomId]) {
     try {
