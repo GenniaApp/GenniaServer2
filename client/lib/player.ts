@@ -14,8 +14,9 @@ class Player {
     public operatedTurn: number = 0,
     public land: Block[] = [],
     public king: Block | null = null,
-    public patchView: MapDiff | null = null
-  ) {}
+    public patchView: MapDiff | null = null,
+    public spectating: boolean = false,
+  ) { }
 
   minify(withId?: boolean): UserData {
     return withId

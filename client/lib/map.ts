@@ -142,6 +142,7 @@ class GameMap {
     for (let i = 0; i < this.players.length; ++i) {
       let pos = null;
       if (this.players[i].king) continue;
+      if (this.players[i].spectating) continue;
       let attempts = 0;
       const maxAttempts = 10;
       while (true) {
@@ -208,9 +209,10 @@ class GameMap {
       return a.priority - b.priority
     });
 
-    // Assign kings to players
+    // Assign kings to players who is not spectating
     for (let i = 0; i < players.length; i++) {
       if (i < kings.length) {
+        if (players[i].spectating) continue;
         kings[i].initKing(players[i]);
         players[i].initKing(kings[i]);
       }

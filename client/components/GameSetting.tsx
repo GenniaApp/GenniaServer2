@@ -41,6 +41,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
   const [isNameFocused, setIsNamedFocused] = useState(false);
   const [shareLink, setShareLink] = useState('');
   const [forceStart, setForceStart] = useState(false);
+  const [spectating, setSpectating] = useState(false);
 
   const { room, socketRef, myPlayerId, snackState } = useGame();
   const { roomDispatch, snackStateDispatch } = useGameDispatch();
@@ -265,6 +266,19 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                 <FormControlLabel
                   control={
                     <Switch
+                      checked={spectating}
+                      // @ts-ignore
+                      onChange={() => {
+                        setSpectating(!spectating);
+                        socketRef.current.emit('set_spectating', !spectating);
+                      }}
+                    />
+                  }
+                  label={t('spectate')}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
                       checked={room.deathSpectator}
                       // @ts-ignore
                       onChange={handleSettingChange('deathSpectator')}
@@ -366,7 +380,12 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         onClick={handleClickForceStart}
       >
         {t('force-start')}({room.forceStartNum}/
-        {forceStartOK[room.players.length]})
+        {
+          forceStartOK[
+            room.players.filter((player) => !player.spectating).length
+          ]
+        }
+        )
       </Button>
       <Box
         sx={{

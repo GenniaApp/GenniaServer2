@@ -15,10 +15,20 @@ interface PlayerTableProps {
 function PlayerTable(props: PlayerTableProps) {
   const { myPlayerId, players, handleChangeHost, disabled_ui } = props;
   const { t } = useTranslation();
+
+  const getBgcolor = (player: Player) => {
+    if (player.spectating) return '#000';
+    return player.id === myPlayerId ? ColorArr[player.color] : 'transparent';
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       {players.map((player) => (
-        <Tooltip key={player.id} title={t('transfer-host')} placement='top'>
+        <Tooltip
+          key={player.id}
+          title={disabled_ui ? '' : t('transfer-host')}
+          placement='top'
+        >
           <Button
             variant='outlined'
             key={player.id}
@@ -28,10 +38,7 @@ function PlayerTable(props: PlayerTableProps) {
             }}
             sx={{
               borderColor: ColorArr[player.color],
-              backgroundColor:
-                player.id === myPlayerId
-                  ? ColorArr[player.color]
-                  : 'transparent',
+              backgroundColor: getBgcolor(player),
               textTransform: 'none',
               display: 'flex',
               justifyContent: 'space-between',

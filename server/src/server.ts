@@ -193,7 +193,7 @@ async function handleGame(room: Room, io: Server) {
       let player_socket = io.sockets.sockets.get(player.socket_id);
       if (player_socket) {
         let initGameInfo: initGameInfo = {
-          king: { x: player.king.x, y: player.king.y },
+          king: player.king ? { x: player.king.x, y: player.king.y } : { x: 0, y: 0 }, // spectator's king is null
           mapWidth: room.map.width,
           mapHeight: room.map.height,
         };
@@ -207,7 +207,7 @@ async function handleGame(room: Room, io: Server) {
       try {
         room.players.forEach(async (player) => {
           if (!room.map) throw new Error('king is null');
-          if (!player.isDead) {
+          if (!player.isDead && !player.spectating) {
             let block = room.map.getBlock(player.king);
             let blockPlayerIndex = await getPlayerIndex(room, block.player.id);
             if (blockPlayerIndex !== -1) {
@@ -235,7 +235,7 @@ async function handleGame(room: Room, io: Server) {
         let alivePlayer = null;
         let countAlive = 0;
         for (let player of room.players) {
-          if (!player.isDead) {
+          if (!player.isDead && !player.spectating) {
             alivePlayer = player;
             ++countAlive;
           }
@@ -271,7 +271,7 @@ async function handleGame(room: Room, io: Server) {
         for (let socket of room_sockets) {
           let playerIndex = await getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1 && room.players[playerIndex].patchView) {
-            if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar) {
+            if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar || room.players[playerIndex].spectating) {
               await room.players[playerIndex].patchView.patch(room.map.map);
             } else {
               await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
@@ -419,6 +419,12 @@ io.on('connection', async (socket) => {
     socket.emit('update_room', room);
   });
 
+  socket.on('set_spectating', async (spectating: boolean) => {
+    player.spectating = spectating;
+    socket.emit('update_room', room);
+    io.in(room.id).emit('room_message', player.minify(), `set spectate to ${spectating}`);
+  });
+
   socket.on('surrender', async (playerId) => {
     let playerIndex = await getPlayerIndex(room, playerId);
     if (playerIndex === -1) {
@@ -559,7 +565,11 @@ io.on('connection', async (socket) => {
       }
       io.in(room.id).emit('update_room', room);
 
-      if (room.forceStartNum >= forceStartOK[room.players.length]) {
+      let forceStartNum = forceStartOK[
+        room.players.filter((player) => !player.spectating).length
+      ]
+
+      if (room.forceStartNum >= forceStartNum) {
         await handleGame(room, io);
       }
     } catch (e: any) {

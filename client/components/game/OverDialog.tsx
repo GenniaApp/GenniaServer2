@@ -61,8 +61,6 @@ export default function OverDialog() {
     setOpenOverDialog(false);
   };
 
-  if (openOverDialog) console.log('OverDialog rendered');
-
   return (
     <Dialog
       open={openOverDialog}
