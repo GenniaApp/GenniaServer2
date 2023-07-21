@@ -186,8 +186,8 @@ class GameMap {
     // Initialize the map's blocks from the custom map data
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < height; j++) {
-        const [tileType, team, unitsCount, isRevealed, priority] = mapTilesData[i][j];
-        map.map[i][j] = new Block(i, j, tileType, unitsCount, null, isRevealed, priority);
+        const [tileType, team, unitsCount, isAlwaysRevealed, priority] = mapTilesData[i][j];
+        map.map[i][j] = new Block(i, j, tileType, unitsCount, null, isAlwaysRevealed, priority);
       }
     }
 
@@ -404,14 +404,18 @@ class GameMap {
           origin.type,
           origin.unit,
           origin.player,
-          origin.isRevealed
+          origin.isAlwaysRevealed,
         );
-        if (block.isRevealed) {
+        block.unitsCountRevealed = false; // default to false
+        if (block.isAlwaysRevealed) {
           viewOfPlayer[i][j] = block;
           continue;
         }
         if (block.type === TileType.Mountain || block.type === TileType.City) {
           block.setType(TileType.Obstacle);
+          block.setUnit(0);
+          viewOfPlayer[i][j] = block;
+        } else if (block.type === TileType.Swamp) {
           block.setUnit(0);
           viewOfPlayer[i][j] = block;
         } else {
@@ -427,24 +431,31 @@ class GameMap {
         const point = new Point(i, j);
         const origin = this.getBlock(point);
         if (origin.player === player) {
-          viewOfPlayer[i][j] = new Block(
+          const block = new Block(
             origin.x,
             origin.y,
             origin.type,
             origin.unit,
-            origin.player
+            origin.player,
+            origin.isAlwaysRevealed,
           );
+          block.unitsCountRevealed = true;
+          viewOfPlayer[i][j] = block;
+
           directions.forEach((dir) => {
             const newPoint = point.move(dir);
             if (this.withinMap(newPoint)) {
               const newOrigin = this.getBlock(newPoint);
-              viewOfPlayer[newPoint.x][newPoint.y] = new Block(
+              const block = new Block(
                 newOrigin.x,
                 newOrigin.y,
                 newOrigin.type,
                 newOrigin.unit,
-                newOrigin.player
+                newOrigin.player,
+                newOrigin.isAlwaysRevealed,
               );
+              block.unitsCountRevealed = true;
+              viewOfPlayer[newPoint.x][newPoint.y] = block;
             }
           });
         }

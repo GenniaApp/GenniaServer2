@@ -258,6 +258,7 @@ async function handleGame(room: Room, io: Server) {
         }
 
         let leaderBoardData: LeaderBoardTable = room.players
+          .filter((player) => !player.spectating)
           .map((player) => {
             let data = room.map.getTotal(player);
             return [player.color, data.army, data.land] as LeaderBoardRow;

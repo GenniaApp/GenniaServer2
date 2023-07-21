@@ -127,8 +127,8 @@ export default function MapTile(props: MapTileProps) {
   }, [selectedMapTileInfo, x, y]);
 
   const isRevealed = useMemo(() => {
-    return tileType !== TileType.Obstacle && tileType !== TileType.Fog;
-  }, [tileType]);
+    return unitsCount !== null;
+  }, [unitsCount]);
 
   const stroke = useMemo(() => {
     if (isSelected) {
@@ -236,6 +236,9 @@ export default function MapTile(props: MapTileProps) {
         return notOwnedCityFill;
       }
       if (unitsCount) {
+        return notOwnedArmyFill;
+      }
+      if (tileType === TileType.Swamp) {
         return notOwnedArmyFill;
       }
     }

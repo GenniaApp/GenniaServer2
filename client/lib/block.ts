@@ -9,8 +9,9 @@ class Block extends Point {
     public type: TileType,
     public unit: number = 0,
     public player: any = null,
-    public isRevealed: boolean = false,
+    public isAlwaysRevealed: boolean = false,
     public priority: number = 0,
+    public unitsCountRevealed: boolean = true,
   ) {
     super(x, y);
   }
@@ -60,7 +61,9 @@ class Block extends Point {
   }
 
   getView(): TileProp {
-    return [this.type, this.player ? this.player.color : null, this.unit];
+    let unit = this.isAlwaysRevealed || this.unitsCountRevealed ? this.unit : null;
+
+    return [this.type, this.player ? this.player.color : null, unit];
   }
 
   beNeutralized(): void {

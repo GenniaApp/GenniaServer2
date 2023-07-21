@@ -103,9 +103,15 @@ export enum RoomUiStatus {
   gameOverConfirm,
 }
 
+// when DisplayUnitsCount === null, means it's not revealed by user! set to number to always reveal
+// null is only needed when create player view
+export type DisplayUnitsCount = number | null;
+// color, when color == null, means no player own this tile
+export type ColorIndex = number | null;
+
 export type TileProp = [TileType,
-  number | null, // color, when color == null it means no player own this tile
-  number, // unitsCount
+  ColorIndex,
+  DisplayUnitsCount,
 ];
 
 export type TilesProp = TileProp[];
@@ -116,9 +122,16 @@ export type MapDiffData = (number | TileProp)[]; // number: same count, TileProp
 
 
 export type CustomMapTileData = [TileType,
-  number | null, // color, when color == null it means no player own this tile
-  number, // unitsCount
-  boolean, // isRevealed 
+  ColorIndex,
+  number, // unitsCount which is not allow set to null
+  boolean, // isAlwaysRevealed
+  number, // King Priority: todo 暂时没有什么用
+];
+
+export type DisplayCustomMapTileData = [TileType,
+  ColorIndex,
+  DisplayUnitsCount,
+  boolean, // isAlwaysRevealed : is Always Revealed
   number, // King Priority: todo 暂时没有什么用
 ];
 

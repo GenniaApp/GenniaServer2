@@ -1,6 +1,10 @@
 import { useMemo } from 'react';
 import Image from 'next/image';
-import { TileType, CustomMapTileData, TileType2Image } from '@/lib/types';
+import {
+  TileType,
+  DisplayCustomMapTileData,
+  TileType2Image,
+} from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import {
@@ -14,7 +18,7 @@ import {
 interface CustomMapTileProps {
   zoom: number;
   size: number;
-  tile: CustomMapTileData;
+  tile: DisplayCustomMapTileData;
   x: number;
   y: number;
   handleClick: any;
@@ -34,7 +38,7 @@ export default function CustomMapTile(props: CustomMapTileProps) {
     handleClick,
   } = props;
 
-  const [tileType, color, unitsCount, isRevealed, priority] = tile;
+  const [tileType, color, unitsCount, isAlwaysRevealed, priority] = tile;
   const image = TileType2Image[tileType];
 
   const zoomedSize = useMemo(() => size * zoom, [size, zoom]);
@@ -61,6 +65,10 @@ export default function CustomMapTile(props: CustomMapTileProps) {
     // 山
     if (tileType === TileType.Mountain) {
       return MountainFill;
+    }
+
+    if (tileType === TileType.Swamp) {
+      return notOwnedArmyFill;
     }
 
     // 玩家单位
@@ -140,7 +148,7 @@ export default function CustomMapTile(props: CustomMapTileProps) {
         </div>
       )}
 
-      {isRevealed && (
+      {isAlwaysRevealed && (
         <LightbulbOutlinedIcon
           style={{
             position: 'absolute',
