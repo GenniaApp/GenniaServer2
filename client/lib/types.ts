@@ -73,7 +73,9 @@ export class Room {
     public map: GameMap | null = null,
     public gameLoop: any = null, // gameLoop function
     public players: Player[] = new Array<Player>(),
-    public generals: Point[] = new Array<Point>()
+    public generals: Point[] = new Array<Point>(),
+    public mapId: string = '', // custom Map id
+    public mapName: string = '', // custom map name
   ) { }
 
   toJSON() {
@@ -103,7 +105,7 @@ export enum RoomUiStatus {
 
 export type TileProp = [TileType,
   number | null, // color, when color == null it means no player own this tile
-  number | null, // unitsCount
+  number, // unitsCount
 ];
 
 export type TilesProp = TileProp[];
@@ -115,7 +117,7 @@ export type MapDiffData = (number | TileProp)[]; // number: same count, TileProp
 
 export type CustomMapTileData = [TileType,
   number | null, // color, when color == null it means no player own this tile
-  number | null, // unitsCount
+  number, // unitsCount
   boolean, // isRevealed 
   number, // King Priority: todo 暂时没有什么用
 ];
@@ -140,8 +142,10 @@ export const TileType2Image: Record<TileType, string> = {
 
 export interface SnackState {
   open: boolean;
+  status?: 'success' | 'error' | 'warning' | 'info';
   title: string;
   message: string;
+  duration: number; // auto hide duration
 }
 
 export interface GameRecordPerTurn {
@@ -149,3 +153,14 @@ export interface GameRecordPerTurn {
   data: MapDiffData;
   lead: LeaderBoardTable;
 }
+
+export type CustomMapData = {
+  id: string;
+  name: string;
+  width: number;
+  height: number;
+  creator: string;
+  description: string;
+  createdTimeStamp: number;
+  mapTilesData: CustomMapTileData[][];
+};

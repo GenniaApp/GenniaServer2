@@ -10,7 +10,7 @@ import path from 'path';
 
 import { ColorArr, forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
-import { Room, initGameInfo, MapDiffData, LeaderBoardTable, LeaderBoardRow } from './lib/types';
+import { Room, initGameInfo, CustomMapData, MapDiffData, LeaderBoardTable, LeaderBoardRow } from './lib/types';
 import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
 import Point from './lib/point';
 import Player from './lib/player';
@@ -39,7 +39,7 @@ app.get('/create_room', async (req: Request, res: Response) => {
 });
 
 
-app.get('/get_replay/:replayId', (req: Request, res: Response) => {
+app.get('/get_replay/:replayId', async (req: Request, res: Response) => {
   const replayId = req.params.replayId;
   const replayFilePath = path.join(process.cwd(), 'records', `${replayId}.json`);
 
@@ -54,6 +54,65 @@ app.get('/get_replay/:replayId', (req: Request, res: Response) => {
       } catch (e) {
         console.error(e);
         res.status(500).json({ error: 'Failed to parse replay data' });
+      }
+    }
+  });
+});
+
+app.get('/get_maps', async (req: Request, res: Response) => {
+  const mapDirPath = path.join(process.cwd(), 'custom_map');
+
+  fs.readdir(mapDirPath, (err, files) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to read map directory' });
+    } else {
+      const maps = files.map(file => {
+        const mapId = path.basename(file, '.json');
+        // Assuming mapName is the same as mapId for this example
+        const mapName = mapId;
+        return { mapId, mapName };
+      });
+      res.status(200).json(maps);
+    }
+  });
+});
+
+app.post('/post_map', express.json(), async (req: Request, res: Response) => {
+  const mapData: CustomMapData = req.body;
+  const mapId = Math.random().toString(36).slice(-8); // todo: use uuid?
+  const mapFilePath = path.join(process.cwd(), 'custom_map', `${mapId}.json`);
+
+  if (!require('fs').existsSync(path.join(process.cwd(), 'custom_map'))) {
+    require('fs').mkdirSync(path.join(process.cwd(), 'custom_map'));
+  }
+
+
+  fs.writeFile(mapFilePath, JSON.stringify(mapData), 'utf8', (err) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to save map data' });
+    } else {
+      res.status(200).json({ mapId });
+    }
+  });
+});
+
+app.get('/get_map/:mapId', async (req: Request, res: Response) => {
+  const mapId = req.params.mapId;
+  const mapFilePath = path.join(process.cwd(), 'custom_map', `${mapId}.json`);
+
+  fs.readFile(mapFilePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(404).json({ error: 'Map not found' });
+    } else {
+      try {
+        const mapData = JSON.parse(data);
+        res.status(200).json(mapData);
+      } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Failed to parse map data' });
       }
     }
   });
@@ -95,17 +154,32 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
 
 async function handleGame(room: Room, io: Server) {
   if (room.gameStarted === false) {
-    room.map = new GameMap(
-      'random_map_id',
-      'random_map_name',
-      room.mapWidth,
-      room.mapHeight,
-      room.mountain,
-      room.city,
-      room.swamp,
-      room.players
-    );
-    room.players = await room.map.generate();
+    if (room.mapId) {
+      // read json file from /custom_map/MapId.json
+      let customMapData: CustomMapData = JSON.parse(
+        fs.readFileSync(path.join(process.cwd(), 'custom_map', `${room.mapId}.json`), 'utf8')
+      );
+
+      room.map = GameMap.from_custom_map(customMapData, room.players);
+      console.log(`Start game with custom map ${room.mapId}`);
+
+    } else {
+
+      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 6 * room.mapWidth)
+      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 6 * room.mapHeight)
+      room.map = new GameMap(
+        'random_map_id',
+        'random_map_name',
+        actualWidth,
+        actualHeight,
+        room.mountain,
+        room.city,
+        room.swamp,
+        room.players
+      );
+      await room.map.generate();
+
+    }
     room.mapGenerated = true;
     room.globalMapDiff = new MapDiff();
     room.gameRecord = new GameRecord(room.players, room.map.width, room.map.height);
@@ -403,9 +477,14 @@ io.on('connection', async (socket) => {
           // todo: move validation to Room class
           switch (property) {
             case 'roomName':
-              // if value type is not string
               if (typeof value !== 'string' || value.length > 20) {
                 socket.emit('error', 'Changement was failed', 'Room name is too long.');
+                return;
+              }
+              break;
+            case 'mapId':
+              if (typeof value !== 'string' || value.length > 20) {
+                socket.emit('error', 'Changement was failed', 'invliad MapId');
                 return;
               }
               break;

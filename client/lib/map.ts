@@ -1,7 +1,7 @@
 import Block from './block';
 import Point from './point';
 import Player from './player';
-import { MapData, TileType } from './types';
+import { TileType, CustomMapData } from './types';
 
 const directions = [
   new Point(-1, -1),
@@ -39,8 +39,8 @@ class GameMap {
     public swamp: number,
     public players: Player[]
   ) {
-    this.width = Math.ceil(Math.sqrt(players.length) * 5 + 6 * width);
-    this.height = Math.ceil(Math.sqrt(players.length) * 5 + 6 * height);
+    this.width = width;
+    this.height = height;
     if (mountain + city === 0) {
       this.mountain = this.city = 0;
     } else {
@@ -138,18 +138,16 @@ class GameMap {
 
     return connected;
   }
-
-  generate(): Promise<Player[]> {
-    console.log('Width:', this.width, 'Height:', this.height);
-    for (let i = 0; i < this.width; i++) {
-      for (let j = 0; j < this.height; j++) {
-        this.map[i][j] = new Block(i, j, TileType.Plain);
-      }
-    }
-    // Generate the king
+  assign_random_king(): void {
     for (let i = 0; i < this.players.length; ++i) {
       let pos = null;
+      if (this.players[i].king) continue;
+      let attempts = 0;
+      const maxAttempts = 10;
       while (true) {
+        if (attempts >= maxAttempts) {
+          throw new Error('Failed to place king after ' + maxAttempts + ' attempts');
+        }
         let x = getRandomInt(0, this.width);
         let y = getRandomInt(0, this.height);
         pos = new Point(x, y);
@@ -175,8 +173,66 @@ class GameMap {
             break;
           }
         }
+        attempts++;
       }
     }
+  }
+
+  static from_custom_map(customMapData: CustomMapData, players: Player[]): GameMap {
+    const { id, name, width, height, mapTilesData } = customMapData;
+    let map = new GameMap(id, name, width, height, 0, 0, 0, players);
+
+    // Initialize the map's blocks from the custom map data
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        const [tileType, team, unitsCount, isRevealed, priority] = mapTilesData[i][j];
+        map.map[i][j] = new Block(i, j, tileType, unitsCount, null, isRevealed, priority);
+      }
+    }
+
+    let kings = [];
+    for (let i = 0; i < width; i++) {
+      for (let j = 0; j < height; j++) {
+        let tileType = mapTilesData[i][j][0]
+        if (map.map[i][j].type === TileType.King) {
+          kings.push(map.map[i][j])
+        }
+      }
+    }
+
+    // sort by priority, if priority is same, randomly select
+    kings.sort((a, b) => {
+      if (a.priority === b.priority) {
+        return Math.random() - 0.5;
+      }
+      return a.priority - b.priority
+    });
+
+    // Assign kings to players
+    for (let i = 0; i < players.length; i++) {
+      if (i < kings.length) {
+        kings[i].initKing(players[i]);
+        players[i].initKing(kings[i]);
+      }
+    }
+
+    // random assign kings to other players
+    if (players.length > kings.length)
+      map.assign_random_king();
+
+    return map;
+  }
+
+  generate(): void {
+    console.log('Width:', this.width, 'Height:', this.height);
+    for (let i = 0; i < this.width; i++) {
+      for (let j = 0; j < this.height; j++) {
+        this.map[i][j] = new Block(i, j, TileType.Plain);
+      }
+    }
+    // Generate the king
+    this.assign_random_king();
+
     console.log('Kings generated successfully');
     // Generate the mountain
     for (let i = 1; i <= this.mountain; ++i) {
@@ -237,11 +293,6 @@ class GameMap {
       this.map[x][y].type = TileType.Swamp;
     }
     console.log('Swamps generated successfully');
-    let players = this.players;
-    return new Promise(function (resolve, reject) {
-      console.log('Map generated successfully');
-      resolve(players);
-    });
   }
 
   getTotal(player: any): { army: number; land: number } {

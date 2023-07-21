@@ -58,6 +58,10 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
     socketRef.current.emit('change_room_setting', 'roomName', room.roomName);
   };
 
+  const handleMapIdBlur = (event: any) => {
+    socketRef.current.emit('change_room_setting', 'mapId', room.mapId);
+  };
+
   const handleClickForceStart = () => {
     setForceStart(!forceStart);
     socketRef.current.emit('force_start');
@@ -77,8 +81,21 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
 
   const handleRoomNameChange = (event: any) => {
     roomDispatch({
-      type: 'update_roomName',
-      payload: event.target.value,
+      type: 'update_property',
+      payload: {
+        property: 'roomName',
+        value: event.target.value,
+      },
+    });
+  };
+
+  const handleMapIdChange = (event: any) => {
+    roomDispatch({
+      type: 'update_property',
+      payload: {
+        property: 'mapId',
+        value: event.target.value,
+      },
     });
   };
 
@@ -162,14 +179,10 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
               color='primary'
               onClick={() => {
                 navigator.clipboard.writeText(shareLink);
-
                 snackStateDispatch({
                   type: 'update',
-                  payload: {
-                    open: true,
-                    title: '',
-                    message: t('copied'),
-                  },
+                  title: '',
+                  message: t('copied'),
                 });
               }}
             >
@@ -261,6 +274,18 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                   label={t('death-spectator')}
                 />
               </FormGroup>
+
+              <TextField
+                autoFocus
+                variant='standard'
+                id='mapId'
+                label='mapId'
+                inputProps={{ style: { fontSize: '30px' } }}
+                value={room.mapId}
+                onChange={handleMapIdChange}
+                onBlur={handleMapIdBlur}
+                disabled={disabled_ui}
+              />
             </Box>
           </TabPanel>
           <TabPanel value={tabIndex} index={1}>

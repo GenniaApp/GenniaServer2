@@ -86,6 +86,8 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
     open: false,
     title: '',
     message: '',
+    status: 'error',
+    duration: 3000,
   });
   const [myPlayerId, setMyPlayerId] = useState('');
   const [isSurrendered, setIsSurrendered] = useState(false);

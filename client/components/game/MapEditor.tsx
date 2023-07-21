@@ -1,5 +1,13 @@
-import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
+import {
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+  useRef,
+  useReducer,
+} from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import {
   Box,
   ButtonGroup,
@@ -9,17 +17,23 @@ import {
   TextField,
   Button,
   Typography,
+  Snackbar,
+  Alert,
+  AlertTitle,
 } from '@mui/material';
 import {
   Position,
   TileType,
   CustomMapTileData,
   TileType2Image,
+  CustomMapData,
 } from '@/lib/types';
 import CustomMapTile from '@/components/game/CustomMapTile';
 import { useTranslation } from 'next-i18next';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
+import ClearIcon from '@mui/icons-material/Clear';
 import { AspectRatioRounded, InfoRounded } from '@mui/icons-material';
+import { snackStateReducer } from '@/context/GameReducer';
 import useMapDrag from '@/hooks/useMapDrag';
 
 const name2TileType: Record<string, TileType> = {
@@ -32,25 +46,17 @@ const name2TileType: Record<string, TileType> = {
 
 type MapData = CustomMapTileData[][];
 
-type Map = {
-  name: string;
-  creator: string; // todo: get from username
-  createdTime: Date; // todo: get from upload time
-  data: MapData;
-};
-
 const defaultMapData: MapData = Array.from({ length: 10 }, () =>
   Array.from({ length: 10 }, () => [TileType.Plain, null, 0, false, 0])
 );
 
-function MapEditor() {
+function MapEditor({ editMode }: { editMode: boolean }) {
   const [mapWidth, setMapWidth] = useState(10);
   const [mapHeight, setMapHeight] = useState(10);
-
+  const [username, setUsername] = useState('');
   const [team, setTeam] = useState(0);
   const [unitsCount, setUnitCount] = useState(50);
   const [priority, setPriority] = useState(0);
-
   const [mapData, setMapData] = useState(defaultMapData);
   const [selectedTileType, setSelectedTileType] = useState<TileType | null>(
     TileType.Plain
@@ -64,8 +70,63 @@ function MapEditor() {
   const { t } = useTranslation();
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const mapRef = useRef<HTMLDivElement>(null);
+  const [snackState, snackStateDispatch] = useReducer(snackStateReducer, {
+    open: false,
+    title: '',
+    message: '',
+    duration: 1000,
+    status: 'error',
+  });
+
+  const router = useRouter();
+  const mapId = router.query.mapId as string;
 
   useMapDrag(mapRef, position, setPosition, zoom, setZoom);
+
+  useEffect(() => {
+    if (!editMode) return;
+    let tmp: string | null = localStorage.getItem('username');
+    if (!tmp) {
+      setUsername('anonymous');
+    } else {
+      setUsername(tmp);
+    }
+    const mapDraft = localStorage.getItem('mapDraft');
+    if (mapDraft) {
+      const customMapData: CustomMapData = JSON.parse(mapDraft);
+      setMapData(customMapData.mapTilesData);
+      setMapWidth(customMapData.width);
+      setMapHeight(customMapData.height);
+      setMapName(customMapData.name);
+      setMapDescription(customMapData.description);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (editMode) return;
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/get_map/${mapId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        return response.json();
+      })
+      .then((responseData) => {
+        console.log(responseData);
+        const customMapData: CustomMapData = responseData;
+        setMapData(customMapData.mapTilesData);
+        setMapWidth(customMapData.width);
+        setMapHeight(customMapData.height);
+        setMapName(customMapData.name);
+        setMapDescription(customMapData.description);
+      });
+  }, []);
 
   const mapPixelWidth = useMemo(
     () => tileSize * mapWidth,
@@ -149,6 +210,7 @@ function MapEditor() {
   };
 
   const handleTileClick = (x: number, y: number) => {
+    if (!editMode) return;
     console.log('handleTileClick', x, y, selectedTileType, selectedProperty);
     const newMapData = [...mapData];
 
@@ -194,15 +256,135 @@ function MapEditor() {
     setMapData(newMapData);
   };
 
-  const handleSaveDraft = () => {
-    // Save draft to local storage
-    // ...
-    setDraftSaved(true);
+  const generateCustomMapData = () => {
+    // make sure mapName is not empty
+    if (mapName === '') {
+      snackStateDispatch({
+        type: 'update',
+        title: 'Error',
+        message: t('Map name cannot be empty'),
+      });
+      return;
+    }
+
+    let customMapData: CustomMapData = {
+      id: '',
+      name: mapName,
+      width: mapWidth,
+      height: mapHeight,
+      creator: username,
+      description: mapDescription,
+      createdTimeStamp: Date.now(),
+      mapTilesData: mapData,
+    };
+    return customMapData;
   };
 
-  const handlePublish = () => {
-    // Send map data to server
-    // ...
+  const handleSaveDraft = () => {
+    // Save draft to local storage
+    setDraftSaved(true);
+    const customMapData = generateCustomMapData();
+    localStorage.setItem('mapDraft', JSON.stringify(customMapData));
+  };
+
+  const handlePublish = async () => {
+    const customMapData = generateCustomMapData();
+    if (!customMapData) return;
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_API}/post_map`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(customMapData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const responseData = await response.json();
+      console.log(responseData);
+
+      // Dispatch success snack
+      snackStateDispatch({
+        type: 'update',
+        title: 'Success',
+        message: 'Map published successfully, map id: ' + responseData.mapId,
+        status: 'success',
+      });
+      window.open(`/maps/${responseData.mapId}`, '_blank');
+    } catch (error) {
+      console.error('Error:', error);
+
+      // Dispatch error snack
+      snackStateDispatch({
+        type: 'update',
+        title: 'Error',
+        message: 'Failed to publish map',
+      });
+    }
+  };
+
+  const handleUploadMap = () => {
+    // user can upload a json file contain map data
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+
+    input.onchange = (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        try {
+          const customMapData: CustomMapData = JSON.parse(result);
+
+          setMapData(customMapData.mapTilesData);
+          setMapWidth(customMapData.width);
+          setMapHeight(customMapData.height);
+          setMapName(customMapData.name);
+          setMapDescription(customMapData.description);
+        } catch (error) {
+          snackStateDispatch({
+            type: 'update',
+            title: 'Error',
+            message: t('Error parsing JSON file'),
+          });
+        }
+      };
+
+      reader.readAsText(file);
+    };
+
+    input.click();
+  };
+
+  const handleDownloadMap = () => {
+    // download MapData as json
+    const customMapData = generateCustomMapData();
+    if (!customMapData) return;
+    // Create a blob from the JSON string
+    const blob = new Blob([JSON.stringify(customMapData, null, 2)], {
+      type: 'application/json',
+    });
+
+    // Create a URL for the blob
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `gennia_custom_map_${username}_${mapName}.json`;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
   };
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
@@ -251,6 +433,7 @@ function MapEditor() {
   }, []);
 
   useEffect(() => {
+    if (!editMode) return;
     const mapNode = mapRef.current;
     if (mapNode) {
       mapNode.addEventListener('keydown', handleKeyDown);
@@ -263,104 +446,263 @@ function MapEditor() {
 
   return (
     <div className='app-container'>
-      <Box
-        className='menu-container'
-        sx={{
-          borderRadius: '10px 0 0 10px !important',
-          padding: '10px !important',
-          position: 'absolute',
-          top: '60px',
-          bottom: '60px',
-          right: 0,
-          height: 'calc(100dvh - 60px - 60px)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          overflow: 'auto',
+      <Snackbar
+        open={snackState.open}
+        autoHideDuration={snackState.duration}
+        onClose={() => {
+          console.log(snackState);
+          snackStateDispatch({ type: 'toggle' });
         }}
       >
-        <Card
+        <Alert severity={snackState.status} sx={{ width: '100%' }}>
+          <AlertTitle>{snackState.title}</AlertTitle>
+          {snackState.message}
+        </Alert>
+      </Snackbar>
+      {!editMode && (
+        <Box
           className='menu-container'
           sx={{
-            width: '100%',
+            position: 'absolute',
+            top: '60px',
+            left: '50%',
+            width: '50dvw',
+            transform: `translate(-50%, 0)`,
+            height: 'min-content',
+            borderRadius: '0 10px 10px 0 !important',
           }}
         >
-          <CardHeader avatar={<InfoRounded />} title={t('basic-info')} />
-          <CardContent
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <TextField
-              id='map-name'
-              label='Map Name'
-              size='small'
-              type='text'
-              value={mapName}
-              onChange={(e) => setMapName(e.target.value)}
-              sx={{ marginY: '10px' }}
-            />
-            <TextField
-              id='map-desc'
-              label='Map Description'
-              size='small'
-              type='text'
-              value={mapDescription}
-              onChange={(e) => setMapDescription(e.target.value)}
-              multiline
-              minRows={3}
-              maxRows={8}
-            />
-          </CardContent>
-        </Card>
-        <Card
+          <Typography variant='h4'>{mapName}</Typography>
+          <Typography variant='body1'>{mapDescription}</Typography>
+        </Box>
+      )}
+
+      {editMode && (
+        <Box
           className='menu-container'
           sx={{
-            width: '100%',
+            borderRadius: '10px 0 0 10px !important',
+            padding: '10px !important',
+            position: 'absolute',
+            top: '60px',
+            bottom: '60px',
+            right: 0,
+            height: 'calc(100dvh - 60px - 60px)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            overflow: 'auto',
           }}
         >
-          <CardHeader avatar={<AspectRatioRounded />} title={t('map-size')} />
-          <CardContent
+          <Card
+            className='menu-container'
             sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              width: '100%',
             }}
           >
-            <TextField
-              id='map-width'
-              label='Map Width'
-              size='small'
-              type='number'
-              value={mapWidth}
-              onChange={handleMapWidthChange}
-              sx={{ marginBottom: '10px' }}
-            />
-            <TextField
-              id='map-height'
-              label='Map Height'
-              size='small'
-              type='number'
-              value={mapHeight}
-              onChange={handleMapHeightChange}
-            />
-          </CardContent>
-        </Card>
-        <ButtonGroup size='large'>
-          <Button variant='contained' color='info' onClick={handleSaveDraft}>
-            Save Draft
-          </Button>
-          <Button variant='contained' onClick={handlePublish}>
-            Publish
-          </Button>
-        </ButtonGroup>
-        {draftSaved && <span>Draft saved.</span>}
-      </Box>
+            <CardHeader avatar={<InfoRounded />} title={t('basic-info')} />
+            <CardContent
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <TextField
+                id='map-name'
+                label='Map Name'
+                size='small'
+                type='text'
+                value={mapName}
+                onChange={(e) => setMapName(e.target.value)}
+                sx={{ marginY: '10px' }}
+              />
+              <TextField
+                id='map-desc'
+                label='Map Description'
+                size='small'
+                type='text'
+                value={mapDescription}
+                onChange={(e) => setMapDescription(e.target.value)}
+                multiline
+                minRows={3}
+                maxRows={8}
+              />
+            </CardContent>
+          </Card>
+          <Card
+            className='menu-container'
+            sx={{
+              width: '100%',
+            }}
+          >
+            <CardHeader avatar={<AspectRatioRounded />} title={t('map-size')} />
+            <CardContent
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <TextField
+                id='map-width'
+                label='Map Width'
+                size='small'
+                type='number'
+                value={mapWidth}
+                onChange={handleMapWidthChange}
+                sx={{ marginBottom: '10px' }}
+              />
+              <TextField
+                id='map-height'
+                label='Map Height'
+                size='small'
+                type='number'
+                value={mapHeight}
+                onChange={handleMapHeightChange}
+              />
+            </CardContent>
+          </Card>
+          <ButtonGroup size='large'>
+            <Button
+              variant='contained'
+              color='info'
+              onClick={handleDownloadMap}
+            >
+              {t('download')}
+            </Button>
+            <Button variant='contained' onClick={handleUploadMap}>
+              {t('upload')}
+            </Button>
+          </ButtonGroup>
+          <ButtonGroup size='large'>
+            <Button variant='contained' color='info' onClick={handleSaveDraft}>
+              {t('save-draft')}
+            </Button>
+            <Button variant='contained' onClick={handlePublish}>
+              {t('publish')}
+            </Button>
+          </ButtonGroup>
+          {draftSaved && <span>Draft saved.</span>}
+        </Box>
+      )}
+
+      {editMode && (
+        <Box
+          className='menu-container'
+          sx={{
+            position: 'absolute',
+            top: '60px',
+            bottom: '60px',
+            left: 0,
+            width: '90px',
+            height: 'calc(100dvh - 60px - 60px)',
+            borderRadius: '0 10px 10px 0 !important',
+            overflow: 'auto',
+          }}
+        >
+          <Box
+            display='flex'
+            flexDirection='column'
+            justifyContent='space-between'
+            height='100%'
+          >
+            {Object.keys(name2TileType).map((tileName) => (
+              <Box
+                key={tileName}
+                className='icon-box'
+                bgcolor={
+                  selectedTileType === name2TileType[tileName] ? '#c54a95' : ''
+                }
+                onClick={() => {
+                  setSelectedTileType(name2TileType[tileName]);
+                  setSelectedProperty(null);
+                }}
+                sx={{ cursor: 'pointer' }}
+              >
+                {tileName === 'plain' ? (
+                  <div
+                    style={{
+                      width: 40,
+                      height: 40,
+                      backgroundColor: '#808080',
+                      border: '#000 solid 1px',
+                    }}
+                  />
+                ) : (
+                  <Image
+                    src={TileType2Image[name2TileType[tileName]]}
+                    alt={tileName}
+                    width={40}
+                    height={40}
+                    draggable={false}
+                  />
+                )}
+                <Typography align='center'>{t(tileName)}</Typography>
+              </Box>
+            ))}
+
+            {Object.keys(property2var).map((property) => (
+              <Box
+                key={property}
+                className='icon-box'
+                bgcolor={selectedProperty === property ? '#c54a95' : ''}
+                onClick={() => {
+                  setSelectedProperty(property);
+                  setSelectedTileType(null);
+                }}
+              >
+                {property === 'revealed' ? (
+                  <LightbulbOutlinedIcon
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      color: '#fff !important',
+                    }}
+                  />
+                ) : (
+                  <TextField
+                    id={property}
+                    type='number'
+                    variant='standard'
+                    hiddenLabel
+                    inputProps={{
+                      min: property2min[property],
+                      max: property2max[property],
+                      style: { textAlign: 'center' },
+                    }}
+                    value={property2var[property]}
+                    onChange={(event) =>
+                      property2setVar[property](event.target.value)
+                    }
+                  />
+                )}
+                <Typography align='center'>{t(property)}</Typography>
+              </Box>
+            ))}
+
+            <Box
+              key='clear-all'
+              className='icon-box'
+              onClick={() => {
+                setMapData(defaultMapData);
+              }}
+            >
+              <ClearIcon
+                sx={{
+                  width: 40,
+                  height: 40,
+                  color: '#fff !important',
+                }}
+              />
+              <Typography align='center'>{t('clear-all')}</Typography>
+            </Box>
+          </Box>
+        </Box>
+      )}
 
       <div
         ref={mapRef}
@@ -390,113 +732,6 @@ function MapEditor() {
           });
         })}
       </div>
-
-      <Box
-        className='menu-container'
-        sx={{
-          position: 'absolute',
-          top: '60px',
-          bottom: '60px',
-          left: 0,
-          width: '90px',
-          height: 'calc(100dvh - 60px - 60px)',
-          borderRadius: '0 10px 10px 0 !important',
-          overflow: 'auto',
-        }}
-      >
-        <Box
-          display='flex'
-          flexDirection='column'
-          justifyContent='space-between'
-          height='100%'
-        >
-          {Object.keys(name2TileType).map((tileName) => (
-            <Box
-              key={tileName}
-              display='flex'
-              flexDirection='column'
-              alignItems='center'
-              borderRadius='10px'
-              padding='5px'
-              marginY='5px'
-              my={0.5}
-              bgcolor={
-                selectedTileType === name2TileType[tileName] ? '#c54a95' : ''
-              }
-              onClick={() => {
-                setSelectedTileType(name2TileType[tileName]);
-                setSelectedProperty(null);
-              }}
-              sx={{ cursor: 'pointer' }}
-            >
-              {tileName === 'plain' ? (
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    backgroundColor: '#808080',
-                    border: '#000 solid 1px',
-                  }}
-                />
-              ) : (
-                <Image
-                  src={TileType2Image[name2TileType[tileName]]}
-                  alt={tileName}
-                  width={40}
-                  height={40}
-                  draggable={false}
-                />
-              )}
-              <Typography align='center'>{t(tileName)}</Typography>
-            </Box>
-          ))}
-
-          {Object.keys(property2var).map((property) => (
-            <Box
-              key={property}
-              display='flex'
-              flexDirection='column'
-              alignItems='center'
-              borderRadius='10px'
-              padding='5px'
-              marginY='5px'
-              my={0.5}
-              bgcolor={selectedProperty === property ? '#c54a95' : ''}
-              onClick={() => {
-                setSelectedProperty(property);
-                setSelectedTileType(null);
-              }}
-            >
-              {property === 'revealed' ? (
-                <LightbulbOutlinedIcon
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    color: '#fff !important',
-                  }}
-                />
-              ) : (
-                <TextField
-                  id={property}
-                  type='number'
-                  variant='standard'
-                  hiddenLabel
-                  inputProps={{
-                    min: property2min[property],
-                    max: property2max[property],
-                    style: { textAlign: 'center' },
-                  }}
-                  value={property2var[property]}
-                  onChange={(event) =>
-                    property2setVar[property](event.target.value)
-                  }
-                />
-              )}
-              <Typography align='center'>{t(property)}</Typography>
-            </Box>
-          ))}
-        </Box>
-      </Box>
     </div>
   );
 }

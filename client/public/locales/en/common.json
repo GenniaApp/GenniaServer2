@@ -66,5 +66,10 @@
   "are-you-sure-to-exit": "Are you sure you want to exit?",
   "type-a-message": "Click to Chat, Enter to send",
   "open-source-team": "Open Source Team",
-  "all-right-reserved": "All Rights Reserved"
+  "all-right-reserved": "All Rights Reserved",
+  "download": "Download",
+  "upload": "Upload",
+  "save-draft": "Save Draft",
+  "publish": "Publish",
+  "clear-all": "Clear All"
 }

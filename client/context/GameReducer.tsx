@@ -12,8 +12,6 @@ export const roomReducer = (state: Room, action: any) => {
   switch (action.type) {
     case 'update':
       return action.payload;
-    case 'update_roomName':
-      return { ...state, roomName: action.payload };
     case 'update_players':
       return { ...state, players: action.payload };
     case 'update_property':
@@ -126,10 +124,28 @@ export const mapQueueDataReducer = (state: MapQueueData, action: any) => {
   }
 };
 
-export const snackStateReducer = (state: SnackState, action: any) => {
+interface SnackAction {
+  type: 'update' | 'toggle';
+  open?: boolean;
+  title?: string;
+  message?: string;
+  status?: 'success' | 'error' | 'warning' | 'info';
+  duration?: number; // auto hide duration
+}
+
+export const snackStateReducer = (
+  state: SnackState,
+  action: SnackAction
+): SnackState => {
   switch (action.type) {
     case 'update':
-      return action.payload;
+      return {
+        open: true,
+        title: action.title ?? '',
+        status: action.status ?? 'error',
+        message: action.message ?? '',
+        duration: action.duration ?? 3000,
+      };
     case 'toggle':
       return { ...state, open: !state.open };
     default:

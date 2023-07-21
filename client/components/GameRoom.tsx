@@ -185,11 +185,8 @@ function GamingRoom() {
     socket.on('error', (title: string, message: string) => {
       snackStateDispatch({
         type: 'update',
-        payload: {
-          open: true,
-          title: title,
-          message: message,
-        },
+        title: title,
+        message: message,
       });
     });
 
@@ -293,11 +290,8 @@ function GamingRoom() {
 
       snackStateDispatch({
         type: 'update',
-        payload: {
-          open: true,
-          title: 'Reconnecting...',
-          message: 'Disconnected from the server',
-        },
+        title: 'Reconnecting...',
+        message: 'Disconnected from the server',
       });
       // Swal.fire({
       //   title: 'Disconnected from the server',
@@ -347,10 +341,7 @@ function GamingRoom() {
       )}
       {(roomUiStatus === RoomUiStatus.gameRealStarted ||
         roomUiStatus === RoomUiStatus.gameOverConfirm) && <Game />}
-      <ChatBox
-        socket={socketRef.current}
-        messages={messages}
-      />
+      <ChatBox socket={socketRef.current} messages={messages} />
     </div>
   );
 }

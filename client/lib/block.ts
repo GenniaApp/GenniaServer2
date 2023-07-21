@@ -10,6 +10,7 @@ class Block extends Point {
     public unit: number = 0,
     public player: any = null,
     public isRevealed: boolean = false,
+    public priority: number = 0,
   ) {
     super(x, y);
   }

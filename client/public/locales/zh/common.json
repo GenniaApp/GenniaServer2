@@ -68,5 +68,10 @@
   "are-you-sure-to-exit": "你确定要退出？",
   "type-a-message": "开始聊天，回车发送",
   "open-source-team": "开源团队",
-  "all-right-reserved": "版权所有"
+  "all-right-reserved": "版权所有",
+  "download": "下载文件",
+  "upload": "上传文件",
+  "save-draft": "保存草稿",
+  "publish": "发布",
+  "clear-all": "清除全部"
 }

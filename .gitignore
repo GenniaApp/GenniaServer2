@@ -1,3 +1,4 @@
 .DS_Store
 .vscode/
 server/records/*
+server/custom_map/*
