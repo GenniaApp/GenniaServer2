@@ -4,6 +4,15 @@ import { TileType, TileProp, Position, TileType2Image } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 import { Room } from '@/lib/types';
+import {
+  notRevealedFill,
+  notOwnedArmyFill,
+  notOwnedCityFill,
+  MountainFill,
+  blankFill,
+  selectedStroke,
+  revealedStroke,
+} from '@/lib/constants';
 
 interface MapTileProps {
   zoom: number;
@@ -21,14 +30,6 @@ interface MapTileProps {
     left?: Position;
   };
 }
-
-const notRevealedFill = '#363636';
-const notOwnedArmyFill = '#D7D7D7';
-const notOwnedCityFill = '#757575';
-const MountainFill = '#bbbbbb';
-const blankFill = '#dcdcdc';
-const selectedStroke = '#fff';
-const revealedStroke = '#000';
 
 export default function MapTile(props: MapTileProps) {
   const {

@@ -1,15 +1,17 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import { useMemo } from 'react';
 import Image from 'next/image';
-import {
-  TileType,
-  CustomMapTileData,
-  Position,
-  TileType2Image,
-} from '@/lib/types';
+import { TileType, CustomMapTileData, TileType2Image } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
+import {
+  notRevealedFill,
+  notOwnedArmyFill,
+  notOwnedCityFill,
+  MountainFill,
+  blankFill,
+} from '@/lib/constants';
 
-interface MapTileProps {
+interface CustomMapTileProps {
   zoom: number;
   size: number;
   tile: CustomMapTileData;
@@ -20,13 +22,7 @@ interface MapTileProps {
   fontSize?: number;
 }
 
-const notRevealedFill = '#363636';
-const notOwnedArmyFill = '#D7D7D7';
-const notOwnedCityFill = '#757575';
-const MountainFill = '#bbbbbb';
-const blankFill = '#dcdcdc';
-
-export default function CustomMapTile(props: MapTileProps) {
+export default function CustomMapTile(props: CustomMapTileProps) {
   const {
     zoom,
     size,
@@ -57,7 +53,7 @@ export default function CustomMapTile(props: MapTileProps) {
   );
 
   const bgcolor = useMemo(() => {
-    // 
+    //
     if (tileType === TileType.Fog || tileType === TileType.Obstacle) {
       return notRevealedFill;
     }
