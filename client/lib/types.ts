@@ -125,14 +125,14 @@ export type CustomMapTileData = [TileType,
   ColorIndex,
   number, // unitsCount which is not allow set to null
   boolean, // isAlwaysRevealed
-  number, // King Priority: todo 暂时没有什么用
+  number, // King Priority
 ];
 
 export type DisplayCustomMapTileData = [TileType,
   ColorIndex,
   DisplayUnitsCount,
   boolean, // isAlwaysRevealed : is Always Revealed
-  number, // King Priority: todo 暂时没有什么用
+  number, // King Priority
 ];
 
 export interface QueueDisplayData {
@@ -174,6 +174,17 @@ export type CustomMapData = {
   height: number;
   creator: string;
   description: string;
-  createdTimeStamp: number;
   mapTilesData: CustomMapTileData[][];
+};
+
+export type CustomMapInfo = {
+  id: string;
+  name: string;
+  width: number;
+  height: number;
+  creator: string;
+  description: string;
+  createdAt: Date;
+  downloads: number;
+  stars: number;
 };

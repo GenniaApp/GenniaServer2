@@ -7,6 +7,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { Prisma, PrismaClient } from '@prisma/client'
 
 import { ColorArr, forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
@@ -20,9 +21,12 @@ import GameRecord from './lib/game-record';
 
 dotenv.config();
 
+const prisma = new PrismaClient();
 const app = express();
 const cors_urls = process.env.CLIENT_URL == '*' ? '*' : process.env.CLIENT_URL.split(' ');
 console.log(cors_urls);
+
+app.use(express.json());
 app.use(cors({ origin: cors_urls }));
 
 app.get('/get_rooms', (req: Request, res: Response) => {
@@ -59,65 +63,171 @@ app.get('/get_replay/:replayId', async (req: Request, res: Response) => {
   });
 });
 
-app.get('/get_maps', async (req: Request, res: Response) => {
-  const mapDirPath = path.join(process.cwd(), 'custom_map');
-
-  fs.readdir(mapDirPath, (err, files) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to read map directory' });
-    } else {
-      const maps = files.map(file => {
-        const mapId = path.basename(file, '.json');
-        // Assuming mapName is the same as mapId for this example
-        const mapName = mapId;
-        return { mapId, mapName };
-      });
-      res.status(200).json(maps);
-    }
+app.get('/maps', async (req, res) => {
+  const maps = await prisma.customMapData.findMany({
+    select: {
+      id: true,
+      name: true,
+      width: true,
+      height: true,
+      creator: true,
+      description: true,
+      createdAt: true,
+      downloads: true,
+      stars: true,
+    },
   });
+  res.json(maps);
 });
 
-app.post('/post_map', express.json(), async (req: Request, res: Response) => {
-  const mapData: CustomMapData = req.body;
-  const mapId = Math.random().toString(36).slice(-8); // todo: use uuid?
-  const mapFilePath = path.join(process.cwd(), 'custom_map', `${mapId}.json`);
+app.post('/maps', async (req, res) => {
+  try {
+    await prisma.customMapData.create({
+      data: {
+        ...req.body,
+        mapTilesData: JSON.stringify(req.body.mapTilesData),
+      },
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false });
+  }
+});
 
-  if (!require('fs').existsSync(path.join(process.cwd(), 'custom_map'))) {
-    require('fs').mkdirSync(path.join(process.cwd(), 'custom_map'));
+app.get('/maps/:id', async (req, res) => {
+  const map = await prisma.customMapData.findUnique({
+    where: { id: req.params.id },
+  });
+  if (!map) return res.status(404).end(); // Not Found
+  await prisma.customMapData.update({
+    where: { id: req.params.id },
+    data: {
+      downloads: {
+        increment: 1
+      }
+    },
+  });
+  map.mapTilesData = JSON.parse(map.mapTilesData);
+  res.json(map);
+});
+
+app.put('/maps/:id', async (req, res) => {
+  const updatedMap = await prisma.customMapData.update({
+    where: { id: req.params.id },
+    data: {
+      ...req.body,
+      mapTilesData: JSON.stringify(req.body.mapTilesData),
+    },
+  });
+  res.json(updatedMap);
+});
+
+app.delete('/maps/:id', async (req, res) => {
+  const deletedMap = await prisma.customMapData.delete({
+    where: { id: req.params.id },
+  });
+  res.json(deletedMap);
+});
+
+app.get('/new', async (req, res) => {
+  const newestMaps = await prisma.customMapData.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: 25,
+    select: {
+      id: true,
+      name: true,
+      width: true,
+      height: true,
+      creator: true,
+      description: true,
+      createdAt: true,
+      downloads: true,
+      stars: true,
+    },
+  });
+  res.json(newestMaps);
+});
+
+app.get('/best', async (req, res) => {
+  const bestMaps = await prisma.customMapData.findMany({
+    orderBy: { stars: 'desc' },
+    take: 25,
+    select: {
+      id: true,
+      name: true,
+      width: true,
+      height: true,
+      creator: true,
+      description: true,
+      createdAt: true,
+      downloads: true,
+      stars: true,
+    },
+  });
+  res.json(bestMaps);
+});
+
+app.get('/hot', async (req, res) => {
+  const hotMaps = await prisma.customMapData.findMany({
+    orderBy: { downloads: 'desc' },
+    take: 25,
+    select: {
+      id: true,
+      name: true,
+      width: true,
+      height: true,
+      creator: true,
+      description: true,
+      createdAt: true,
+      downloads: true,
+      stars: true,
+    },
+  });
+  res.json(hotMaps);
+});
+
+app.get('/search', async (req: Request, res: Response) => {
+  const searchTerm = req.query.q;
+
+  if (typeof searchTerm !== 'string') {
+    res.status(400).json({ error: 'Invalid query parameter' });
+    return;
   }
 
-
-  fs.writeFile(mapFilePath, JSON.stringify(mapData), 'utf8', (err) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to save map data' });
-    } else {
-      res.status(200).json({ mapId });
-    }
+  const searchedMaps = await prisma.customMapData.findMany({
+    where: {
+      OR: [
+        { name: { contains: searchTerm } },
+        { id: { equals: searchTerm } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      width: true,
+      height: true,
+      creator: true,
+      description: true,
+      createdAt: true,
+      downloads: true,
+      stars: true,
+    },
   });
+  res.json(searchedMaps);
 });
 
-app.get('/get_map/:mapId', async (req: Request, res: Response) => {
-  const mapId = req.params.mapId;
-  const mapFilePath = path.join(process.cwd(), 'custom_map', `${mapId}.json`);
-
-  fs.readFile(mapFilePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error(err);
-      res.status(404).json({ error: 'Map not found' });
-    } else {
-      try {
-        const mapData = JSON.parse(data);
-        res.status(200).json(mapData);
-      } catch (e) {
-        console.error(e);
-        res.status(500).json({ error: 'Failed to parse map data' });
+app.put('/maps/:id/star', async (req, res) => {
+  const starredMap = await prisma.customMapData.update({
+    where: { id: req.params.id },
+    data: {
+      stars: {
+        increment: 1
       }
-    }
+    },
   });
+  res.json(starredMap);
 });
-
 
 const server = app.listen(process.env.PORT, () => {
   console.log(`Application started on port ${process.env.PORT}!`);

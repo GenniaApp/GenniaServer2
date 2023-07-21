@@ -1,0 +1,23 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRESQL_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model CustomMapData {
+  id           String   @id @default(uuid())
+  name         String
+  width        Int
+  height       Int
+  creator      String
+  description  String
+  createdAt    DateTime @default(now())
+  mapTilesData String // JSON.stringify(CustomMapTileData[][]) for simplicity
+  downloads    Int      @default(0)
+  stars        Int      @default(0)
+}

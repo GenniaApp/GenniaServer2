@@ -35,6 +35,8 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { AspectRatioRounded, InfoRounded } from '@mui/icons-material';
 import { snackStateReducer } from '@/context/GameReducer';
 import useMapDrag from '@/hooks/useMapDrag';
+import MapExplorer from '@/components/game/MapExplorer';
+import { v4 as uuidv4 } from 'uuid';
 
 const name2TileType: Record<string, TileType> = {
   king: TileType.King,
@@ -104,7 +106,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
 
   useEffect(() => {
     if (editMode) return;
-    fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/get_map/${mapId}`, {
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/maps/${mapId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -268,13 +270,12 @@ function MapEditor({ editMode }: { editMode: boolean }) {
     }
 
     let customMapData: CustomMapData = {
-      id: '',
+      id: uuidv4(),
       name: mapName,
       width: mapWidth,
       height: mapHeight,
       creator: username,
       description: mapDescription,
-      createdTimeStamp: Date.now(),
       mapTilesData: mapData,
     };
     return customMapData;
@@ -293,7 +294,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_API}/post_map`,
+        `${process.env.NEXT_PUBLIC_SERVER_API}/maps`,
         {
           method: 'POST',
           headers: {
@@ -307,17 +308,16 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         throw new Error('Network response was not ok');
       }
 
-      const responseData = await response.json();
-      console.log(responseData);
+      await response.json();
 
       // Dispatch success snack
       snackStateDispatch({
         type: 'update',
         title: 'Success',
-        message: 'Map published successfully, map id: ' + responseData.mapId,
+        message: 'Map published successfully, map id: ' + customMapData.id,
         status: 'success',
       });
-      window.open(`/maps/${responseData.mapId}`, '_blank');
+      window.open(`/maps/${customMapData.id}`, '_blank');
     } catch (error) {
       console.error('Error:', error);
 
@@ -474,6 +474,9 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         >
           <Typography variant='h4'>{mapName}</Typography>
           <Typography variant='body1'>{mapDescription}</Typography>
+          <Button variant='contained' color='info' onClick={handleDownloadMap}>
+            {t('download')}
+          </Button>
         </Box>
       )}
 
@@ -495,6 +498,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             overflow: 'auto',
           }}
         >
+          <MapExplorer />
           <Card
             className='menu-container'
             sx={{
