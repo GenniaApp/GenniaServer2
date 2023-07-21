@@ -1,6 +1,5 @@
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
@@ -16,7 +15,6 @@ import { useState } from 'react';
 
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
-import Router from 'next/router';
 import Image from 'next/image';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -62,7 +60,6 @@ function Navbar() {
   return (
     <AppBar position='fixed' className='navbar'>
       <Container className='dock'>
-        {/* <Toolbar disableGutters> */}
         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
           <IconButton
             size='large'
@@ -75,15 +72,19 @@ function Navbar() {
             <MenuIcon />
           </IconButton>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Image
-              src='/img/favicon.png'
-              width={32}
-              height={32}
-              alt='favicon'
-            />
-            <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
-              Gennia Online
-            </Typography>
+            <Link href='/'>
+              <Image
+                src='/img/favicon.png'
+                width={32}
+                height={32}
+                alt='favicon'
+              />
+            </Link>
+            <Link href='/'>
+              <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
+                Gennia Online
+              </Typography>
+            </Link>
             <Chip
               label='beta'
               variant='outlined'
@@ -186,7 +187,6 @@ function Navbar() {
               <AccountCircleIcon sx={{ ml: 0.4 }} />
             </Button>
           </Box> */}
-        {/* </Toolbar> */}
       </Container>
     </AppBar>
   );
