@@ -15,6 +15,7 @@ import IconButton from '@mui/material/IconButton';
 import StarIcon from '@mui/icons-material/Star';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { AspectRatioRounded } from '@mui/icons-material';
+import { useTranslation } from 'next-i18next';
 
 interface MapExplorerProps {
   userId: string;
@@ -26,10 +27,10 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [maps, setMaps] = useState<CustomMapInfo[] | null>(null);
   const router = useRouter();
-
   const [starredMaps, setStarredMaps] = useState<{ [key: string]: boolean }>(
     {}
   );
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!userId) return;
@@ -112,10 +113,10 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
           onChange={handleTabChange}
           aria-label='basic tabs example'
         >
-          <Tab label='New' />
-          <Tab label='Hot' />
-          <Tab label='Best' />
-          <Tab label='Search' />
+          <Tab label={t('new')} />
+          <Tab label={t('hot')} />
+          <Tab label={t('best')} />
+          <Tab label={t('search')} />
         </Tabs>
       </Box>
       {tabIndex === 3 && (
@@ -159,7 +160,7 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
               </Box>
 
               <Typography variant='body2'>
-                Created by {map.creator} on{' '}
+                {t('created-by')} {map.creator} on{' '}
                 {new Date(map.createdAt).toLocaleDateString()}
               </Typography>
               <Typography
@@ -179,7 +180,7 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
                 color='primary'
                 onClick={() => router.push(`/maps/${map.id}`)}
               >
-                View Map
+                {t('view-map')}
               </Button>
               {onSelect && (
                 <Button
@@ -189,7 +190,7 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
                     onSelect(map.id);
                   }}
                 >
-                  Select Map
+                  {t('choose-map')}
                 </Button>
               )}
             </CardContent>

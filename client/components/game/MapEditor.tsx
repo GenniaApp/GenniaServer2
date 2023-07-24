@@ -120,7 +120,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
       setMapName(customMapData.name);
       setMapDescription(customMapData.description);
     }
-  }, []);
+  }, [editMode]);
 
   const getMapDataFromServer = useCallback((custom_mapId: string) => {
     setLoading(true);
@@ -151,7 +151,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
   useEffect(() => {
     if (editMode) return;
     getMapDataFromServer(mapId);
-  }, []);
+  }, [editMode, getMapDataFromServer]);
 
   const handleMapSelect = (mapId: string) => {
     getMapDataFromServer(mapId);
@@ -469,7 +469,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
       };
     }
     return () => {};
-  }, [mapRef, handleKeyDown]);
+  }, [mapRef, editMode, handleKeyDown]);
 
   return (
     <div className='app-container'>
@@ -509,14 +509,12 @@ function MapEditor({ editMode }: { editMode: boolean }) {
       )}
 
       <Dialog open={openMapExplorer} onClose={handleCloseMapExplorer}>
-        <DialogTitle>Choose a Map</DialogTitle>
+        <DialogTitle>{t('choose-map')}</DialogTitle>
         <DialogContent>
-          <MapExplorer userId={username} />
+          <MapExplorer userId={username} onSelect={handleMapSelect} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseMapExplorer} onSelect={handleMapSelect}>
-            Close
-          </Button>
+          <Button onClick={handleCloseMapExplorer}>{t('close')}</Button>
         </DialogActions>
       </Dialog>
 

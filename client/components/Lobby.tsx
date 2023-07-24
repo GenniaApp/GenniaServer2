@@ -17,6 +17,7 @@ import {
   ListItemText,
   Snackbar,
   Alert,
+  ButtonGroup,
   CircularProgress,
 } from '@mui/material';
 import { Room, RoomPool } from '@/lib/types';
@@ -147,10 +148,12 @@ function Lobby() {
                       height: '0.7em',
                       borderRadius: '50%',
                       display: 'inline-block',
-                      marginRight: 1
+                      marginRight: 1,
                     }}
                   />
-                  <Typography fontSize='0.9rem' sx={{ display: 'inline' }}>{serverStatus ? t('online') : t('offline')}</Typography>
+                  <Typography fontSize='0.9rem' sx={{ display: 'inline' }}>
+                    {serverStatus ? t('online') : t('offline')}
+                  </Typography>
                 </Box>
               </ListItem>
             </List>
@@ -216,15 +219,37 @@ function Lobby() {
                 </TableBody>
               </Table>
             </TableContainer>
-            <Box marginTop={2} sx={{ width: '100%' }}>
-              <Button
-                variant='contained'
-                color='primary'
-                sx={{ width: '100%', height: '60px', fontSize: '20px' }}
-                onClick={handleCreateRoomClick}
-              >
-                {t('create-room')}
-              </Button>
+            <Box marginTop={2}>
+              <ButtonGroup sx={{ width: '100%' }}>
+                <Button
+                  variant='contained'
+                  color='primary'
+                  sx={{
+                    width: '100%',
+                    height: '60px',
+                    fontSize: '20px',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onClick={handleCreateRoomClick}
+                >
+                  {t('create-room')}
+                </Button>
+                <Button
+                  variant='contained'
+                  color='secondary'
+                  sx={{
+                    width: '100%',
+                    height: '60px',
+                    fontSize: '20px',
+                    whiteSpace: 'nowrap',
+                  }}
+                  onClick={() => {
+                    router.push('/mapcreator');
+                  }}
+                >
+                  {t('create-map')}
+                </Button>
+              </ButtonGroup>
             </Box>
           </Box>
         </div>
