@@ -579,7 +579,7 @@ io.on('connection', async (socket) => {
 
   socket.on('set_spectating', async (spectating: boolean) => {
     player.spectating = spectating;
-    socket.emit('update_room', room);
+    io.in(room.id).emit('update_room', room);
     io.in(room.id).emit('room_message', player.minify(), `set spectate to ${spectating}`);
   });
 

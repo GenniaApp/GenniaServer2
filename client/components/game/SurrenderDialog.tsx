@@ -17,7 +17,7 @@ export default function SurrenderDialog({
   handleSurrender: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { openOverDialog, isSurrendered } = useGame();
+  const { openOverDialog, isSurrendered, spectating } = useGame();
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -33,6 +33,8 @@ export default function SurrenderDialog({
     },
     [isOpen, openOverDialog]
   );
+
+  const showExitTitle = isSurrendered || spectating;
 
   const handleCloseSurrender = useCallback(() => {
     setIsOpen(false);
@@ -61,12 +63,12 @@ export default function SurrenderDialog({
       aria-describedby='Ensure user wants to surrender'
     >
       <DialogTitle>
-        {isSurrendered
+        {showExitTitle
           ? t('are-you-sure-to-exit')
           : t('are-you-sure-to-surrender')}
       </DialogTitle>
       <DialogActions sx={{ width: '300px' }}>
-        {isSurrendered ? (
+        {showExitTitle ? (
           <Button onClick={handleExit}>{t('exit')}</Button>
         ) : (
           <>

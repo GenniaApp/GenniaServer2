@@ -47,11 +47,11 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
   const [isNameFocused, setIsNamedFocused] = useState(false);
   const [shareLink, setShareLink] = useState('');
   const [forceStart, setForceStart] = useState(false);
-  const [spectating, setSpectating] = useState(false);
   const [openMapExplorer, setOpenMapExplorer] = useState(false);
 
-  const { room, socketRef, myPlayerId, myUserName, snackState } = useGame();
-  const { roomDispatch, snackStateDispatch } = useGameDispatch();
+  const { room, socketRef, myPlayerId, myUserName, snackState, spectating } =
+    useGame();
+  const { roomDispatch, snackStateDispatch, setSpectating } = useGameDispatch();
 
   const { t } = useTranslation();
 
