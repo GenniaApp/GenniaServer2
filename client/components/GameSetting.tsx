@@ -19,6 +19,11 @@ import {
   Radio,
   RadioGroup,
   Switch,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Link,
 } from '@mui/material';
 import ShareIcon from '@mui/icons-material/Share';
 import TerrainIcon from '@mui/icons-material/Terrain';
@@ -30,6 +35,7 @@ import { useTranslation } from 'next-i18next';
 
 import SliderBox from './SliderBox';
 import PlayerTable from './PlayerTable';
+import MapExplorer from './game/MapExplorer';
 
 import { forceStartOK, SpeedOptions } from '@/lib/constants';
 import { useGame, useGameDispatch } from '@/context/GameContext';
@@ -42,8 +48,9 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
   const [shareLink, setShareLink] = useState('');
   const [forceStart, setForceStart] = useState(false);
   const [spectating, setSpectating] = useState(false);
+  const [openMapExplorer, setOpenMapExplorer] = useState(false);
 
-  const { room, socketRef, myPlayerId, snackState } = useGame();
+  const { room, socketRef, myPlayerId, myUserName, snackState } = useGame();
   const { roomDispatch, snackStateDispatch } = useGameDispatch();
 
   const { t } = useTranslation();
@@ -59,8 +66,17 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
     socketRef.current.emit('change_room_setting', 'roomName', room.roomName);
   };
 
-  const handleMapIdBlur = (event: any) => {
-    socketRef.current.emit('change_room_setting', 'mapId', room.mapId);
+  const handleOpenMapExplorer = () => {
+    setOpenMapExplorer(true);
+  };
+
+  const handleCloseMapExplorer = () => {
+    setOpenMapExplorer(false);
+  };
+
+  const handleMapSelect = (mapId: string) => {
+    socketRef.current.emit('change_room_setting', 'mapId', mapId);
+    setOpenMapExplorer(false);
   };
 
   const handleClickForceStart = () => {
@@ -85,16 +101,6 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
       type: 'update_property',
       payload: {
         property: 'roomName',
-        value: event.target.value,
-      },
-    });
-  };
-
-  const handleMapIdChange = (event: any) => {
-    roomDispatch({
-      type: 'update_property',
-      payload: {
-        property: 'mapId',
         value: event.target.value,
       },
     });
@@ -146,6 +152,16 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           {snackState.message}
         </Alert>
       </Snackbar>
+      <Dialog open={openMapExplorer} onClose={handleCloseMapExplorer}>
+        <DialogTitle>Choose a Map</DialogTitle>
+        <DialogContent>
+          <MapExplorer userId={myUserName} onSelect={handleMapSelect} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseMapExplorer}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
       <Card className='menu-container' sx={{ mb: 2 }}>
         <CardHeader
           avatar={
@@ -199,6 +215,19 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             '&:last-child': { pb: 0 },
           }}
         >
+          {room.mapName && (
+            <Typography
+              variant='h5'
+              sx={{ mr: 2, whiteSpace: 'nowrap', color: 'white' }}
+              align='center'
+              component={Link}
+              href={`/maps/${room.mapId}`}
+              target='_blank'
+              rel='noopener noreferrer'
+            >
+              {t('custom-map')}: {room.mapName}
+            </Typography>
+          )}
           <Tabs
             value={tabIndex}
             onChange={(event, value) => setTabIndex(value)}
@@ -213,6 +242,10 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           </Tabs>
           <TabPanel value={tabIndex} index={0}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Button variant='contained' onClick={handleOpenMapExplorer}>
+                {t('select-a-custom-map')}
+              </Button>
+
               <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
                 <Typography sx={{ mr: 2, whiteSpace: 'nowrap' }}>
                   {t('game-speed')}
@@ -288,18 +321,6 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                   label={t('death-spectator')}
                 />
               </FormGroup>
-
-              <TextField
-                autoFocus
-                variant='standard'
-                id='mapId'
-                label='mapId'
-                inputProps={{ style: { fontSize: '30px' } }}
-                value={room.mapId}
-                onChange={handleMapIdChange}
-                onBlur={handleMapIdBlur}
-                disabled={disabled_ui}
-              />
             </Box>
           </TabPanel>
           <TabPanel value={tabIndex} index={1}>

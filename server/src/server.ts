@@ -306,13 +306,19 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
 async function handleGame(room: Room, io: Server) {
   if (room.gameStarted === false) {
     if (room.mapId) {
-      // read json file from /custom_map/MapId.json
-      let customMapData: CustomMapData = JSON.parse(
-        fs.readFileSync(path.join(process.cwd(), 'custom_map', `${room.mapId}.json`), 'utf8')
-      );
+      const data = await prisma.customMapData.findUnique({
+        where: { id: room.mapId },
+      });
+      if (!data) {
+        throw new Error('Map not found');
+      }
+      console.log(`Start game with custom map ${room.mapId} ${data.name}`);
 
+      const customMapData = {
+        ...data,
+        mapTilesData: JSON.parse(data.mapTilesData)
+      }
       room.map = GameMap.from_custom_map(customMapData, room.players);
-      console.log(`Start game with custom map ${room.mapId}`);
 
     } else {
 
@@ -641,10 +647,15 @@ io.on('connection', async (socket) => {
               }
               break;
             case 'mapId':
-              if (typeof value !== 'string' || value.length > 20) {
+              if (typeof value !== 'string' || value.length > 50) {
                 socket.emit('error', 'Changement was failed', 'invliad MapId');
                 return;
               }
+              const map = await prisma.customMapData.findUnique({
+                where: { id: value },
+                select: { name: true },
+              });
+              room.mapName = map?.name || '';
               break;
             case 'maxPlayers':
               if (typeof value !== 'number' || value <= 1) {
@@ -681,7 +692,12 @@ io.on('connection', async (socket) => {
 
           room[property] = value;
           io.in(room.id).emit('update_room', room);
-          io.in(room.id).emit('room_message', player.minify(), `changed ${property} to ${value}.`);
+          if (property === 'mapId') {
+            io.in(room.id).emit('room_message', player.minify(), `changed mapName to ${room.mapName}.`);
+          }
+          else {
+            io.in(room.id).emit('room_message', player.minify(), `changed ${property} to ${value}.`);
+          }
         } else {
           socket.emit('error', 'Changement was failed', `Invalid property: ${property} or value: ${value}.`);
         }

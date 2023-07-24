@@ -73,5 +73,8 @@
   "upload": "上传文件",
   "save-draft": "保存草稿",
   "publish": "发布",
+  "loading-map": "加载地图中",
+  "select-a-custom-map": "选择自定义地图",
+  "custom-map": "自定义地图",
   "clear-all": "清除全部"
 }

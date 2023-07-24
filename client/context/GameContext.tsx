@@ -36,6 +36,7 @@ interface GameContext {
   mapQueueData: MapQueueData;
   roomUiStatus: RoomUiStatus;
   myPlayerId: string;
+  myUserName: string;
   isSurrendered: boolean;
   turnsCount: number;
   leaderBoardData: LeaderBoardTable | null;
@@ -53,6 +54,7 @@ interface GameDispatch {
   mapQueueDataDispatch: React.Dispatch<any>;
   setRoomUiStatus: React.Dispatch<React.SetStateAction<RoomUiStatus>>;
   setMyPlayerId: React.Dispatch<React.SetStateAction<string>>;
+  setMyUserName: React.Dispatch<React.SetStateAction<string>>;
   setIsSurrendered: React.Dispatch<React.SetStateAction<boolean>>;
   setTurnsCount: React.Dispatch<React.SetStateAction<number>>;
   setLeaderBoardData: React.Dispatch<any>;
@@ -90,6 +92,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
     duration: 3000,
   });
   const [myPlayerId, setMyPlayerId] = useState('');
+  const [myUserName, setMyUserName] = useState('');
   const [isSurrendered, setIsSurrendered] = useState(false);
   const [initGameInfo, setInitGameInfo] = useState<initGameInfo | null>(null);
   const [turnsCount, setTurnsCount] = useState(0);
@@ -117,6 +120,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
         mapQueueData,
         roomUiStatus,
         myPlayerId,
+        myUserName,
         isSurrendered,
         turnsCount,
         leaderBoardData,
@@ -135,6 +139,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
           mapQueueDataDispatch,
           setRoomUiStatus,
           setMyPlayerId,
+          setMyUserName,
           setIsSurrendered,
           setTurnsCount,
           setLeaderBoardData,

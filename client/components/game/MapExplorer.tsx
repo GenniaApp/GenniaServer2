@@ -18,9 +18,10 @@ import { AspectRatioRounded } from '@mui/icons-material';
 
 interface MapExplorerProps {
   userId: string;
+  onSelect?: (mapId: string) => void;
 }
 
-export default function MapExplorer({ userId }: MapExplorerProps) {
+export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
   const [tabIndex, setTabIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [maps, setMaps] = useState<CustomMapInfo[] | null>(null);
@@ -180,6 +181,17 @@ export default function MapExplorer({ userId }: MapExplorerProps) {
               >
                 View Map
               </Button>
+              {onSelect && (
+                <Button
+                  variant='contained'
+                  color='primary'
+                  onClick={() => {
+                    onSelect(map.id);
+                  }}
+                >
+                  Select Map
+                </Button>
+              )}
             </CardContent>
           </Card>
         ))}

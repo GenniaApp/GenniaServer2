@@ -23,15 +23,20 @@ import GameLoading from '@/components/GameLoading';
 
 function GamingRoom() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [username, setUsername] = useState('');
 
   const router = useRouter();
   const roomId = router.query.roomId as string;
 
   const { t } = useTranslation();
 
-  const { room, roomUiStatus, socketRef, myPlayerId, attackQueueRef } =
-    useGame();
+  const {
+    room,
+    roomUiStatus,
+    socketRef,
+    myPlayerId,
+    attackQueueRef,
+    myUserName,
+  } = useGame();
   const {
     roomDispatch,
     mapDataDispatch,
@@ -46,6 +51,7 @@ function GamingRoom() {
     setSelectedMapTileInfo,
     setInitGameInfo,
     setIsSurrendered,
+    setMyUserName,
   } = useGameDispatch();
 
   useEffect(() => {
@@ -53,15 +59,15 @@ function GamingRoom() {
     if (!tmp) {
       router.push('/');
     } else {
-      setUsername(tmp);
+      setMyUserName(tmp);
       setMyPlayerId(localStorage.getItem('playerId') || '');
     }
-  }, [setUsername, setMyPlayerId]);
+  }, []);
 
   useEffect(() => {
     // Game Logic Init
     if (!roomId) return;
-    if (!username) return;
+    if (!myUserName) return;
     class AttackQueue {
       public items: Route[];
       public lastItem: Route | undefined;
@@ -137,7 +143,7 @@ function GamingRoom() {
 
     // myPlayerId could be null for first connect
     socketRef.current = io(process.env.NEXT_PUBLIC_SERVER_API, {
-      query: { roomId: roomId, username: username, myPlayerId: myPlayerId },
+      query: { roomId: roomId, username: myUserName, myPlayerId: myPlayerId },
     });
     let socket = socketRef.current;
     socket.emit('get_room_info');
@@ -319,7 +325,7 @@ function GamingRoom() {
     return () => {
       socketRef.current.disconnect();
     };
-  }, [roomId, username]);
+  }, [roomId, myUserName]);
 
   useEffect(() => {
     if (room.gameStarted && roomUiStatus === RoomUiStatus.gameSetting) {

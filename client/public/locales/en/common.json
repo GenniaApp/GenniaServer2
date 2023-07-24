@@ -71,5 +71,8 @@
   "upload": "Upload",
   "save-draft": "Save Draft",
   "publish": "Publish",
+  "loading-map": "Loading Map",
+  "select-a-custom-map": "Select a custom map",
+  "custom-map": "Custom map",
   "clear-all": "Clear All"
 }

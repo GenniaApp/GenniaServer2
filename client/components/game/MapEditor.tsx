@@ -20,6 +20,10 @@ import {
   Snackbar,
   Alert,
   AlertTitle,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import {
   Position,
@@ -36,6 +40,7 @@ import { AspectRatioRounded, InfoRounded } from '@mui/icons-material';
 import { snackStateReducer } from '@/context/GameReducer';
 import useMapDrag from '@/hooks/useMapDrag';
 import MapExplorer from '@/components/game/MapExplorer';
+import Loading from '@/components/Loading';
 import { v4 as uuidv4 } from 'uuid';
 
 const name2TileType: Record<string, TileType> = {
@@ -46,22 +51,22 @@ const name2TileType: Record<string, TileType> = {
   swamp: TileType.Swamp,
 };
 
-type MapData = CustomMapTileData[][];
-
-function getNewMapData() {
+function getNewMapData(): CustomMapTileData[][] {
   return Array.from({ length: 10 }, () =>
     Array.from({ length: 10 }, () => [TileType.Plain, null, 0, false, 0])
   );
 }
 
 function MapEditor({ editMode }: { editMode: boolean }) {
-  const [mapWidth, setMapWidth] = useState(10);
-  const [mapHeight, setMapHeight] = useState(10);
-  const [username, setUsername] = useState('');
-  const [team, setTeam] = useState(0);
-  const [unitsCount, setUnitCount] = useState(50);
-  const [priority, setPriority] = useState(0);
-  const [mapData, setMapData] = useState(getNewMapData());
+  const [mapWidth, setMapWidth] = useState<number>(10);
+  const [mapHeight, setMapHeight] = useState<number>(10);
+  const [username, setUsername] = useState<string>('');
+  const [team, setTeam] = useState<number>(0);
+  const [unitsCount, setUnitCount] = useState<number>(50);
+  const [priority, setPriority] = useState<number>(0);
+  const [mapData, setMapData] = useState<CustomMapTileData[][]>(
+    getNewMapData()
+  );
   const [selectedTileType, setSelectedTileType] = useState<TileType | null>(
     TileType.Plain
   );
@@ -82,10 +87,21 @@ function MapEditor({ editMode }: { editMode: boolean }) {
     status: 'error',
   });
 
+  const [loading, setLoading] = useState(false);
+  const [openMapExplorer, setOpenMapExplorer] = useState(false);
+
   const router = useRouter();
   const mapId = router.query.mapId as string;
 
   useMapDrag(mapRef, position, setPosition, zoom, setZoom);
+
+  const handleOpenMapExplorer = () => {
+    setOpenMapExplorer(true);
+  };
+
+  const handleCloseMapExplorer = () => {
+    setOpenMapExplorer(false);
+  };
 
   useEffect(() => {
     if (!editMode) return;
@@ -106,9 +122,9 @@ function MapEditor({ editMode }: { editMode: boolean }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (editMode) return;
-    fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/maps/${mapId}`, {
+  const getMapDataFromServer = useCallback((custom_mapId: string) => {
+    setLoading(true);
+    fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/maps/${custom_mapId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -129,8 +145,17 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         setMapHeight(customMapData.height);
         setMapName(customMapData.name);
         setMapDescription(customMapData.description);
+        setLoading(false);
       });
   }, []);
+  useEffect(() => {
+    if (editMode) return;
+    getMapDataFromServer(mapId);
+  }, []);
+
+  const handleMapSelect = (mapId: string) => {
+    getMapDataFromServer(mapId);
+  };
 
   const mapPixelWidth = useMemo(
     () => tileSize * mapWidth,
@@ -461,6 +486,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
           {snackState.message}
         </Alert>
       </Snackbar>
+      {!editMode && <Loading open={loading} title={t('loading-map')} />}
       {!editMode && (
         <Box
           className='menu-container'
@@ -482,6 +508,18 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         </Box>
       )}
 
+      <Dialog open={openMapExplorer} onClose={handleCloseMapExplorer}>
+        <DialogTitle>Choose a Map</DialogTitle>
+        <DialogContent>
+          <MapExplorer userId={username} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseMapExplorer} onSelect={handleMapSelect}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {editMode && (
         <Box
           className='menu-container'
@@ -493,7 +531,6 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             bottom: '60px',
             right: 0,
             height: 'calc(100dvh - 60px - 60px)',
-            width: 'min-content',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -501,7 +538,10 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             overflow: 'auto',
           }}
         >
-          <MapExplorer userId={username} />
+          <Button variant='contained' onClick={handleOpenMapExplorer}>
+            {t('select-a-custom-map')}
+          </Button>
+
           <Card
             className='menu-container'
             sx={{
@@ -683,7 +723,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                     }}
                     value={property2var[property]}
                     onChange={(event) =>
-                      property2setVar[property](event.target.value)
+                      property2setVar[property](+event.target.value)
                     }
                   />
                 )}

@@ -217,6 +217,11 @@ class GameMap {
         players[i].initKing(kings[i]);
       }
     }
+    // reset kings that not own by players to plain
+    for (let i = 0; i < kings.length; i++) {
+      if (!kings[i].player)
+        kings[i].setType(TileType.Plain);
+    }
 
     // random assign kings to other players
     if (players.length > kings.length)
