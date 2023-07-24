@@ -66,9 +66,10 @@ pnpm run dev
 
 #### database
 
-we use supabase-postgresql + prisma
+We use supabase-postgresql + prisma
 
-- see .env.example to config prisma env correctly
+- [tutorial](https://supabase.com/partners/integrations/prisma)
+- see `.env.example` to config prisma env correctly
 - if you init repo or edit prisma schema, run `npx prisma migrate dev` to make sure update schema in database and update prisma client
 
 ## Deployment

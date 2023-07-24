@@ -73,11 +73,11 @@ app.get('/maps', async (req, res) => {
       creator: true,
       description: true,
       createdAt: true,
-      downloads: true,
-      stars: true,
+      views: true,
+      starCount: true,
     },
   });
-  res.json(maps);
+  res.json(maps)
 });
 
 app.post('/maps', async (req, res) => {
@@ -103,7 +103,7 @@ app.get('/maps/:id', async (req, res) => {
   await prisma.customMapData.update({
     where: { id: req.params.id },
     data: {
-      downloads: {
+      views: {
         increment: 1
       }
     },
@@ -142,8 +142,8 @@ app.get('/new', async (req, res) => {
       creator: true,
       description: true,
       createdAt: true,
-      downloads: true,
-      stars: true,
+      views: true,
+      starCount: true,
     },
   });
   res.json(newestMaps);
@@ -151,7 +151,7 @@ app.get('/new', async (req, res) => {
 
 app.get('/best', async (req, res) => {
   const bestMaps = await prisma.customMapData.findMany({
-    orderBy: { stars: 'desc' },
+    orderBy: { starCount: 'desc' },
     take: 25,
     select: {
       id: true,
@@ -161,8 +161,8 @@ app.get('/best', async (req, res) => {
       creator: true,
       description: true,
       createdAt: true,
-      downloads: true,
-      stars: true,
+      views: true,
+      starCount: true,
     },
   });
   res.json(bestMaps);
@@ -170,7 +170,7 @@ app.get('/best', async (req, res) => {
 
 app.get('/hot', async (req, res) => {
   const hotMaps = await prisma.customMapData.findMany({
-    orderBy: { downloads: 'desc' },
+    orderBy: { views: 'desc' },
     take: 25,
     select: {
       id: true,
@@ -180,8 +180,8 @@ app.get('/hot', async (req, res) => {
       creator: true,
       description: true,
       createdAt: true,
-      downloads: true,
-      stars: true,
+      views: true,
+      starCount: true,
     },
   });
   res.json(hotMaps);
@@ -210,23 +210,64 @@ app.get('/search', async (req: Request, res: Response) => {
       creator: true,
       description: true,
       createdAt: true,
-      downloads: true,
-      stars: true,
+      views: true,
+      starCount: true,
     },
   });
   res.json(searchedMaps);
 });
 
-app.put('/maps/:id/star', async (req, res) => {
-  const starredMap = await prisma.customMapData.update({
-    where: { id: req.params.id },
-    data: {
-      stars: {
-        increment: 1
-      }
-    },
+app.post('/toggleStar', async (req: Request, res: Response) => {
+  const { userId, mapId, action } = req.body;
+
+  if (action !== 'increase' && action !== 'decrease') {
+    res.status(400).json({ error: 'Invalid action' });
+    return;
+  }
+
+  const existingStar = await prisma.starUsers.findUnique({
+    where: { userId_mapId: { userId, mapId } },
   });
-  res.json(starredMap);
+
+  if (action === 'increase') {
+    if (existingStar) {
+      res.status(400).json({ error: 'You have already starred this map' });
+      return;
+    }
+
+    await prisma.$transaction([
+      prisma.starUsers.create({ data: { userId, mapId } }),
+      prisma.customMapData.update({ where: { id: mapId }, data: { starCount: { increment: 1 } } }),
+    ]);
+  } else {
+    if (!existingStar) {
+      res.status(400).json({ error: 'You have not starred this map yet' });
+      return;
+    }
+
+    await prisma.$transaction([
+      prisma.starUsers.delete({ where: { userId_mapId: { userId, mapId } } }),
+      prisma.customMapData.update({ where: { id: mapId }, data: { starCount: { decrement: 1 } } }),
+    ]);
+  }
+
+  res.json({ success: true });
+});
+
+app.get('/starredMaps', async (req, res) => {
+  const userId = req.query.userId as string;
+
+  if (!userId) {
+    res.status(400).json({ error: 'User ID is required' });
+    return;
+  }
+
+  const starredMaps = await prisma.starUsers.findMany({
+    where: { userId },
+    select: { mapId: true },
+  });
+
+  res.json(starredMaps.map(starUsers => starUsers.mapId));
 });
 
 const server = app.listen(process.env.PORT, () => {

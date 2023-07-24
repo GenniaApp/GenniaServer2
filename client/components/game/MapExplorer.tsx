@@ -11,12 +11,45 @@ import {
   Button,
 } from '@mui/material';
 import { CustomMapInfo } from '@/lib/types';
+import IconButton from '@mui/material/IconButton';
+import StarIcon from '@mui/icons-material/Star';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import { AspectRatioRounded } from '@mui/icons-material';
 
-export default function MapExplorer() {
+interface MapExplorerProps {
+  userId: string;
+}
+
+export default function MapExplorer({ userId }: MapExplorerProps) {
   const [tabIndex, setTabIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [maps, setMaps] = useState<CustomMapInfo[] | null>(null);
   const router = useRouter();
+
+  const [starredMaps, setStarredMaps] = useState<{ [key: string]: boolean }>(
+    {}
+  );
+
+  useEffect(() => {
+    if (!userId) return;
+    const fetchStarredMaps = async () => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_API}/starredMaps?userId=${userId}`
+      );
+      const data: string[] = await response.json();
+
+      const starredMaps = data.reduce(
+        (acc: { [key: string]: boolean }, mapId: string) => {
+          acc[mapId] = true;
+          return acc;
+        },
+        {}
+      );
+      setStarredMaps(starredMaps);
+    };
+
+    fetchStarredMaps();
+  }, [userId]);
 
   const fetchMaps = async () => {
     const endpoint = ['new', 'hot', 'best', 'search'][tabIndex];
@@ -32,6 +65,36 @@ export default function MapExplorer() {
     fetchMaps();
   }, [tabIndex, searchTerm]);
 
+  const handleStarClick = async (mapId: string) => {
+    const action = starredMaps[mapId] ? 'decrease' : 'increase';
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_API}/toggleStar`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          mapId,
+          action,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    // fix: high latency
+    if (data.success) {
+      setStarredMaps({
+        ...starredMaps,
+        [mapId]: action === 'increase',
+      });
+    }
+    fetchMaps();
+  };
+
   const handleTabChange = (event: any, newValue: any) => {
     setTabIndex(newValue);
   };
@@ -41,7 +104,7 @@ export default function MapExplorer() {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ height: '500px', overflow: 'auto' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
           value={tabIndex}
@@ -63,15 +126,53 @@ export default function MapExplorer() {
       )}
       {maps &&
         maps.map((map) => (
-          <Card key={map.id} sx={{ my: 2 }}>
+          <Card className='menu-container' key={map.id} sx={{ my: 2 }}>
             <CardContent>
-              <Typography variant='h5'>{map.name}</Typography>
-              <Typography variant='body2'>{map.description}</Typography>
+              <Box
+                display='flex'
+                alignItems='center'
+                justifyContent='space-between'
+              >
+                <Typography variant='h5'>{map.name}</Typography>
+                <IconButton>
+                  <VisibilityIcon />
+                  <Typography variant='body2' sx={{ ml: 1 }}>
+                    {map.views}
+                  </Typography>
+                </IconButton>
+                <IconButton onClick={() => handleStarClick(map.id)}>
+                  <StarIcon
+                    color={starredMaps[map.id] ? 'primary' : 'inherit'}
+                  />
+                  <Typography variant='body2' sx={{ ml: 1 }}>
+                    {map.starCount}
+                  </Typography>
+                </IconButton>
+              </Box>
+
+              <Box display='flex' alignItems='center'>
+                <AspectRatioRounded sx={{ ml: 1 }} />
+                <Typography variant='body2' sx={{ ml: 1 }}>
+                  {map.width} x {map.height}
+                </Typography>
+              </Box>
+
               <Typography variant='body2'>
-                {map.createdAt.toLocaleString()}
+                Created by {map.creator} on{' '}
+                {new Date(map.createdAt).toLocaleDateString()}
               </Typography>
-              <Typography variant='body2'>{`Downloads: ${map.downloads}`}</Typography>
-              <Typography variant='body2'>{`Stars: ${map.stars}`}</Typography>
+              <Typography
+                variant='body2'
+                sx={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {map.description}
+              </Typography>
               <Button
                 variant='contained'
                 color='primary'

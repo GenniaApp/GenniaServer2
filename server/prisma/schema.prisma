@@ -10,14 +10,25 @@ generator client {
 }
 
 model CustomMapData {
-  id           String   @id @default(uuid())
+  id           String      @id @default(uuid())
   name         String
   width        Int
   height       Int
   creator      String
   description  String
-  createdAt    DateTime @default(now())
+  createdAt    DateTime    @default(now())
   mapTilesData String // JSON.stringify(CustomMapTileData[][]) for simplicity
-  downloads    Int      @default(0)
-  stars        Int      @default(0)
+  views        Int         @default(0)
+  starCount    Int         @default(0)
+  starUsers    StarUsers[]
+}
+
+model StarUsers {
+  id            String        @id @default(uuid())
+  createdAt     DateTime      @default(now())
+  userId        String
+  mapId         String
+  customMapData CustomMapData @relation(fields: [mapId], references: [id]) // Change this line
+
+  @@unique([userId, mapId])
 }

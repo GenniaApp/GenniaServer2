@@ -185,6 +185,6 @@ export type CustomMapInfo = {
   creator: string;
   description: string;
   createdAt: Date;
-  downloads: number;
-  stars: number;
+  views: number;
+  starCount: number;
 };

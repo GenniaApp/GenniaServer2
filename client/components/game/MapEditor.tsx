@@ -48,9 +48,11 @@ const name2TileType: Record<string, TileType> = {
 
 type MapData = CustomMapTileData[][];
 
-const defaultMapData: MapData = Array.from({ length: 10 }, () =>
-  Array.from({ length: 10 }, () => [TileType.Plain, null, 0, false, 0])
-);
+function getNewMapData() {
+  return Array.from({ length: 10 }, () =>
+    Array.from({ length: 10 }, () => [TileType.Plain, null, 0, false, 0])
+  );
+}
 
 function MapEditor({ editMode }: { editMode: boolean }) {
   const [mapWidth, setMapWidth] = useState(10);
@@ -59,7 +61,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
   const [team, setTeam] = useState(0);
   const [unitsCount, setUnitCount] = useState(50);
   const [priority, setPriority] = useState(0);
-  const [mapData, setMapData] = useState(defaultMapData);
+  const [mapData, setMapData] = useState(getNewMapData());
   const [selectedTileType, setSelectedTileType] = useState<TileType | null>(
     TileType.Plain
   );
@@ -491,6 +493,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             bottom: '60px',
             right: 0,
             height: 'calc(100dvh - 60px - 60px)',
+            width: 'min-content',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -498,7 +501,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             overflow: 'auto',
           }}
         >
-          <MapExplorer />
+          <MapExplorer userId={username} />
           <Card
             className='menu-container'
             sx={{
@@ -692,7 +695,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
               key='clear-all'
               className='icon-box'
               onClick={() => {
-                setMapData(defaultMapData);
+                setMapData(getNewMapData());
               }}
             >
               <ClearIcon
