@@ -66,16 +66,21 @@ pnpm run dev
 
 #### database
 
-We use supabase-postgresql + prisma
+We use postgresql + prisma
 
-- [tutorial](https://supabase.com/partners/integrations/prisma)
 - see `.env.example` to config prisma env correctly
 - if you init repo or edit prisma schema, run `npx prisma migrate dev` to make sure update schema in database and update prisma client
 
 ```
 npx prisma generate # generate prisma client code
 npx prisma migrate dev # migrate
-pnpm dlx prisma studio # open UI
+pnpm dlx prisma studio # open databaseUI
+```
+
+#### docker
+- setup postgresql and pyadmin to manage data
+```
+docker-compose up -d
 ```
 
 ## Deployment
