@@ -319,6 +319,14 @@ function MapEditor({ editMode }: { editMode: boolean }) {
     const customMapData = generateCustomMapData();
     if (!customMapData) return;
 
+    snackStateDispatch({
+      type: 'update',
+      title: 'info',
+      message: 'Map publishing... Please wait',
+      status: 'info',
+      duration: 5000,
+    });
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_API}/maps`,
@@ -343,8 +351,10 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         title: 'Success',
         message: 'Map published successfully, map id: ' + customMapData.id,
         status: 'success',
+        duration: 5000,
       });
-      window.open(`/maps/${customMapData.id}`, '_blank');
+      window.open(`/maps/${customMapData.id}`, 'mapDetailsWindow');
+      // window.open(`/maps/${customMapData.id}`, '_blank');
     } catch (error) {
       console.error('Error:', error);
 

@@ -72,6 +72,12 @@ We use supabase-postgresql + prisma
 - see `.env.example` to config prisma env correctly
 - if you init repo or edit prisma schema, run `npx prisma migrate dev` to make sure update schema in database and update prisma client
 
+```
+npx prisma generate # generate prisma client code
+npx prisma migrate dev # migrate
+pnpm dlx prisma studio # open UI
+```
+
 ## Deployment
 
 [PM2](https://pm2.keymetrics.io/docs/usage/quick-start/) is a production process manager for Node.js applications, which is very easy to use.

@@ -25,7 +25,7 @@ interface MapExplorerProps {
 export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
   const [tabIndex, setTabIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [maps, setMaps] = useState<CustomMapInfo[] | null>(null);
+  const [maps, setMaps] = useState<CustomMapInfo[] | undefined>(undefined);
   const router = useRouter();
   const [starredMaps, setStarredMaps] = useState<{ [key: string]: boolean }>(
     {}
@@ -68,11 +68,29 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
   }, [tabIndex, searchTerm]);
 
   const handleStarClick = async (mapId: string) => {
-    const action = starredMaps[mapId] ? 'decrease' : 'increase';
+    try {
+      const isStarred = starredMaps[mapId];
+      const action = isStarred ? 'decrease' : 'increase';
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_API}/toggleStar`,
-      {
+      // Optimistically update the UI
+      setMaps(
+        (prevMaps) =>
+          prevMaps?.map((map) =>
+            map.id === mapId
+              ? {
+                  ...map,
+                  starCount: isStarred ? map.starCount - 1 : map.starCount + 1,
+                }
+              : map
+          )
+      );
+      setStarredMaps((prevStarredMaps) => ({
+        ...prevStarredMaps,
+        [mapId]: !isStarred,
+      }));
+
+      // Send the request to update the star count on the server
+      await fetch(`${process.env.NEXT_PUBLIC_SERVER_API}/toggleStar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -82,19 +100,30 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
           mapId,
           action,
         }),
-      }
-    );
-
-    const data = await response.json();
-
-    // fix: high latency
-    if (data.success) {
-      setStarredMaps({
-        ...starredMaps,
-        [mapId]: action === 'increase',
       });
+    } catch (error) {
+      // Revert the UI changes and show an error message
+      console.log('star error', error);
+      // setMaps(
+      //   (prevMaps) =>
+      //     prevMaps?.map((map) =>
+      //       map.id === mapId
+      //         ? {
+      //             ...map,
+      //             starCount: starredMaps[mapId]
+      //               ? map.starCount - 1
+      //               : map.starCount,
+      //           }
+      //         : map
+      //     )
+      // );
+      // setStarredMaps((prevStarredMaps) => ({
+      //   ...prevStarredMaps,
+      //   [mapId]: starredMaps[mapId],
+      // }));
+      // console.error(error);
+      // alert('Failed to star the map. Please try again later.');
     }
-    fetchMaps();
   };
 
   const handleTabChange = (event: any, newValue: any) => {
