@@ -36,6 +36,7 @@ const navItems = [
   { href: 'https://docs.gennia.io/bot-api/', label: 'bot-api' },
   { href: 'https://github.com/GenniaApp', label: 'about-us' },
   { href: 'https://github.com/GenniaApp/Gennia/issues', label: 'feedback' },
+  { href: 'https://github.com/GenniaApp/GenniaServer2', label: 'github' },
 ];
 
 function Navbar() {
