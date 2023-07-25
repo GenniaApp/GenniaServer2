@@ -15,10 +15,12 @@ install_in_china:
 deploy:
 	cd client && pnpm run build
 	cd client && pm2 start pnpm --time --name "gennia-client" -- start --port 3000
+	cd server && docker-compose up -d # start postgresql
+	cd server && pnpm dlx prisma migrate dev
 	cd server && pm2 start pnpm --time --name "gennia-server" -- start --port 3001
 
 .PHONY: restart
-restart:
+restart: # if you change prisma schema, run `pnpm dlx prisma migrate dev` first
 	cd client && pnpm run build
-	pm2 restart gennia-client
-	pm2 restart gennia-server
+	pm2 delete gennia-client 2> /dev/null || true && cd client && pm2 start pnpm --time --name "gennia-client" -- start --port 3000
+	pm2 delete gennia-server 2> /dev/null || true && cd server && pm2 start pnpm --time --name "gennia-server" -- start --port 3001

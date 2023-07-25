@@ -78,14 +78,17 @@ pnpm dlx prisma studio # open databaseUI
 ```
 
 #### docker
+
 - setup postgresql and pyadmin to manage data
+
 ```
 docker-compose up -d
 ```
 
 ## Deployment
 
-[PM2](https://pm2.keymetrics.io/docs/usage/quick-start/) is a production process manager for Node.js applications, which is very easy to use.
+- [PM2](https://pm2.keymetrics.io/docs/usage/quick-start/) is a production process manager for Node.js applications, which is very easy to use.
+- docker-compose: for setup database
 
 - see `make deploy` and `make restart` in Makefile
 - to set the application to restart on startup see: https://pm2.keymetrics.io/docs/usage/startup/
