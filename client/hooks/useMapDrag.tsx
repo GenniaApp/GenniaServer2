@@ -138,6 +138,7 @@ const useMapDrag = (
     }
     return () => {};
   }, [
+    mapRef.current,
     handleWheel,
     handleMouseDown,
     handleMouseMove,
