@@ -8,16 +8,18 @@ const useMapDrag = (
   zoom: number,
   setZoom: any
 ) => {
-  const [dragging, setDragging] = useState(false);
-  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const [mouseDragging, setMouseDragging] = useState(false);
+  const [touchDragging, setTouchDragging] = useState(false);
+  const [mouseStartPosition, setMouseStartPosition] = useState({ x: 0, y: 0 });
+  const [touchStartPosition, setTouchStartPosition] = useState({ x: 0, y: 0 });
   const [initialDistance, setInitialDistance] = useState(0);
 
   const timeoutId = useRef<any>(undefined);
 
   const handleMouseDown = useCallback(
     (event: MouseEvent) => {
-      setDragging(true);
-      setStartPosition({
+      setMouseDragging(true);
+      setMouseStartPosition({
         x: event.clientX - position.x,
         y: event.clientY - position.y,
       });
@@ -27,46 +29,50 @@ const useMapDrag = (
 
   const handleMouseMove = useCallback(
     (event: MouseEvent) => {
-      if (dragging && mapRef.current) {
+      if (mouseDragging) {
         setPosition({
-          x: event.clientX - startPosition.x,
-          y: event.clientY - startPosition.y,
+          x: event.clientX - mouseStartPosition.x,
+          y: event.clientY - mouseStartPosition.y,
         });
       }
     },
-    [dragging, mapRef.current, startPosition]
+    [mouseDragging, mouseStartPosition]
   );
 
   const handleMouseUp = useCallback(() => {
-    setDragging(false);
+    setMouseDragging(false);
   }, []);
 
-  const handleTouchStart = useCallback((event: TouchEvent) => {
-    if (event.touches.length === 1) {
-      setDragging(true);
-      setStartPosition({
-        x: event.touches[0].clientX,
-        y: event.touches[0].clientY,
-      });
-    } else if (event.touches.length === 2) {
-      const touch1 = event.touches[0];
-      const touch2 = event.touches[1];
-      const distance = Math.sqrt(
-        Math.pow(touch1.clientX - touch2.clientX, 2) +
-          Math.pow(touch1.clientY - touch2.clientY, 2)
-      );
-      setInitialDistance(distance);
-    }
-  }, []);
+  const handleTouchStart = useCallback(
+    (event: TouchEvent) => {
+      if (event.touches.length === 1) {
+        setTouchDragging(true);
+        setTouchStartPosition({
+          x: event.touches[0].clientX - position.x,
+          y: event.touches[0].clientY - position.y,
+        });
+      } else if (event.touches.length === 2) {
+        const touch1 = event.touches[0];
+        const touch2 = event.touches[1];
+        const distance = Math.sqrt(
+          Math.pow(touch1.clientX - touch2.clientX, 2) +
+            Math.pow(touch1.clientY - touch2.clientY, 2)
+        );
+        setInitialDistance(distance);
+      }
+    },
+    [position]
+  );
 
   const handleTouchMove = useCallback(
     (event: TouchEvent) => {
       event.preventDefault();
+      if (!touchDragging) return;
       if (event.touches.length === 1) {
         const updatePosition = () => {
           setPosition({
-            x: event.touches[0].clientX - startPosition.x,
-            y: event.touches[0].clientY - startPosition.y,
+            x: event.touches[0].clientX - touchStartPosition.x,
+            y: event.touches[0].clientY - touchStartPosition.y,
           });
         };
         requestAnimationFrame(updatePosition);
@@ -82,8 +88,12 @@ const useMapDrag = (
         setZoom(newZoom);
       }
     },
-    [initialDistance, startPosition, zoom]
+    [initialDistance, touchStartPosition, zoom]
   );
+
+  const handleTouchEnd = useCallback(() => {
+    setTouchDragging(false);
+  }, []);
 
   const handleWheel = useCallback(
     (event: WheelEvent) => {
@@ -114,6 +124,8 @@ const useMapDrag = (
       mapNode.addEventListener('touchmove', handleTouchMove, {
         passive: false,
       });
+      mapNode.addEventListener('touchend', handleTouchEnd);
+
       return () => {
         mapNode.removeEventListener('wheel', handleWheel);
         mapNode.removeEventListener('mousedown', handleMouseDown);
@@ -121,6 +133,7 @@ const useMapDrag = (
         mapNode.removeEventListener('mouseup', handleMouseUp);
         mapNode.removeEventListener('touchstart', handleTouchStart);
         mapNode.removeEventListener('touchmove', handleTouchMove);
+        mapNode.removeEventListener('touchend', handleTouchEnd);
       };
     }
     return () => {};
@@ -133,7 +146,7 @@ const useMapDrag = (
     handleTouchMove,
   ]);
 
-  return { dragging };
+  return { mouseDragging };
 };
 
 export default useMapDrag;
