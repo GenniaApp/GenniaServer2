@@ -366,7 +366,7 @@ async function handleGame(room: Room, io: Server) {
           if (!room.map) throw new Error('king is null');
           if (!player.isDead && !player.spectating) {
             let block = room.map.getBlock(player.king);
-            let blockPlayerIndex = await getPlayerIndex(room, block.player.id);
+            let blockPlayerIndex = await getPlayerIndex(room, block.player?.id);
             if (blockPlayerIndex !== -1) {
               if (block.player !== player && player.isDead === false) {
                 console.log(block.player.username, 'captured', player.username);
@@ -511,10 +511,6 @@ io.on('connection', async (socket) => {
   } else {
     socket.join(roomId as string);
   }
-  if (room.gameStarted) {
-    socket.emit('reject_join', 'Game is already started');
-    return;
-  }
 
   let isValidReconnectPlayer = false;
 
@@ -556,10 +552,24 @@ io.on('connection', async (socket) => {
 
     socket.emit('set_player_id', player.id);
 
+    let message = 'joined the room.';
+
+    if (room.gameStarted) {
+      player.spectating = true;
+      let initGameInfo: initGameInfo = {
+        king: { x: 0, y: 0 }, // spectator's king is null
+        mapWidth: room.map.width,
+        mapHeight: room.map.height,
+      };
+      socket.emit('game_started', initGameInfo);
+      player.patchView = new MapDiff();
+      message = 'joined as spectator.';
+    }
+
     room.players.push(player);
 
     // boardcast new player message to room
-    io.in(room.id).emit('room_message', player.minify(), 'joined the room.');
+    io.in(room.id).emit('room_message', player.minify(), message);
     io.in(room.id).emit('update_room', room);
 
     if (room.players.length >= room.maxPlayers) {
@@ -567,7 +577,7 @@ io.on('connection', async (socket) => {
     }
   }
 
-  console.log(player.username, 'joined the room.');
+  console.log(player.username, message);
 
   // ====================================
   // set up socket event listeners
