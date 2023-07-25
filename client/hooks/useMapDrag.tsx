@@ -51,6 +51,7 @@ const useMapDrag = (
 
   const handleTouchMove = useCallback(
     (event: TouchEvent) => {
+      event.preventDefault();
       if (mapRef.current) {
         setPosition({
           x: event.targetTouches[0].clientX - startPosition.x,
@@ -84,7 +85,9 @@ const useMapDrag = (
       mapNode.addEventListener('mousemove', handleMouseMove);
       mapNode.addEventListener('mouseup', handleMouseUp);
       mapNode.addEventListener('touchstart', handleTouchStart);
-      mapNode.addEventListener('touchmove', handleTouchMove);
+      mapNode.addEventListener('touchmove', handleTouchMove, {
+        passive: false,
+      });
       return () => {
         mapNode.removeEventListener('wheel', handleWheel);
         mapNode.removeEventListener('mousedown', handleMouseDown);
