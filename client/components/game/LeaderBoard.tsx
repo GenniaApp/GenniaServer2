@@ -14,8 +14,9 @@ import {
 } from '@mui/material';
 import StartRoundedIcon from '@mui/icons-material/StartRounded';
 import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Player, LeaderBoardTable, UserData } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 
@@ -43,6 +44,13 @@ export default function LeaderBoard(props: LeaderBoardProps) {
     setCheckedPlayers,
   } = props;
   const [gameDockExpand, setGameDockExpand] = useState(true);
+
+  const isSmallScreen = useMediaQuery('(max-width:600px)');
+
+  useEffect(() => {
+    setGameDockExpand(!isSmallScreen);
+  }, [isSmallScreen]);
+
   if (!leaderBoardTable) return null;
 
   const fetchUsernameByColor = function (color: number) {

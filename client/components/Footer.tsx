@@ -7,7 +7,6 @@ const FooterContainer = styled('div')`
   justify-content: center;
   flex-direction: column;
   width: 100%;
-  /* height: 50px; */
   z-index: 80;
   background-color: rgb(89, 105, 117, 80%);
 `;

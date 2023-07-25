@@ -179,7 +179,7 @@ function Lobby() {
                   ) : Object.keys(rooms).length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} align='center'>
-                        No rooms available
+                        {t('no-rooms-available')}
                       </TableCell>
                     </TableRow>
                   ) : (

@@ -40,6 +40,20 @@ Your goal is to capture other generals.
 | Zoom in / out      | mouse wheel    |
 | Surrender          | escape         |
 
+## Supported Feature
+
+- [ ] Team
+- [x] Lobby
+- [x] Create Custom Map
+- [x] [Game Bot](https://github.com/GenniaApp/GenniaBot)
+- [x] Replays
+- [x] Mobile games
+- [ ] Game Mechanics
+  - [ ] Move All Armys
+  - [ ] Movable King
+  - [ ] Fog of War
+  - [x] Spectator
+
 ## Development
 
 ### client: nextjs

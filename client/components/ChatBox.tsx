@@ -7,6 +7,7 @@ import { Socket } from 'socket.io-client';
 import { Message } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 
+import useMediaQuery from '@mui/material/useMediaQuery';
 import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
 import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded';
 
@@ -114,9 +115,15 @@ const ChatBox = ({ socket, messages }: ChatBoxProp) => {
   const textFieldRef = useRef<any>(null);
   const messagesEndRef = useRef<any>(null);
 
+  const isSmallScreen = useMediaQuery('(max-width:600px)');
+
   useEffect(() => {
     messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    setIsExpand(!isSmallScreen);
+  }, [isSmallScreen]);
 
   const { t } = useTranslation();
 
@@ -169,7 +176,6 @@ const ChatBox = ({ socket, messages }: ChatBoxProp) => {
       {socket && (
         <ChatBoxInput className={isExpand ? '' : 'hidden'}>
           <ChatBoxTextField
-            autoFocus
             hiddenLabel
             label={t('type-a-message')}
             variant='outlined'
