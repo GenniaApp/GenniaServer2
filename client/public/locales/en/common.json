@@ -59,7 +59,7 @@
   "play-again": "Play Again",
   "exit": "Exit",
   "surrender": "surrender",
-  "death-spectator": "Death Spectator",
+  "death-spectator": "Allow Death Spectator",
   "spectate": "Spectate",
   "transfer-host": "Transfer Host",
   "transfer-host-to": "transferred host to ",

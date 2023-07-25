@@ -56,12 +56,12 @@ function GameMap() {
   );
 
   const mapPixelWidth = useMemo(
-    () => tileSize * (room.map ? room.map.width : 0),
-    [tileSize, room]
+    () => tileSize * (room.map ? room.map.width : 0) * zoom,
+    [tileSize, room, zoom]
   );
   const mapPixelHeight = useMemo(
-    () => tileSize * (room.map ? room.map.width : 0),
-    [tileSize, room]
+    () => tileSize * (room.map ? room.map.width : 0) * zoom,
+    [tileSize, room, zoom]
   );
 
   const possibleNextMapPositions = usePossibleNextMapPositions({

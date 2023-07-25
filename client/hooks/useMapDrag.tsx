@@ -10,6 +10,8 @@ const useMapDrag = (
 ) => {
   const [dragging, setDragging] = useState(false);
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+  const [initialDistance, setInitialDistance] = useState(0);
+
   const timeoutId = useRef<any>(undefined);
 
   const handleMouseDown = useCallback(
@@ -39,27 +41,48 @@ const useMapDrag = (
     setDragging(false);
   }, []);
 
-  const handleTouchStart = useCallback(
-    (event: TouchEvent) => {
+  const handleTouchStart = useCallback((event: TouchEvent) => {
+    if (event.touches.length === 1) {
+      setDragging(true);
       setStartPosition({
-        x: event.targetTouches[0].clientX - position.x,
-        y: event.targetTouches[0].clientY - position.y,
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
       });
-    },
-    [position]
-  );
+    } else if (event.touches.length === 2) {
+      const touch1 = event.touches[0];
+      const touch2 = event.touches[1];
+      const distance = Math.sqrt(
+        Math.pow(touch1.clientX - touch2.clientX, 2) +
+          Math.pow(touch1.clientY - touch2.clientY, 2)
+      );
+      setInitialDistance(distance);
+    }
+  }, []);
 
   const handleTouchMove = useCallback(
     (event: TouchEvent) => {
       event.preventDefault();
-      if (mapRef.current) {
-        setPosition({
-          x: event.targetTouches[0].clientX - startPosition.x,
-          y: event.targetTouches[0].clientY - startPosition.y,
-        });
+      if (event.touches.length === 1) {
+        const updatePosition = () => {
+          setPosition({
+            x: event.touches[0].clientX - startPosition.x,
+            y: event.touches[0].clientY - startPosition.y,
+          });
+        };
+        requestAnimationFrame(updatePosition);
+      } else if (event.touches.length === 2) {
+        const touch1 = event.touches[0];
+        const touch2 = event.touches[1];
+        const distance = Math.sqrt(
+          Math.pow(touch1.clientX - touch2.clientX, 2) +
+            Math.pow(touch1.clientY - touch2.clientY, 2)
+        );
+        const delta = distance - initialDistance;
+        const newZoom = Math.min(Math.max(zoom + delta * 0.0002, 0.2), 4.0);
+        setZoom(newZoom);
       }
     },
-    [mapRef.current, startPosition]
+    [initialDistance, startPosition, zoom]
   );
 
   const handleWheel = useCallback(
@@ -69,7 +92,10 @@ const useMapDrag = (
         window.clearTimeout(timeoutId.current);
       }
       timeoutId.current = window.setTimeout(() => {
-        const newZoom = zoom + event.deltaY * -0.0008;
+        const newZoom = Math.min(
+          Math.max(zoom + event.deltaY * -0.0008, 0.2),
+          4.0
+        );
         setZoom(newZoom);
         timeoutId.current = undefined;
       }, 50);

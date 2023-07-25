@@ -161,12 +161,12 @@ function MapEditor({ editMode }: { editMode: boolean }) {
   };
 
   const mapPixelWidth = useMemo(
-    () => tileSize * mapWidth,
-    [tileSize, mapWidth]
+    () => tileSize * mapWidth * zoom,
+    [tileSize, mapWidth, zoom]
   );
   const mapPixelHeight = useMemo(
-    () => tileSize * mapHeight,
-    [tileSize, mapHeight]
+    () => tileSize * mapHeight * zoom,
+    [tileSize, mapHeight, zoom]
   );
 
   const property2var: Record<string, any> = {

@@ -2,17 +2,14 @@ import { styled } from '@mui/material/styles';
 import { useTranslation } from 'next-i18next';
 
 const FooterContainer = styled('div')`
-  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   width: 100%;
-  height: 50px;
-  bottom: 0;
-  left: 0;
+  /* height: 50px; */
   z-index: 80;
-  background-color: rgb(89, 105, 117, 40%);
+  background-color: rgb(89, 105, 117, 80%);
 `;
 
 function Footer() {
