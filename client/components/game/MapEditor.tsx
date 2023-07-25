@@ -41,6 +41,7 @@ import { snackStateReducer } from '@/context/GameReducer';
 import useMapDrag from '@/hooks/useMapDrag';
 import MapExplorer from '@/components/game/MapExplorer';
 import Loading from '@/components/Loading';
+import PublishMapDialog from '@/components/PublishMapDialog';
 import { v4 as uuidv4 } from 'uuid';
 
 const name2TileType: Record<string, TileType> = {
@@ -89,6 +90,8 @@ function MapEditor({ editMode }: { editMode: boolean }) {
 
   const [loading, setLoading] = useState(false);
   const [openMapExplorer, setOpenMapExplorer] = useState(false);
+  const [openPublishDialog, setOpenPublishDialog] = useState(false);
+  const [publishMapId, setPublishMapId] = useState('');
 
   const router = useRouter();
   const mapId = router.query.mapId as string;
@@ -345,16 +348,8 @@ function MapEditor({ editMode }: { editMode: boolean }) {
 
       await response.json();
 
-      // Dispatch success snack
-      snackStateDispatch({
-        type: 'update',
-        title: 'Success',
-        message: 'Map published successfully, map id: ' + customMapData.id,
-        status: 'success',
-        duration: 5000,
-      });
-      window.open(`/maps/${customMapData.id}`, 'mapDetailsWindow');
-      // window.open(`/maps/${customMapData.id}`, '_blank');
+      setPublishMapId(customMapData.id);
+      setOpenPublishDialog(true);
     } catch (error) {
       console.error('Error:', error);
 
@@ -517,6 +512,11 @@ function MapEditor({ editMode }: { editMode: boolean }) {
           </Button>
         </Box>
       )}
+      <PublishMapDialog
+        open={openPublishDialog}
+        onClose={() => setOpenPublishDialog(false)}
+        mapId={publishMapId}
+      ></PublishMapDialog>
 
       <Dialog open={openMapExplorer} onClose={handleCloseMapExplorer}>
         <DialogTitle>{t('choose-map')}</DialogTitle>

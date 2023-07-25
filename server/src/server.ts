@@ -571,13 +571,13 @@ io.on('connection', async (socket) => {
     // boardcast new player message to room
     io.in(room.id).emit('room_message', player.minify(), message);
     io.in(room.id).emit('update_room', room);
+    console.log(player.username, message);
 
     if (room.players.length >= room.maxPlayers) {
       await handleGame(room, io);
     }
   }
 
-  console.log(player.username, message);
 
   // ====================================
   // set up socket event listeners
