@@ -2,11 +2,15 @@ import { styled } from '@mui/material/styles';
 import { useTranslation } from 'next-i18next';
 
 const FooterContainer = styled('div')`
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  width: 100%;
+  width: 100vw;
+  height: 50px;
+  bottom: -50px;
+  left: 0;
   z-index: 80;
   background-color: rgb(89, 105, 117, 80%);
 `;

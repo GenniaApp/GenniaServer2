@@ -1,9 +1,6 @@
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import { useState, useEffect } from 'react';
-
-import { useRouter } from 'next/router';
-
 import { ThemeProvider } from '@mui/material/styles';
 
 import Navbar from '../components/Navbar';
@@ -14,9 +11,7 @@ import Lobby from '../components/Lobby';
 import theme from '../components/theme';
 
 export default function Home() {
-  const router = useRouter();
   const [username, setUsername] = useState('');
-  const { t } = useTranslation();
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
@@ -40,8 +35,6 @@ export default function Home() {
         <Login username={username} handlePlayClick={handlePlayClick} />
       )}
       {username && <Lobby />}
-
-      {/* <ChatBox roomid="lobby" /> */}
       <Footer />
     </ThemeProvider>
   );
