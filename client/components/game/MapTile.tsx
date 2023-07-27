@@ -202,6 +202,8 @@ export default function MapTile(props: MapTileProps) {
   }, [canMove]);
 
   const zoomedSize = useMemo(() => size * zoom, [size, zoom]);
+  const bgPosition = useMemo(() => zoomedSize * 0.025, [zoomedSize]); // shift to create a "border"
+  const bgWidth = useMemo(() => zoomedSize * 0.95, [zoomedSize]);
   const zoomedFontSize = useMemo(() => fontSize * zoom, [fontSize, zoom]);
   const tileX = useMemo(() => zoomedSize * y, [zoomedSize, y]);
   const tileY = useMemo(() => zoomedSize * x, [zoomedSize, x]);
@@ -265,10 +267,10 @@ export default function MapTile(props: MapTileProps) {
       <div
         style={{
           position: 'absolute',
-          left: 0,
-          top: 0,
-          width: zoomedSize,
-          height: zoomedSize,
+          left: bgPosition,
+          top: bgPosition,
+          width: bgWidth,
+          height: bgWidth,
           backgroundColor: bgcolor,
           border: stroke ? `${stroke} solid 1px` : `${bgcolor} solid 1px`,
         }}

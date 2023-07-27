@@ -42,6 +42,8 @@ export default function CustomMapTile(props: CustomMapTileProps) {
   const image = TileType2Image[tileType];
 
   const zoomedSize = useMemo(() => size * zoom, [size, zoom]);
+  const bgPosition = useMemo(() => zoomedSize * 0.025, [zoomedSize]); // shift to create a "border"
+  const bgWidth = useMemo(() => zoomedSize * 0.95, [zoomedSize]);
   const zoomedFontSize = useMemo(() => fontSize * zoom, [fontSize, zoom]);
   const tileX = useMemo(() => zoomedSize * y, [zoomedSize, y]);
   const tileY = useMemo(() => zoomedSize * x, [zoomedSize, x]);
@@ -103,10 +105,10 @@ export default function CustomMapTile(props: CustomMapTileProps) {
       <div
         style={{
           position: 'absolute',
-          left: 0,
-          top: 0,
-          width: zoomedSize,
-          height: zoomedSize,
+          left: bgPosition,
+          top: bgPosition,
+          width: bgWidth,
+          height: bgWidth,
           backgroundColor: bgcolor,
           border: '#000 solid 1px',
         }}

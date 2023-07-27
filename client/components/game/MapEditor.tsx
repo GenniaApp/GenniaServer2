@@ -769,6 +769,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
           transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
           width: mapPixelWidth,
           height: mapPixelHeight,
+          backgroundColor: '#495468',
         }}
       >
         {mapData.map((tiles, x) => {

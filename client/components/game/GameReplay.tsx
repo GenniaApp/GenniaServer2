@@ -380,6 +380,7 @@ export default function GameReplay(props: any) {
             transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
             width: mapPixelWidth,
             height: mapPixelHeight,
+            backgroundColor: '#495468',
           }}
         >
           {limitedView.map((tiles, x) => {
