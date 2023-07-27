@@ -26,7 +26,7 @@ import {
 } from '@mui/icons-material';
 import { mapDataReducer } from '@/context/GameReducer';
 import CustomMapTile from '@/components/game/CustomMapTile';
-import { SpeedOptions } from '@/lib/constants';
+import { ReplaySpeedOptions } from '@/lib/constants';
 import {
   Position,
   LeaderBoardTable,
@@ -164,7 +164,7 @@ export default function GameReplay(props: any) {
         clearInterval(intervalId.current);
       }
     }
-  }, [gameRecord, isPlay, playSpeed]);
+  }, [gameRecord, isPlay, playSpeed]); // don't add turnsCount
 
   useEffect(() => {
     if (checkedPlayers && checkedPlayers.length > 0) {
@@ -210,7 +210,7 @@ export default function GameReplay(props: any) {
     } else {
       setLimitedView(mapData);
     }
-  }, [mapData, checkedPlayers]);
+  }, [mapData, checkedPlayers, mapWidth, mapHeight]);
 
   const changeTurn = (current_turn: number) => {
     if (gameRecord) {
@@ -351,7 +351,7 @@ export default function GameReplay(props: any) {
               setPlaySpeed(Number.parseFloat(event.target.value));
             }}
           >
-            {SpeedOptions.map((value) => (
+            {ReplaySpeedOptions.map((value) => (
               <FormControlLabel
                 key={value}
                 value={value}

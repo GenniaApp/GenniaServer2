@@ -151,13 +151,15 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         setLoading(false);
       });
   }, []);
+
   useEffect(() => {
     if (editMode) return;
     getMapDataFromServer(mapId);
-  }, [editMode, getMapDataFromServer]);
+  }, [mapId, editMode, getMapDataFromServer]);
 
   const handleMapSelect = (mapId: string) => {
     getMapDataFromServer(mapId);
+    setOpenMapExplorer(false);
   };
 
   const mapPixelWidth = useMemo(

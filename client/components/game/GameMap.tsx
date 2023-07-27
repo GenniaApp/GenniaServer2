@@ -52,7 +52,13 @@ function GameMap() {
         });
       }
     },
-    [selectedMapTileInfo, withinMap, attackQueueRef]
+    [
+      selectedMapTileInfo,
+      withinMap,
+      attackQueueRef,
+      mapQueueDataDispatch,
+      setSelectedMapTileInfo,
+    ]
   );
 
   const mapPixelWidth = useMemo(
@@ -190,6 +196,7 @@ function GameMap() {
       selectedMapTileInfo,
       attackQueueRef,
       setSelectedMapTileInfo,
+      initGameInfo,
     ]
   );
 

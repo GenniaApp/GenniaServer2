@@ -62,7 +62,7 @@ function GamingRoom() {
       setMyUserName(tmp);
       setMyPlayerId(localStorage.getItem('playerId') || '');
     }
-  }, []);
+  }, [setMyPlayerId, setMyUserName, router]);
 
   useEffect(() => {
     // Game Logic Init
@@ -331,7 +331,7 @@ function GamingRoom() {
     if (room.gameStarted && roomUiStatus === RoomUiStatus.gameSetting) {
       setRoomUiStatus(RoomUiStatus.loading);
     }
-  }, [room, roomUiStatus]);
+  }, [room, roomUiStatus, setRoomUiStatus]);
 
   return (
     <div className='app-container'>

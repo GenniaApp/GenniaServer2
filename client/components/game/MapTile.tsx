@@ -165,7 +165,14 @@ export default function MapTile(props: MapTileProps) {
         className: className,
       });
     },
-    [selectedMapTileInfo, attackQueueRef]
+    [
+      selectedMapTileInfo,
+      attackQueueRef,
+      mapQueueDataDispatch,
+      setSelectedMapTileInfo,
+      x,
+      y,
+    ]
   );
 
   const handleClick = useCallback(() => {
@@ -187,7 +194,18 @@ export default function MapTile(props: MapTileProps) {
         setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
       }
     }
-  }, [canMove, x, y, selectedMapTileInfo, unitsCount]);
+  }, [
+    x,
+    y,
+    selectedMapTileInfo,
+    unitsCount,
+    tileHalf,
+    isOwned,
+    isNextPossibleMove,
+    whichNextPossibleMove,
+    handlePositionChange,
+    setSelectedMapTileInfo,
+  ]);
 
   const handleMouseEnter = useCallback(() => {
     if (canMove) {

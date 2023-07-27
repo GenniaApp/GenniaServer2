@@ -68,7 +68,7 @@ function Lobby() {
     } else {
       setUsername(tmp);
     }
-  }, [setUsername]);
+  }, [setUsername, router]);
 
   const handleRoomClick = (roomName: string) => {
     router.push(`/rooms/${roomName}`);

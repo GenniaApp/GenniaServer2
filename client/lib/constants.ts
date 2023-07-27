@@ -18,6 +18,7 @@ export const forceStartOK = [1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8];
 //                    0  1  2  3  4  5  6  7  8  9 10 11 12
 
 export const SpeedOptions = [0.5, 0.75, 1, 2, 3, 4];
+export const ReplaySpeedOptions = [0.5, 1, 2, 4, 8];
 
 export const notRevealedFill = '#5d6779';
 export const notOwnedArmyFill = '#808080';
