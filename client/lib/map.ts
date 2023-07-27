@@ -153,7 +153,10 @@ class GameMap {
         let y = getRandomInt(0, this.height);
         pos = new Point(x, y);
         let block = this.getBlock(pos);
-        if (block.type !== TileType.King && block.type !== TileType.Swamp && block.type !== TileType.Mountain && block.type !== TileType.City) {
+        if (block.type !== TileType.King
+          && block.type !== TileType.Swamp
+          && block.type !== TileType.Mountain
+          && block.type !== TileType.City) {
           let flag = true;
           for (let j = 0; j < i; ++j) {
             const otherKing = this.players[j].king;

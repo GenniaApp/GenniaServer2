@@ -80,9 +80,14 @@ function GameMap() {
     (event: KeyboardEvent) => {
       console.log('keydown: ', event.key);
       switch (event.key) {
-        case '1':
-          setZoom(0.7);
+        case '1': {
+          if (initGameInfo && initGameInfo.mapWidth > 20) {
+            setZoom(0.5);
+          } else {
+            setZoom(0.7);
+          }
           break;
+        }
         case '2':
           setZoom(1.0);
           break;
