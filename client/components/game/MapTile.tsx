@@ -1,10 +1,11 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { TileType, TileProp, Position, TileType2Image } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 import { Room } from '@/lib/types';
 import {
+  defaultBgcolor,
   notRevealedFill,
   notOwnedArmyFill,
   notOwnedCityFill,
@@ -31,7 +32,7 @@ interface MapTileProps {
   };
 }
 
-export default function MapTile(props: MapTileProps) {
+function MapTile(props: MapTileProps) {
   const {
     zoom,
     imageZoom = 0.8,
@@ -277,6 +278,7 @@ export default function MapTile(props: MapTileProps) {
         width: zoomedSize,
         height: zoomedSize,
         cursor: cursorStyle,
+        backgroundColor: defaultBgcolor,
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -324,6 +326,7 @@ export default function MapTile(props: MapTileProps) {
             textOverflow: 'ellipsis',
             overflow: 'visible',
             textShadow: '0 0 2px #000',
+            userSelect: 'none',
           }}
         >
           {/* 50% */}
@@ -354,3 +357,5 @@ export default function MapTile(props: MapTileProps) {
     </div>
   );
 }
+
+export default React.memo(MapTile);

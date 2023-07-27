@@ -505,6 +505,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             transform: `translate(-50%, 0)`,
             height: 'min-content',
             borderRadius: '0 10px 10px 0 !important',
+            zIndex: 101,
           }}
         >
           <Typography variant='h4'>{mapName}</Typography>

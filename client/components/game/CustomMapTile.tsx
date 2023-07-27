@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Image from 'next/image';
 import {
   TileType,
@@ -8,6 +8,7 @@ import {
 import { ColorArr } from '@/lib/constants';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import {
+  defaultBgcolor,
   notRevealedFill,
   notOwnedArmyFill,
   notOwnedCityFill,
@@ -26,7 +27,7 @@ interface CustomMapTileProps {
   fontSize?: number;
 }
 
-export default function CustomMapTile(props: CustomMapTileProps) {
+function CustomMapTile(props: CustomMapTileProps) {
   const {
     zoom,
     size,
@@ -99,6 +100,7 @@ export default function CustomMapTile(props: CustomMapTileProps) {
         top: tileY,
         width: zoomedSize,
         height: zoomedSize,
+        backgroundColor: defaultBgcolor,
       }}
       onClick={handleClick}
     >
@@ -144,6 +146,7 @@ export default function CustomMapTile(props: CustomMapTileProps) {
             textOverflow: 'ellipsis',
             overflow: 'visible',
             textShadow: '0 0 2px #000',
+            userSelect: 'none',
           }}
         >
           {unitsCount}
@@ -164,3 +167,5 @@ export default function CustomMapTile(props: CustomMapTileProps) {
     </div>
   );
 }
+
+export default React.memo(CustomMapTile);
