@@ -79,6 +79,7 @@ body {
   background-size: cover;
   height: 100dvh;
   width: 100dvw;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;

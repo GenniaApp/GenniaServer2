@@ -757,21 +757,41 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('attack', async (from: Point, to: Point, isHalf: boolean) => {
-    let playerIndex = await getPlayerIndexBySocket(room, socket.id);
-    if (playerIndex !== -1) {
-      let player = room.players[playerIndex];
-      if (room.map && player.operatedTurn < room.map.turn && room.map.commandable(player, from, to)) {
-        if (isHalf) {
-          room.map.moveHalfMovableUnit(player, from, to);
-        } else {
-          room.map.moveAllMovableUnit(player, from, to);
-        }
-
-        room.players[playerIndex].operatedTurn = room.map.turn;
-        socket.emit('attack_success', from, to);
-      } else {
-        socket.emit('attack_failure', from, to);
+    try {
+      if (typeof isHalf !== 'boolean') {
+        socket.emit('attack_failure', from, to, 'Invalid parameter type');
+        return;
       }
+      if (from.x < 0 || from.x >= room.map.width || from.y < 0 || from.y >= room.map.height) {
+        socket.emit('attack_failure', from, to, 'Invalid starting point');
+        return;
+      }
+
+      if (to.x < 0 || to.x >= room.map.width || to.y < 0 || to.y >= room.map.height) {
+        socket.emit('attack_failure', from, to, 'Invalid ending point');
+        return;
+      }
+
+      let playerIndex = await getPlayerIndexBySocket(room, socket.id);
+      if (playerIndex !== -1) {
+        let player = room.players[playerIndex];
+        if (room.map && player.operatedTurn < room.map.turn && room.map.commandable(player, from, to)) {
+          if (isHalf) {
+            room.map.moveHalfMovableUnit(player, from, to);
+          } else {
+            room.map.moveAllMovableUnit(player, from, to);
+          }
+
+          room.players[playerIndex].operatedTurn = room.map.turn;
+          socket.emit('attack_success', from, to);
+        } else {
+          socket.emit('attack_failure', from, to, 'Invalid operation');
+        }
+      }
+    } catch (e: any) {
+      console.log(e.stack);
+      console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
     }
+
   });
 });

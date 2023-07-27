@@ -5,7 +5,7 @@
   "feedback": "反馈",
   "github": "Github",
   "welcome": "登录 Gennia",
-  "username-placeholder": "不超过 15 个字符",
+  "username-placeholder": "输入用户名，不超过 15 个字符",
   "greet": "欢迎你，",
   "gserver": "Gennia 后端服务器",
   "online": "在线",

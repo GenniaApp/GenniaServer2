@@ -13,7 +13,7 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = (props) => {
   const { username, handlePlayClick } = props;
   const { t } = useTranslation();
-  const [inputname, setInputName] = useState(username);
+  const [inputname, setInputName] = useState('Anonymous');
 
   const handleUsernameChange = (event: any) => {
     setInputName(event.target.value);
@@ -32,14 +32,14 @@ const Login: React.FC<LoginProps> = (props) => {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          height: '16vh',
+          height: '100vh',
         }}
       >
         <Avatar
           src='/img/favicon.png'
           sx={{
-            width: 150,
-            height: 150,
+            width: { xs: '8rem', md: '10rem' },
+            height: { xs: '8rem', md: '10rem' },
             borderRadius: 5,
             boxShadow: 2,
             zIndex: 100,
@@ -52,7 +52,7 @@ const Login: React.FC<LoginProps> = (props) => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            width: { xs: '80vw', md: '40vw' },
+            width: { xs: '80dvw', md: '40dvw' },
             marginTop: '-40px !important',
             zIndex: '10 !important',
           }}
@@ -64,10 +64,11 @@ const Login: React.FC<LoginProps> = (props) => {
             sx={{ width: '100%' }}
             id='outlined-basic'
             placeholder={t('username-placeholder')}
-            value={inputname}
+            // value={inputname}
             color='primary'
             focused
             variant='filled'
+            inputProps={{ min: 0, style: { textAlign: 'center' } }}
             hiddenLabel
             onChange={handleUsernameChange}
             onKeyDown={handleInputKeyDown}

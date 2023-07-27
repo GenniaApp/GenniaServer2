@@ -140,7 +140,6 @@ export default function GameReplay(props: any) {
       if (!tmp_turn) tmp_turn = 1;
 
       const updateTurn = () => {
-        console.log('updateTurn', tmp_turn);
         if (tmp_turn > gameRecord.gameRecordTurns.length) {
           clearInterval(intervalId.current);
           setIsPlay(false);
@@ -198,6 +197,10 @@ export default function GameReplay(props: any) {
         for (let j = 0; j < mapHeight; ++j) {
           if (mapData[i][j][1] && colors.includes(mapData[i][j][1] as number)) {
             for (let dir of directions) {
+              let new_x = i + dir[0];
+              let new_y = j + dir[1];
+              if (new_x < 0 || new_x >= mapWidth) continue;
+              if (new_y < 0 || new_y >= mapHeight) continue;
               tmp[i + dir[0]][j + dir[1]] = mapData[i + dir[0]][j + dir[1]];
             }
           }
