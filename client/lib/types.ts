@@ -76,6 +76,7 @@ export class Room {
     public generals: Point[] = new Array<Point>(),
     public mapId: string = '', // custom Map id
     public mapName: string = '', // custom map name
+    public keepAlive: boolean = false, // keep alive after game over
   ) { }
 
   toJSON() {

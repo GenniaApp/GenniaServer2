@@ -185,6 +185,15 @@ function Lobby() {
                   ) : (
                     Object.values(rooms).map((room: Room) => (
                       <TableRow key={room.id}>
+                        <TableCell>
+                          <Button
+                            variant='contained'
+                            color='primary'
+                            onClick={() => handleRoomClick(room.id)}
+                          >
+                            {room.gameStarted ? t('spectate') :  t('join')}
+                          </Button>
+                        </TableCell>
                         <TableCell
                           component='th'
                           scope='row'
@@ -203,15 +212,6 @@ function Lobby() {
                           >
                             {room.gameStarted ? t('started') : t('waiting')}
                           </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant='contained'
-                            color='primary'
-                            onClick={() => handleRoomClick(room.id)}
-                          >
-                            {t('join')}
-                          </Button>
                         </TableCell>
                       </TableRow>
                     ))

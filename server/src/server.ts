@@ -291,7 +291,7 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
         ++room.forceStartNum;
       }
     }
-    if (room.players.length < 1) {
+    if (room.players.length < 1 && !room.keepAlive) {
       delete roomPool[room.id];
     } else {
       room.players[0].setRoomHost(true);
