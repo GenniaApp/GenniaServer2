@@ -47,6 +47,8 @@ export default function LeaderBoard(props: LeaderBoardProps) {
 
   const isSmallScreen = useMediaQuery('(max-width:600px)');
 
+  const displayTurnsCount = Math.floor(turnsCount / 2);
+
   useEffect(() => {
     setGameDockExpand(!isSmallScreen);
   }, [isSmallScreen]);
@@ -99,7 +101,11 @@ export default function LeaderBoard(props: LeaderBoardProps) {
       >
         <CardHeader
           sx={{ width: '100%' }}
-          title={gameDockExpand ? `Turn ${turnsCount}` : `${turnsCount}`}
+          title={
+            gameDockExpand
+              ? `Turn ${displayTurnsCount}`
+              : `${displayTurnsCount}`
+          }
           action={
             <IconButton onClick={() => setGameDockExpand(!gameDockExpand)}>
               {gameDockExpand ? <MenuOpenRoundedIcon /> : <StartRoundedIcon />}

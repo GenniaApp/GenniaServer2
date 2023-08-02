@@ -321,7 +321,6 @@ async function handleGame(room: Room, io: Server) {
       room.map = GameMap.from_custom_map(customMapData, room.players);
 
     } else {
-
       let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 6 * room.mapWidth)
       let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 6 * room.mapHeight)
       room.map = new GameMap(
@@ -336,6 +335,7 @@ async function handleGame(room: Room, io: Server) {
       );
       await room.map.generate();
 
+      console.log(`Start game with random map `);
     }
     room.mapGenerated = true;
     room.globalMapDiff = new MapDiff();
@@ -734,14 +734,16 @@ io.on('connection', async (socket) => {
   socket.on('force_start', async () => {
     try {
       let playerIndex = await getPlayerIndex(room, player.id);
-      if (room.players[playerIndex].forceStart === true) {
-        room.players[playerIndex].forceStart = false;
-        --room.forceStartNum;
-      } else {
-        room.players[playerIndex].forceStart = true;
-        ++room.forceStartNum;
+      if (!room.players[playerIndex].spectating) {
+        if (room.players[playerIndex].forceStart === true) {
+          room.players[playerIndex].forceStart = false;
+          --room.forceStartNum;
+        } else {
+          room.players[playerIndex].forceStart = true;
+          ++room.forceStartNum;
+        }
+        io.in(room.id).emit('update_room', room);
       }
-      io.in(room.id).emit('update_room', room);
 
       let forceStartNum = forceStartOK[
         room.players.filter((player) => !player.spectating).length
@@ -750,6 +752,7 @@ io.on('connection', async (socket) => {
       if (room.forceStartNum >= forceStartNum) {
         await handleGame(room, io);
       }
+
     } catch (e: any) {
       console.log(e.stack);
       console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));

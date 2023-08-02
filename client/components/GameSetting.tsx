@@ -391,6 +391,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
       <Button
         variant='contained'
         color={forceStart ? 'primary' : 'secondary'}
+        disabled={spectating}
         size='large'
         sx={{
           width: '100%',

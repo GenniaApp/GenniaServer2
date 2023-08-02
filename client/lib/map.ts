@@ -243,7 +243,7 @@ class GameMap {
     // Generate the king
     this.assign_random_king();
 
-    console.log('Kings generated successfully');
+    // console.log('Kings generated successfully');
     // Generate the mountain
     for (let i = 1; i <= this.mountain; ++i) {
       let generated = false;
@@ -263,11 +263,11 @@ class GameMap {
       }
       if (!generated) {
         this.mountain = i - 1;
-        console.log('Mountain Interrupted', i);
+        // console.log('Mountain Interrupted', i);
         break;
       }
     }
-    console.log('Mountains generated successfully');
+    // console.log('Mountains generated successfully');
     // Generate the city
     for (let i = 1; i <= this.city; ++i) {
       let generated = false;
@@ -288,11 +288,11 @@ class GameMap {
       }
       if (!generated) {
         this.city = i - 1;
-        console.log('City Interrupted', i);
+        // console.log('City Interrupted', i);
         break;
       }
     }
-    console.log('Cities generated successfully');
+    // console.log('Cities generated successfully');
     // Generate the swamp.
     for (let i = 1, x, y; i <= this.swamp; ++i) {
       while (true) {
@@ -302,7 +302,7 @@ class GameMap {
       }
       this.map[x][y].type = TileType.Swamp;
     }
-    console.log('Swamps generated successfully');
+    // console.log('Swamps generated successfully');
   }
 
   getTotal(player: any): { army: number; land: number } {

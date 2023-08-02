@@ -34,7 +34,7 @@ class Player {
     this.isDead = false;
     this.operatedTurn = 0;
     this.land = [];
-    this.king = new Block(0, 0, TileType.King);
+    this.king = null;
     this.patchView = null;
   }
 
