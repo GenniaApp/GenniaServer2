@@ -171,6 +171,7 @@ function GameMap() {
           break;
         case 'w':
         case 'ArrowUp': // 38 Up
+          event.preventDefault();
           newPoint = {
             x: selectedMapTileInfo.x - 1,
             y: selectedMapTileInfo.y,
@@ -187,6 +188,7 @@ function GameMap() {
           break;
         case 's':
         case 'ArrowDown': // 40 Down
+          event.preventDefault();
           newPoint = {
             x: selectedMapTileInfo.x + 1,
             y: selectedMapTileInfo.y,

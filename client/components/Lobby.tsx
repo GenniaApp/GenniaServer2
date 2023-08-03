@@ -161,12 +161,12 @@ function Lobby() {
               <Table size='small'>
                 <TableHead>
                   <TableRow>
+                    <TableCell></TableCell>
                     <TableCell>{t('room-id')}</TableCell>
                     <TableCell>{t('room-name')}</TableCell>
                     <TableCell>{t('game-speed')}</TableCell>
                     <TableCell>{t('players')}</TableCell>
                     <TableCell>{t('status')}</TableCell>
-                    <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -191,7 +191,7 @@ function Lobby() {
                             color='primary'
                             onClick={() => handleRoomClick(room.id)}
                           >
-                            {room.gameStarted ? t('spectate') :  t('join')}
+                            {room.gameStarted ? t('spectate') : t('join')}
                           </Button>
                         </TableCell>
                         <TableCell
