@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import HowToPlay from './HowToPlay';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Link from 'next/link';
@@ -43,6 +44,12 @@ const navItems = [
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = useState(null);
+
+  const [show, setShow] = useState(false);
+
+  const toggleShow = () => {
+    setShow(!show);
+  };
 
   const router = useRouter();
 
@@ -160,7 +167,22 @@ function Navbar() {
             </Link>
           ))}
         </Box>
-        <Box id='lng-selector'>
+        <Box
+          id='lng-selector'
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'row',
+          }}
+        >
+          <Button
+            variant='contained'
+            onClick={toggleShow}
+            sx={{ margin: 2, height: '40px', fontSize: '15px' }}
+          >
+            {t('how-to-play')}
+          </Button>
+          <HowToPlay show={show} toggleShow={toggleShow} />
           <FormControl>
             <Select
               color='secondary'

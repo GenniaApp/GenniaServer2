@@ -11,6 +11,7 @@
   "online": "Online",
   "offline": "Offline",
   "play": "Play",
+  "how-to-play": "How To Play",
   "room-id": "Room Id",
   "room-name": "Room Name",
   "game-speed": "Speed",
@@ -85,5 +86,28 @@
   "created-by": "Created by",
   "custom-map": "Map",
   "no-rooms-available": "No Rooms Available",
-  "clear-all": "Clear All"
+  "clear-all": "Clear All",
+  "howToPlay": {
+    "title": "How to Play",
+    "shortcut": "Shortcut",
+    "key": "Key",
+    "goal": "Your goal is to capture other generals",
+    "plains": "Plains produce one unit every 25 turns, expand your territory as much as possible!",
+    "cities": "Cities and generals produce one unit every turn",
+    "moves": "You can move twice per turn.",
+    "capture": "When you capture the enemy general, all his territory belongs to you and his army strength is halved and becomes yours.",
+    "shortcuts": "Keyboard shortcuts:",
+    "move": "Move",
+    "openChat": "Open Chat",
+    "undoMove": "Undo Move",
+    "clearQueuedMoves": "Clear Queued Moves",
+    "selectGeneral": "Select on general",
+    "toggle50": "Toggle 50%",
+    "setZoom": "Set Zoom to Preset",
+    "zoomInOut": "Zoom in / out",
+    "mouse-wheel": "Mouse Wheel",
+    "wsad": "WSAD / ArrowKey / MouseClick",
+    "enter": "Enter",
+    "surrender": "Surrender"
+  }
 }
