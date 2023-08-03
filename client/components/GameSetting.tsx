@@ -25,6 +25,7 @@ import {
   DialogActions,
   Link,
 } from '@mui/material';
+import ClearIcon from '@mui/icons-material/Clear';
 import ShareIcon from '@mui/icons-material/Share';
 import TerrainIcon from '@mui/icons-material/Terrain';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
@@ -72,6 +73,10 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
 
   const handleCloseMapExplorer = () => {
     setOpenMapExplorer(false);
+  };
+
+  const clearRoomMap = () => {
+    socketRef.current.emit('change_room_setting', 'mapId', '');
   };
 
   const handleMapSelect = (mapId: string) => {
@@ -216,17 +221,28 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           }}
         >
           {room.mapName && (
-            <Typography
-              variant='h5'
-              sx={{ mr: 2, whiteSpace: 'nowrap', color: 'white' }}
-              align='center'
-              component={Link}
-              href={`/maps/${room.mapId}`}
-              target='_blank'
-              rel='noopener noreferrer'
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
             >
-              {t('custom-map')}: {room.mapName}
-            </Typography>
+              <Typography
+                variant='h5'
+                sx={{ mr: 2, whiteSpace: 'nowrap', color: 'white' }}
+                align='center'
+                component={Link}
+                href={`/maps/${room.mapId}`}
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                {t('custom-map')}: {room.mapName}
+              </Typography>
+              <IconButton onClick={clearRoomMap}>
+                <ClearIcon />
+              </IconButton>
+            </Box>
           )}
           <Tabs
             value={tabIndex}
