@@ -112,7 +112,7 @@ docker-compose up -d
 ## JoinUs
 
 - QQ Group : 374889821
-- [Discord](https://discord.gg/TXVmzZAE)
+- [Discord](https://discord.gg/p9BfpwBF)
 
 ## License
 
