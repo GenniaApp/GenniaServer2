@@ -7,11 +7,17 @@ import { Route, Position } from '@/lib/types';
 
 function GameMap() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const { attackQueueRef, room, mapData, selectedMapTileInfo, initGameInfo } =
-    useGame();
-  const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
+  const {
+    zoom,
+    attackQueueRef,
+    room,
+    mapData,
+    selectedMapTileInfo,
+    initGameInfo,
+  } = useGame();
+  const { setZoom, setSelectedMapTileInfo, mapQueueDataDispatch } =
+    useGameDispatch();
   const mapRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(1);
   const [tileSize, setTileSize] = useState(50);
 
   useMapDrag(mapRef, position, setPosition, zoom, setZoom);
@@ -78,7 +84,6 @@ function GameMap() {
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      console.log('keydown: ', event.key);
       switch (event.key) {
         case '1': {
           if (initGameInfo && initGameInfo.mapWidth > 20) {
@@ -204,6 +209,7 @@ function GameMap() {
       attackQueueRef,
       setSelectedMapTileInfo,
       initGameInfo,
+      setZoom,
     ]
   );
 

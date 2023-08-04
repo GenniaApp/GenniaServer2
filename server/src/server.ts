@@ -321,8 +321,8 @@ async function handleGame(room: Room, io: Server) {
       room.map = GameMap.from_custom_map(customMapData, room.players);
 
     } else {
-      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 6 * room.mapWidth)
-      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 6 * room.mapHeight)
+      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 10 * room.mapWidth)
+      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 10 * room.mapHeight)
       room.map = new GameMap(
         'random_map_id',
         'random_map_name',
@@ -778,7 +778,7 @@ io.on('connection', async (socket) => {
       let playerIndex = await getPlayerIndexBySocket(room, socket.id);
       if (playerIndex !== -1) {
         let player = room.players[playerIndex];
-        if (room.map && player.operatedTurn < room.map.turn && room.map.commandable(player, from, to)) {
+        if (room.map && player.operatedTurn <= room.map.turn && room.map.commandable(player, from, to)) {
           if (isHalf) {
             room.map.moveHalfMovableUnit(player, from, to);
           } else {
@@ -788,7 +788,8 @@ io.on('connection', async (socket) => {
           room.players[playerIndex].operatedTurn = room.map.turn;
           socket.emit('attack_success', from, to);
         } else {
-          socket.emit('attack_failure', from, to, 'Invalid operation');
+          // socket.emit('attack_failure', from, to, 'Invalid operation');
+          socket.emit('attack_failure', from, to, `Invalid operation: ${player.operatedTurn} ${room.map.turn} ${room.map.commandable(player, from, to)}`);
         }
       }
     } catch (e: any) {

@@ -47,6 +47,7 @@ interface GameContext {
   attackQueueRef: any; // AttackQueue
   selectedMapTileInfo: SelectedMapTileInfo;
   initGameInfo: initGameInfo | null;
+  zoom: number;
 }
 
 interface GameDispatch {
@@ -67,6 +68,7 @@ interface GameDispatch {
     React.SetStateAction<SelectedMapTileInfo>
   >;
   setInitGameInfo: React.Dispatch<any>;
+  setZoom: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const GameContext = createContext<GameContext | undefined>(undefined);
@@ -113,6 +115,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
       half: false,
       unitsCount: 0,
     });
+  const [zoom, setZoom] = useState(1);
 
   return (
     <GameContext.Provider
@@ -134,6 +137,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
         attackQueueRef,
         selectedMapTileInfo,
         initGameInfo,
+        zoom,
       }}
     >
       <GameDispatch.Provider
@@ -153,6 +157,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
           snackStateDispatch,
           setSelectedMapTileInfo,
           setInitGameInfo,
+          setZoom,
         }}
       >
         {children}

@@ -61,8 +61,8 @@ export class Room {
     public mapGenerated: boolean = false,
     public maxPlayers: number = 8,
     public gameSpeed: number = 1, // valid value: [0.25, 0.5, 0.75, 1, 2, 3, 4];
-    public mapWidth: number = 0.75, // todo 改为实际 map高度，而不是 0-1 的值
-    public mapHeight: number = 0.75,
+    public mapWidth: number = 0.5, // todo 改为实际 map高度，而不是 0-1 的值
+    public mapHeight: number = 0.5,
     public mountain: number = 0.5,
     public city: number = 0.5,
     public swamp: number = 0,

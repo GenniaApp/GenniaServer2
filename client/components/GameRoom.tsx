@@ -52,6 +52,7 @@ function GamingRoom() {
     setInitGameInfo,
     setIsSurrendered,
     setMyUserName,
+    setZoom,
   } = useGameDispatch();
 
   useEffect(() => {
@@ -95,6 +96,7 @@ function GamingRoom() {
         let item = this.items.shift();
         if (this.lastItem) {
           this.clearFromMap(this.lastItem);
+          this.lastItem = undefined;
         }
         this.lastItem = item;
         return item;
@@ -135,6 +137,7 @@ function GamingRoom() {
       clearLastItem(): void {
         if (this.lastItem) {
           this.clearFromMap(this.lastItem);
+          this.lastItem = undefined;
         }
       }
     }
@@ -162,6 +165,11 @@ function GamingRoom() {
       console.log('Game started:', initGameInfo);
       setInitGameInfo(initGameInfo);
       setIsSurrendered(false);
+      if (initGameInfo.mapHeight > 40 || initGameInfo.mapHeight > 40) {
+        setZoom(0.5);
+      } else if (initGameInfo.mapHeight > 25 || initGameInfo.mapHeight > 25) {
+        setZoom(0.75);
+      }
 
       setSelectedMapTileInfo({
         x: initGameInfo.king.x,
@@ -248,18 +256,22 @@ function GamingRoom() {
       }
     );
 
-    socket.on('attack_failure', (from: Position, to: Position) => {
-      attackQueueRef.current.clearLastItem();
-      while (!attackQueueRef.current.isEmpty()) {
-        let point = attackQueueRef.current.front().from;
-        if (point.x === to.x && point.y === to.y) {
-          attackQueueRef.current.pop();
-          to = point;
-        } else {
-          break;
+    socket.on(
+      'attack_failure',
+      (from: Position, to: Position, message: string) => {
+        // console.log('attack_failure: ', from, to, message);
+        attackQueueRef.current.clearLastItem();
+        while (!attackQueueRef.current.isEmpty()) {
+          let point = attackQueueRef.current.front().from;
+          if (point.x === to.x && point.y === to.y) {
+            attackQueueRef.current.pop();
+            to = point;
+          } else {
+            break;
+          }
         }
       }
-    });
+    );
 
     socket.on('reject_join', (message: string) => {
       Swal.fire({
