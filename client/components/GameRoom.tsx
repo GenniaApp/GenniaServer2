@@ -164,8 +164,8 @@ function GamingRoom() {
       setIsSurrendered(false);
 
       setSelectedMapTileInfo({
-        x: -1,
-        y: -1,
+        x: initGameInfo.king.x,
+        y: initGameInfo.king.y,
         half: false,
         unitsCount: 0,
       });

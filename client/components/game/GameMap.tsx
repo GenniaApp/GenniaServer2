@@ -210,6 +210,7 @@ function GameMap() {
   useEffect(() => {
     const mapNode = mapRef.current;
     if (mapNode) {
+      mapNode.focus();
       mapNode.addEventListener('keydown', handleKeyDown);
       return () => {
         mapNode.removeEventListener('keydown', handleKeyDown);
