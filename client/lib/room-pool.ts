@@ -6,6 +6,7 @@ const MAX_ROOM_COUNT = 15;
 var roomCount = 0;
 
 createRoom('1', 'Bot Room');
+roomPool['1'].keepAlive = true;
 
 export async function createRoom(
   roomId: string = '',
@@ -19,7 +20,6 @@ export async function createRoom(
       roomId = String(roomCount);
     }
     let newRoom = new Room(roomId, roomName);
-    newRoom.keepAlive = true;
     roomPool[roomId] = newRoom;
     return {
       success: true,
