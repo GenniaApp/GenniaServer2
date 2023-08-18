@@ -21,17 +21,6 @@ import HowToPlay from './HowToPlay';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Link from 'next/link';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  boxShadow: 'box-shadow: rgba(0, 0, 0, 0.8) 0px -1px 8px',
-  p: 4,
-};
-
 const navItems = [
   { href: 'https://github.com/GenniaApp/GenniaServer2', label: 'github' },
   { href: 'https://docs.gennia.io/', label: 'wiki' },
@@ -92,7 +81,7 @@ function Navbar() {
             </Link>
             <Link href='/'>
               <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
-                Gennia Online
+                Gennia
               </Typography>
             </Link>
             <Chip
@@ -141,7 +130,7 @@ function Navbar() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Image src='/img/favicon.png' width={32} height={32} alt='logo' />
               <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
-                Gennia Online
+                Gennia
               </Typography>
               <Chip
                 label='beta'

@@ -2,6 +2,7 @@ import { Box } from '@mui/material';
 import SurrenderDialog from './SurrenderDialog';
 import GameMap from './GameMap';
 import LeaderBoard from './LeaderBoard';
+import TurnsCount from './TurnsCount';
 import OverDialog from './OverDialog';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 
@@ -20,11 +21,8 @@ export default function Game() {
 
   return (
     <Box className='Game'>
-      <LeaderBoard
-        leaderBoardTable={leaderBoardData}
-        players={room.players}
-        turnsCount={turnsCount}
-      />
+      <TurnsCount count={turnsCount} />
+      <LeaderBoard leaderBoardTable={leaderBoardData} players={room.players} />
       <GameMap />
       <SurrenderDialog handleSurrender={handleSurrender} />
       <OverDialog />

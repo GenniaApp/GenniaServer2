@@ -35,6 +35,7 @@ import {
   TileProp,
   TileType,
 } from '@/lib/types';
+import TurnsCount from './TurnsCount';
 import LeaderBoard from './LeaderBoard';
 import { useTranslation } from 'next-i18next';
 import GameLoading from '@/components/GameLoading';
@@ -362,10 +363,10 @@ export default function GameReplay(props: any) {
           </RadioGroup>
         </Box>
 
+        <TurnsCount count={turnsCount} />
         <LeaderBoard
           leaderBoardTable={leaderBoardData}
           players={gameRecord.players}
-          turnsCount={turnsCount}
           checkedPlayers={checkedPlayers}
           setCheckedPlayers={setCheckedPlayers}
         />
