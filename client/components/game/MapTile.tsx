@@ -61,10 +61,12 @@ function MapTile(props: MapTileProps) {
   useEffect(() => {
     if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
       setTileHalf(selectedMapTileInfo.half);
+    } else if (mapQueueData.length !== 0 && mapQueueData[x][y].half) {
+      setTileHalf(true);
     } else {
       setTileHalf(false);
     }
-  }, [selectedMapTileInfo, x, y]);
+  }, [selectedMapTileInfo, x, y, mapQueueData]);
 
   const getPlayerIndex = useCallback((room: Room, playerId: string) => {
     for (let i = 0; i < room.players.length; ++i) {
@@ -194,6 +196,16 @@ function MapTile(props: MapTileProps) {
       } else {
         setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
       }
+    } else {
+      // cancel half
+      setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
+      mapQueueDataDispatch({
+        type: 'change',
+        x: x,
+        y: y,
+        className: '',
+        half: false,
+      });
     }
   }, [
     x,
@@ -330,13 +342,9 @@ function MapTile(props: MapTileProps) {
           }}
         >
           {/* 50% */}
-          {tileHalf
-            ? '50%'
-            : mapQueueData.length === 0
-            ? unitsCount
-            : mapQueueData[x][y].text
-            ? mapQueueData[x][y].text
-            : unitsCount}
+          {/* {tileHalf ? '50%' : unitsCount} */}
+
+          {tileHalf ? '50%' : unitsCount}
         </div>
       )}
 

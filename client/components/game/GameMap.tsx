@@ -110,26 +110,14 @@ function GameMap() {
       switch (event.key) {
         case 'z':
           // Z to half
-          if (selectedMapTileInfo.half) {
-            // 已经 half 则 取消 half
-            selectedMapTileInfo.half = false;
-            mapQueueDataDispatch({
-              type: 'change',
-              x: selectedMapTileInfo.x,
-              y: selectedMapTileInfo.y,
-              className: '',
-              text: selectedMapTileInfo.unitsCount, // 还原回原来的 unit? todo
-            });
-          } else {
-            selectedMapTileInfo.half = true;
-            mapQueueDataDispatch({
-              type: 'change',
-              x: selectedMapTileInfo.x,
-              y: selectedMapTileInfo.y,
-              className: '',
-              text: '50%',
-            });
-          }
+          selectedMapTileInfo.half = !selectedMapTileInfo.half;
+          mapQueueDataDispatch({
+            type: 'change',
+            x: selectedMapTileInfo.x,
+            y: selectedMapTileInfo.y,
+            className: '',
+            half: !selectedMapTileInfo.half,
+          });
           break;
         case 'e':
           // E to pop_back

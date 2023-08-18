@@ -109,14 +109,15 @@ export const mapQueueDataReducer = (state: MapQueueData, action: any) => {
       return Array.from(Array(action.mapWidth), () =>
         Array(action.mapHeight).fill({
           className: '',
-          text: '',
+          half: false,
         })
       );
     case 'change': // change map[x][y]'s className, when className equal to '50%'
       let newState = [...state];
       newState[action.x][action.y] = {
         className: action.className,
-        text: action.text ? action.text : '',
+        // text: action.text ? action.text : '',
+        half: action.half,
       };
       return newState;
     default:

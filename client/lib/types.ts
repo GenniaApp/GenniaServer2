@@ -137,8 +137,8 @@ export type DisplayCustomMapTileData = [TileType,
 ];
 
 export interface QueueDisplayData {
-  className: string;
-  text: string;
+  className: string; // css class name
+  half: boolean; // is half
 }
 
 // className: string, text: string
