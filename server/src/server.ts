@@ -303,6 +303,16 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
   }
 }
 
+async function checkForcedStart(room: Room, io: Server) {
+  let forceStartNum = forceStartOK[
+    room.players.filter((player) => !player.spectating).length
+  ]
+
+  if (room.forceStartNum >= forceStartNum) {
+    await handleGame(room, io);
+  }
+}
+
 async function handleGame(room: Room, io: Server) {
   if (room.gameStarted === false) {
     if (room.mapId) {
@@ -590,8 +600,16 @@ io.on('connection', async (socket) => {
 
   socket.on('set_spectating', async (spectating: boolean) => {
     player.spectating = spectating;
+
+    // set spectate will cancel force start
+    let playerIndex = await getPlayerIndex(room, player.id);
+    if (room.players[playerIndex].forceStart === true) {
+      room.players[playerIndex].forceStart = false;
+      --room.forceStartNum;
+    }
     io.in(room.id).emit('update_room', room);
     io.in(room.id).emit('room_message', player.minify(), `set spectate to ${spectating}`);
+    checkForcedStart(room, io);
   });
 
   socket.on('surrender', async (playerId) => {
@@ -747,13 +765,7 @@ io.on('connection', async (socket) => {
         io.in(room.id).emit('update_room', room);
       }
 
-      let forceStartNum = forceStartOK[
-        room.players.filter((player) => !player.spectating).length
-      ]
-
-      if (room.forceStartNum >= forceStartNum) {
-        await handleGame(room, io);
-      }
+      checkForcedStart(room, io);
 
     } catch (e: any) {
       console.log(e.stack);

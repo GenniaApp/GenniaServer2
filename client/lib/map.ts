@@ -28,6 +28,7 @@ function getRandomInt(min: number, max: number): number {
 class GameMap {
   map: Block[][];
   turn: number;
+  minKingDistance: number;
 
   constructor(
     public id: string,
@@ -62,6 +63,7 @@ class GameMap {
     );
     this.turn = 0;
     this.revealKing = revealKing;
+    this.minKingDistance = 6; // todo: change this acordding width height players
   }
 
   toJSON() {
@@ -168,7 +170,7 @@ class GameMap {
               calcDistance(
                 new Point(otherKing.x, otherKing.y),
                 new Point(x, y)
-              ) <= 6
+              ) <= this.minKingDistance
             ) {
               flag = false;
               break;
