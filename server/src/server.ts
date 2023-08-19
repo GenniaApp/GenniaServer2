@@ -318,7 +318,7 @@ async function handleGame(room: Room, io: Server) {
         ...data,
         mapTilesData: JSON.parse(data.mapTilesData)
       }
-      room.map = GameMap.from_custom_map(customMapData, room.players);
+      room.map = GameMap.from_custom_map(customMapData, room.players, room.revealKing);
 
     } else {
       let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 10 * room.mapWidth)
@@ -331,7 +331,8 @@ async function handleGame(room: Room, io: Server) {
         room.mountain,
         room.city,
         room.swamp,
-        room.players
+        room.players,
+        room.revealKing
       );
       await room.map.generate();
 

@@ -77,6 +77,7 @@ export class Room {
     public mapId: string = '', // custom Map id
     public mapName: string = '', // custom map name
     public keepAlive: boolean = false, // keep alive after game over
+    public revealKing: boolean = false, // reveal all king
   ) { }
 
   toJSON() {

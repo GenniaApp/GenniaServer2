@@ -167,12 +167,16 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         </DialogActions>
       </Dialog>
 
-      <Card className='menu-container' sx={{ mb: 1 ,
-              '& .MuiCardHeader-root': {
-                padding: '0.6rem',
-              },
-      }}>
-        <CardHeader 
+      <Card
+        className='menu-container'
+        sx={{
+          mb: 1,
+          '& .MuiCardHeader-root': {
+            padding: '0.6rem',
+          },
+        }}
+      >
+        <CardHeader
           avatar={
             <IconButton onClick={handleLeaveRoom} color='primary'>
               <ArrowBackRoundedIcon />
@@ -260,8 +264,8 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             <Tab label={t('map')} />
             <Tab label={t('terrain')} />
           </Tabs>
-          <TabPanel value={tabIndex} index={0} >
-            <Box sx={{ display: 'flex', flexDirection: 'column', padding:0 }}>
+          <TabPanel value={tabIndex} index={0}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
               <Button variant='contained' onClick={handleOpenMapExplorer}>
                 {t('select-a-custom-map')}
               </Button>
@@ -304,7 +308,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                 }))}
                 handleChange={handleSettingChange('maxPlayers')}
               />
-              <FormGroup sx={{display: 'flex', flexDirection: 'row',}}>
+              <FormGroup sx={{ display: 'flex', flexDirection: 'row' }}>
                 <FormControlLabel
                   control={
                     <Switch
@@ -315,6 +319,17 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                     />
                   }
                   label={t('fog-of-war')}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={room.revealKing}
+                      // @ts-ignore
+                      onChange={handleSettingChange('revealKing')}
+                      disabled={disabled_ui}
+                    />
+                  }
+                  label={t('reveal-king')}
                 />
                 <FormControlLabel
                   control={
@@ -386,11 +401,15 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           </TabPanel>
         </CardContent>
       </Card>
-      <Card className='menu-container' sx={{ mb: 2,
-              '& .MuiCardHeader-root': {
-                padding: '0.6rem',
-              },
-      }}>
+      <Card
+        className='menu-container'
+        sx={{
+          mb: 2,
+          '& .MuiCardHeader-root': {
+            padding: '0.6rem',
+          },
+        }}
+      >
         <CardHeader
           avatar={<GroupIcon color='primary' />}
           title={

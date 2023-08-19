@@ -197,7 +197,7 @@ function MapTile(props: MapTileProps) {
         setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
       }
     } else {
-      // cancel select and half
+      // cancel select andhalf
       setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
       mapQueueDataDispatch({
         type: 'change',
@@ -218,6 +218,7 @@ function MapTile(props: MapTileProps) {
     whichNextPossibleMove,
     handlePositionChange,
     setSelectedMapTileInfo,
+    mapQueueDataDispatch,
   ]);
 
   const handleMouseEnter = useCallback(() => {

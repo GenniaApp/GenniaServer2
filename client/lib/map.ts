@@ -37,7 +37,8 @@ class GameMap {
     public mountain: number,
     public city: number,
     public swamp: number,
-    public players: Player[]
+    public players: Player[],
+    public revealKing: boolean
   ) {
     this.width = width;
     this.height = height;
@@ -60,6 +61,7 @@ class GameMap {
       Array(this.height).fill(null)
     );
     this.turn = 0;
+    this.revealKing = revealKing;
   }
 
   toJSON() {
@@ -138,6 +140,7 @@ class GameMap {
 
     return connected;
   }
+
   assign_random_king(): void {
     for (let i = 0; i < this.players.length; ++i) {
       let pos = null;
@@ -173,6 +176,7 @@ class GameMap {
           }
           if (flag) {
             block.initKing(this.players[i]);
+            if (this.revealKing) block.isAlwaysRevealed = true;
             this.players[i].initKing(block);
             break;
           }
@@ -182,9 +186,9 @@ class GameMap {
     }
   }
 
-  static from_custom_map(customMapData: CustomMapData, players: Player[]): GameMap {
+  static from_custom_map(customMapData: CustomMapData, players: Player[], revealKing: boolean): GameMap {
     const { id, name, width, height, mapTilesData } = customMapData;
-    let map = new GameMap(id, name, width, height, 0, 0, 0, players);
+    let map = new GameMap(id, name, width, height, 0, 0, 0, players, revealKing);
 
     // Initialize the map's blocks from the custom map data
     for (let i = 0; i < width; i++) {
@@ -217,6 +221,7 @@ class GameMap {
       if (i < kings.length) {
         if (players[i].spectating) continue;
         kings[i].initKing(players[i]);
+        if (map.revealKing) kings[i].isAlwaysRevealed = true;
         players[i].initKing(kings[i]);
       }
     }

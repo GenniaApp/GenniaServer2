@@ -38,7 +38,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
 
   useEffect(() => {
     if (!checkedPlayers) setGameDockExpand(!isSmallScreen);
-  }, [isSmallScreen]);
+  }, [isSmallScreen, checkedPlayers]);
 
   if (!leaderBoardTable) return null;
 
