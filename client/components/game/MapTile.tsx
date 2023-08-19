@@ -197,7 +197,7 @@ function MapTile(props: MapTileProps) {
         setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
       }
     } else {
-      // cancel half
+      // cancel select and half
       setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
       mapQueueDataDispatch({
         type: 'change',

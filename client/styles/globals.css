@@ -268,7 +268,7 @@ a {
 .queue_left::before {
   z-index: 30;
   position: absolute;
-  font-size: 1.5rem;
+  font-size: 1rem;
   color: white;
   text-shadow: 1px 1px #000;
 }

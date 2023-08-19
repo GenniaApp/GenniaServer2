@@ -162,7 +162,7 @@ function Lobby() {
                 <TableHead>
                   <TableRow>
                     <TableCell></TableCell>
-                    <TableCell>{t('room-id')}</TableCell>
+                    {/* <TableCell>{t('room-id')}</TableCell> */}
                     <TableCell>{t('room-name')}</TableCell>
                     <TableCell>{t('game-speed')}</TableCell>
                     <TableCell>{t('players')}</TableCell>
@@ -194,14 +194,9 @@ function Lobby() {
                             {room.gameStarted ? t('spectate') : t('join')}
                           </Button>
                         </TableCell>
-                        <TableCell
-                          component='th'
-                          scope='row'
-                          onClick={() => handleRoomClick(room.id)}
-                          sx={{ cursor: 'pointer' }}
-                        >
+                        {/* <TableCell component='th' scope='row'>
                           {room.id}
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell>{room.roomName}</TableCell>
                         <TableCell>{room.gameSpeed}</TableCell>
                         <TableCell>{`${room.players.length}/${room.maxPlayers}`}</TableCell>

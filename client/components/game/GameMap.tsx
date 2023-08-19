@@ -217,6 +217,9 @@ function GameMap() {
     <div
       ref={mapRef}
       tabIndex={0}
+      onBlur={() => {
+        setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
+      }}
       style={{
         position: 'absolute',
         top: '50%',
