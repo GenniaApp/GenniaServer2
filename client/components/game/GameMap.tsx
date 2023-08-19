@@ -204,7 +204,7 @@ function GameMap() {
   useEffect(() => {
     const mapNode = mapRef.current;
     if (mapNode) {
-      mapNode.focus();
+      // mapNode.focus(); // todo: enable with OnBlur will cause `Maximum update depth exceeded error`
       mapNode.addEventListener('keydown', handleKeyDown);
       return () => {
         mapNode.removeEventListener('keydown', handleKeyDown);

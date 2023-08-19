@@ -691,6 +691,7 @@ io.on('connection', async (socket) => {
               }
               break;
             case 'fogOfWar':
+            case 'revealKing':
             case 'deathSpectator':
               if (typeof value !== 'boolean') {
                 socket.emit('error', 'Changement was failed', 'Invalid value.');
