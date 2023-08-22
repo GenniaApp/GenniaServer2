@@ -2,7 +2,6 @@ import { ThemeProvider } from '@mui/material/styles';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import theme from '@/components/theme';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import GameReplay from '@/components/game/GameReplay';
 
 function ReplayPage() {
@@ -10,7 +9,6 @@ function ReplayPage() {
     <ThemeProvider theme={theme}>
       <Navbar />
       <GameReplay />
-      <Footer />
     </ThemeProvider>
   );
 }

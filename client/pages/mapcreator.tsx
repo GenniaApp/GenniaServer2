@@ -1,7 +1,6 @@
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { ThemeProvider } from '@mui/material/styles';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 import theme from '../components/theme';
 import MapEditor from '@/components/game/MapEditor';
 
@@ -10,7 +9,6 @@ export default function Home() {
     <ThemeProvider theme={theme}>
       <Navbar />
       <MapEditor editMode={true} />
-      <Footer />
     </ThemeProvider>
   );
 }

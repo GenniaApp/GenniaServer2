@@ -166,10 +166,13 @@ function Navbar() {
         >
           <Button
             variant='contained'
+            size='small'
             onClick={toggleShow}
             sx={{ margin: 2, height: '40px', fontSize: '15px' }}
           >
-            {t('how-to-play')}
+            <Typography variant='body2' sx={{ whiteSpace: 'nowrap' }}>
+              {t('how-to-play')}
+            </Typography>
           </Button>
           <HowToPlay show={show} toggleShow={toggleShow} />
           <FormControl>
@@ -181,7 +184,7 @@ function Navbar() {
               {router.locales &&
                 router.locales.map((lang) => (
                   <MenuItem key={lang} value={lang} onClick={handleClick(lang)}>
-                    {lang}
+                    <Typography>{lang}</Typography>
                   </MenuItem>
                 ))}
             </Select>
