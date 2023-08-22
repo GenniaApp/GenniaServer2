@@ -51,6 +51,7 @@ function GamingRoom() {
     setSelectedMapTileInfo,
     setInitGameInfo,
     setIsSurrendered,
+    setSpectating,
     setMyUserName,
     setZoom,
   } = useGameDispatch();
@@ -193,6 +194,13 @@ function GamingRoom() {
     socket.on('update_room', (room: Room) => {
       console.log('update_room');
       console.log(room);
+      // if my player id  equal to room's one of player ,setSpectating from room player
+      if (myPlayerId && room.players) {
+        let player = room.players.find((player) => player.id === myPlayerId);
+        if (player) {
+          setSpectating(player.spectating);
+        }
+      }
       roomDispatch({ type: 'update', payload: room });
     });
 

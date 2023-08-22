@@ -334,11 +334,13 @@ class GameMap {
     return player === this.getBlock(point).player;
   }
 
-  transferBlock(point: Point, player: any): void {
-    this.map[point.x][point.y].player = player;
-    this.map[point.x][point.y].unit = Math.ceil(
-      this.map[point.x][point.y].unit / 2
-    );
+  transferBlock(block: Block, player: any): void {
+    this.map[block.x][block.y].player = player;
+    if (block.type !== TileType.King) { // at this time, king have been dominated
+      this.map[block.x][block.y].unit = Math.ceil(
+        this.map[block.x][block.y].unit / 2
+      );
+    }
   }
 
   withinMap(point: Point): boolean {

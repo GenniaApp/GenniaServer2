@@ -43,6 +43,7 @@ import useMapDrag from '@/hooks/useMapDrag';
 import GameRecord from '@/lib/game-record';
 import ChatBox from '@/components/ChatBox';
 import Swal from 'sweetalert2';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function GameReplay(props: any) {
   const [gameRecord, setGameRecord] = useState<GameRecord | null>(null);
@@ -61,7 +62,7 @@ export default function GameReplay(props: any) {
   const [notFounderror, setNotFoundError] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [zoom, setZoom] = useState(1);
-  const [tileSize, setTileSize] = useState(30);
+  const [tileSize, setTileSize] = useState(40);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const mapRef = useRef<HTMLDivElement>(null);
 
@@ -71,6 +72,11 @@ export default function GameReplay(props: any) {
 
   const router = useRouter();
   const replayId = router.query.replayId as string;
+
+  const isSmallScreen = useMediaQuery('(max-width:600px)');
+  useEffect(() => {
+    setZoom(isSmallScreen ? 0.7 : 1.0);
+  }, [isSmallScreen]);
 
   const mapPixelWidth = useMemo(
     () => tileSize * mapWidth,

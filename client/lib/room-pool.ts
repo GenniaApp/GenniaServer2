@@ -17,7 +17,7 @@ export async function createRoom(
       throw new Error('Room count exceeded');
     if (!roomId) {
       ++roomCount;
-      roomId = String(roomCount);
+      roomId = String(roomCount + 1);
     }
     let newRoom = new Room(roomId, roomName);
     roomPool[roomId] = newRoom;

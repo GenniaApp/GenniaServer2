@@ -480,7 +480,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
   }, [mapRef, editMode, handleKeyDown]);
 
   return (
-    <div className='app-container'>
+    <div className='app-container' style={{ position: 'relative' }}>
       <Snackbar
         open={snackState.open}
         autoHideDuration={snackState.duration}
@@ -502,9 +502,14 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             position: 'absolute',
             top: '60px',
             left: '50%',
-            width: '50dvw',
+            width: {
+              xs: '90vw',
+              md: '55vw',
+              lg: '45vw',
+            },
             transform: `translate(-50%, 0)`,
-            height: 'min-content',
+            height: '20vh',
+            overflowY: 'auto',
             borderRadius: '0 10px 10px 0 !important',
             zIndex: 101,
           }}

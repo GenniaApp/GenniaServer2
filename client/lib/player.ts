@@ -16,6 +16,9 @@ class Player {
     public king: Block | null = null,
     public patchView: MapDiff | null = null,
     public spectating: boolean = false,
+    // when player disconnect, don't delete to keep game data
+    // clear disconnect player when game ended
+    public disconnected: boolean = false,
   ) { }
 
   minify(withId?: boolean): UserData {

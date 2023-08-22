@@ -280,10 +280,31 @@ const io = new Server(server, {
   },
 });
 
+async function handleNeutralized(room: Room, player: Player) {
+  if (player.king) {
+    room.map.getBlock(player.king).kingBeDominated();
+  } else {
+    console.log('Error! king is null', player);
+  }
+  // 变成中立单元: todo 延迟一段时间再变为中立单元更合理
+  player.land.forEach((block) => {
+    block.beNeutralized();
+  });
+  player.land.length = 0;
+  player.king = null;
+  player.isDead = true;
+
+}
+
 async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
   try {
     io.in(room.id).emit('room_message', player, 'quit.');
-    room.players = room.players.filter((p) => p.id != player.id);
+    if (room.gameStarted) {
+      player.disconnected = true;
+      await handleNeutralized(room, player);
+    } else {
+      room.players = room.players.filter((p) => p.id != player.id);
+    }
 
     room.forceStartNum = 0;
     for (let i = 0, c = 0; i < room.players.length; ++i) {
@@ -315,6 +336,10 @@ async function checkForcedStart(room: Room, io: Server) {
 
 async function handleGame(room: Room, io: Server) {
   if (room.gameStarted === false) {
+    room.players.forEach((player) => {
+      player.reset();
+    });
+
     if (room.mapId) {
       const data = await prisma.customMapData.findUnique({
         where: { id: room.mapId },
@@ -375,7 +400,7 @@ async function handleGame(room: Room, io: Server) {
       try {
         room.players.forEach(async (player) => {
           if (!room.map) throw new Error('king is null');
-          if (!player.isDead && !player.spectating) {
+          if (!player.isDead && !player.spectating && !player.disconnected) {
             let block = room.map.getBlock(player.king);
             let blockPlayerIndex = await getPlayerIndex(room, block.player?.id);
             if (blockPlayerIndex !== -1) {
@@ -389,11 +414,11 @@ async function handleGame(room: Room, io: Server) {
                   throw new Error('socket is null');
                 }
                 player.isDead = true;
-                room.map.getBlock(player.king).kingBeDominated();
                 player.land.forEach((block) => {
                   room.map.transferBlock(block, room.players[blockPlayerIndex]);
                   room.players[blockPlayerIndex].winLand(block);
                 });
+                room.map.getBlock(player.king).kingBeDominated();
                 player.land.length = 0;
               }
             }
@@ -403,13 +428,13 @@ async function handleGame(room: Room, io: Server) {
         let alivePlayer = null;
         let countAlive = 0;
         for (let player of room.players) {
-          if (!player.isDead && !player.spectating) {
+          if (!player.isDead && !player.spectating && !player.disconnected) {
             alivePlayer = player;
             ++countAlive;
           }
         }
         // Game over, Find Winner
-        if (countAlive === 1) {
+        if (countAlive <= 1) {
           if (!alivePlayer) throw new Error('alivePlayer is null');
           let link = room.gameRecord.outPutToJSON(process.cwd());
           io.in(room.id).emit('game_ended', alivePlayer.minify(true), link); // winnner
@@ -417,11 +442,13 @@ async function handleGame(room: Room, io: Server) {
 
           room.gameStarted = false;
           room.forceStartNum = 0;
+          io.in(room.id).emit('update_room', room);
+
           room.players.forEach((player) => {
             player.reset();
           });
-          io.in(room.id).emit('update_room', room);
 
+          room.players = room.players.filter((p) => !p.disconnected);
           clearInterval(room.gameLoop);
         }
 
@@ -534,6 +561,7 @@ io.on('connection', async (socket) => {
       isValidReconnectPlayer = true;
       room.players = room.players.filter((p) => p !== player);
       player = room.players[playerIndex];
+      player.disconnected = false;
       room.players[playerIndex].socket_id = socket.id;
       io.in(room.id).emit('room_message', player.minify(), 're-joined the lobby.');
       io.in(room.id).emit('update_room', room);
@@ -619,6 +647,7 @@ io.on('connection', async (socket) => {
       return;
     }
     player = room.players[playerIndex];
+
     console.log(`${player.username} surrendered.`);
 
     if (!room.map) {
@@ -626,20 +655,11 @@ io.on('connection', async (socket) => {
       console.log('Error! Map not found.');
       return;
     }
-    if (player.king) {
-      room.map.getBlock(player.king).kingBeDominated();
-    } else {
-      console.log('Error! king is null', player);
-    }
-    // 变成中立单元: todo 延迟一段时间再变为中立单元更合理
-    player.land.forEach((block) => {
-      block.beNeutralized();
-    });
-    player.land.length = 0;
-    player.king = null;
-    player.isDead = true;
+
+    await handleNeutralized(room, player);
 
     io.in(room.id).emit('room_message', player.minify(), 'surrendered');
+
   });
 
   socket.on('change_host', async (playerId) => {
