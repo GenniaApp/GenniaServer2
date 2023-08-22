@@ -27,7 +27,7 @@ export default function SurrenderDialog({
 
   const handleClose = useCallback(() => {
     setOpen(false);
-  }, []);
+  }, [setOpen]);
 
   const handleKeydown = useCallback(
     (event: KeyboardEvent) => {
@@ -35,7 +35,7 @@ export default function SurrenderDialog({
         setOpen(true);
       }
     },
-    [isOpen, openOverDialog]
+    [isOpen, openOverDialog, setOpen]
   );
 
   const showExitTitle =
@@ -46,12 +46,12 @@ export default function SurrenderDialog({
   const handleCloseSurrender = useCallback(() => {
     setOpen(false);
     handleSurrender();
-  }, [handleSurrender]);
+  }, [handleSurrender, setOpen]);
 
   const handleExit = useCallback(() => {
     setOpen(false);
     router.push('/');
-  }, [router]);
+  }, [router, setOpen]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeydown);

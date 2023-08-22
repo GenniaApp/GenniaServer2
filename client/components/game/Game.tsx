@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Box } from '@mui/material';
 import SurrenderDialog from './SurrenderDialog';
 import GameMap from './GameMap';
 import LeaderBoard from './LeaderBoard';
 import TurnsCount from './TurnsCount';
-import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import OverDialog from './OverDialog';
+import { Box } from '@mui/material';
 import { useGame, useGameDispatch } from '@/context/GameContext';
-import { IconButton } from '@mui/material';
 
 export default function Game() {
   const { room, socketRef, myPlayerId, turnsCount, leaderBoardData } =
@@ -16,6 +14,10 @@ export default function Game() {
     useGameDispatch();
 
   const [isSurrenderDialogOpen, setSurrenderDialogOpen] = useState(false);
+
+  const handleReturnClick = () => {
+    setSurrenderDialogOpen(true);
+  };
 
   const handleSurrender = () => {
     socketRef.current.emit('surrender', myPlayerId);
@@ -26,27 +28,7 @@ export default function Game() {
 
   return (
     <Box className='Game'>
-      <Box
-        className='menu-container'
-        style={{
-          position: 'absolute',
-          left: '5px',
-          top: '60px',
-          zIndex: '110',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <IconButton
-          onClick={() => {
-            setSurrenderDialogOpen(true);
-          }}
-          color='primary'
-        >
-          <ArrowBackRoundedIcon />
-        </IconButton>
-        <TurnsCount count={turnsCount} />
-      </Box>
+      <TurnsCount count={turnsCount} handleReturnClick={handleReturnClick} />
       <LeaderBoard leaderBoardTable={leaderBoardData} players={room.players} />
       <GameMap />
       <SurrenderDialog

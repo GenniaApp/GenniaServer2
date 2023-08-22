@@ -74,7 +74,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
             overflow: 'hidden',
             '& .MuiTableCell-root': {
               paddingY: '0.6rem',
-              paddingX: gameDockExpand ? '1rem' : '0.4rem',
+              paddingX: gameDockExpand ? '0.8rem' : '0.4rem',
             },
           }}
         >
