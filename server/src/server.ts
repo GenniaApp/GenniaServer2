@@ -584,9 +584,9 @@ io.on('connection', async (socket) => {
     io.in(room.id).emit('update_room', room);
     console.log(player.username, message);
 
-    if (room.players.length >= room.maxPlayers) {
-      await handleGame(room, io);
-    }
+    // if (room.players.length >= room.maxPlayers) {
+    //   await handleGame(room, io);
+    // }
   }
 
 
