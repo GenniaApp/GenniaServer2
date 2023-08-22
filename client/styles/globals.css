@@ -122,8 +122,6 @@ a {
   margin-bottom: 80px !important;
 }
 
-/* Game css from https://github.com/dhyegocalota/generals-io-webapp */
-
 .Dialog {
   position: fixed;
   top: 0;
@@ -156,8 +154,11 @@ a {
 .Game {
   --primary-color: #d7afff;
   position: relative;
-  height: 100%;
-  width: 100%;
+  /* todo: if set 100% instead of 100vw, some brower will not display correctly */
+  /* height: 100%; */
+  /* width: 100%; */
+  height: 100vh;
+  width: 100vw;
   --tw-bg-opacity: 1;
   /* background-color: rgb(17 24 39 / var(--tw-bg-opacity)); */
   /* font-family: "Quicksand", sans-serif; */
