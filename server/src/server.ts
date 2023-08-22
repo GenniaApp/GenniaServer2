@@ -428,32 +428,6 @@ async function handleGame(room: Room, io: Server) {
           }
         });
 
-        let countAlive = 0;
-        for (let player of room.players) {
-          if (!player.isDead && !player.spectating) {
-            lastAlivePlayer = player;
-            ++countAlive;
-          }
-        }
-        // Game over, Find Winner
-        if (countAlive <= 1) {
-          if (!lastAlivePlayer) throw new Error('lastAlivePlayer is null');
-          let link = room.gameRecord.outPutToJSON(process.cwd());
-          io.in(room.id).emit('game_ended', lastAlivePlayer.minify(true), link); // winnner
-          console.log('Game ended, replay link: ', link);
-
-          room.gameStarted = false;
-          room.forceStartNum = 0;
-          io.in(room.id).emit('update_room', room);
-
-          room.players.forEach((player) => {
-            player.reset();
-          });
-
-          room.players = room.players.filter((p) => !p.disconnected);
-          clearInterval(room.gameLoop);
-        }
-
         let leaderBoardData: LeaderBoardTable = room.players
           .filter((player) => !player.spectating)
           .map((player) => {
@@ -482,6 +456,32 @@ async function handleGame(room: Room, io: Server) {
         room.gameRecord.addGameUpdate(room.globalMapDiff.data, room.map.turn, leaderBoardData);
         room.map.updateTurn();
         room.map.updateUnit();
+
+        let countAlive = 0;
+        for (let player of room.players) {
+          if (!player.isDead && !player.spectating) {
+            lastAlivePlayer = player;
+            ++countAlive;
+          }
+        }
+        // Game over, Find Winner
+        if (countAlive <= 1) {
+          if (!lastAlivePlayer) throw new Error('lastAlivePlayer is null');
+          let link = room.gameRecord.outPutToJSON(process.cwd());
+          io.in(room.id).emit('game_ended', lastAlivePlayer.minify(true), link); // winnner
+          console.log('Game ended, replay link: ', link);
+
+          room.gameStarted = false;
+          room.forceStartNum = 0;
+          io.in(room.id).emit('update_room', room);
+
+          room.players.forEach((player) => {
+            player.reset();
+          });
+
+          room.players = room.players.filter((p) => !p.disconnected);
+          clearInterval(room.gameLoop);
+        }
       } catch (e: any) {
         console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
         console.log(e.stack);

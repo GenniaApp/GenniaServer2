@@ -223,6 +223,9 @@ export default function GameReplay(props: any) {
     if (gameRecord) {
       if (current_turn >= maxTurn) current_turn = maxTurn;
 
+      setIsPlay(false);
+      clearInterval(intervalId.current);
+
       setTurnsCount(current_turn);
 
       setMessages(
