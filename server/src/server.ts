@@ -369,7 +369,7 @@ async function handleGame(room: Room, io: Server) {
         room.players,
         room.revealKing
       );
-      await room.map.generate();
+      room.map.generate();
 
       console.log(`Start game with random map `);
     }
@@ -398,14 +398,17 @@ async function handleGame(room: Room, io: Server) {
     let updTime = 500 / room.gameSpeed;
     room.gameLoop = setInterval(async () => {
       try {
-        room.players.forEach(async (player) => {
+        let lastAlivePlayer = null;
+
+        room.players.forEach((player) => {
           if (!room.map) throw new Error('king is null');
           if (!player.isDead && !player.spectating && !player.disconnected) {
             let block = room.map.getBlock(player.king);
-            let blockPlayerIndex = await getPlayerIndex(room, block.player?.id);
+            let blockPlayerIndex = getPlayerIndex(room, block.player?.id);
             if (blockPlayerIndex !== -1) {
               if (block.player !== player && player.isDead === false) {
                 console.log(block.player.username, 'captured', player.username);
+                lastAlivePlayer = block.player;
                 io.in(room.id).emit('captured', block.player.minify(), player.minify());
                 let player_socket = io.sockets.sockets.get(player.socket_id);
                 if (player_socket) {
@@ -425,19 +428,18 @@ async function handleGame(room: Room, io: Server) {
           }
         });
 
-        let alivePlayer = null;
         let countAlive = 0;
         for (let player of room.players) {
-          if (!player.isDead && !player.spectating && !player.disconnected) {
-            alivePlayer = player;
+          if (!player.isDead && !player.spectating) {
+            lastAlivePlayer = player;
             ++countAlive;
           }
         }
         // Game over, Find Winner
         if (countAlive <= 1) {
-          if (!alivePlayer) throw new Error('alivePlayer is null');
+          if (!lastAlivePlayer) throw new Error('lastAlivePlayer is null');
           let link = room.gameRecord.outPutToJSON(process.cwd());
-          io.in(room.id).emit('game_ended', alivePlayer.minify(true), link); // winnner
+          io.in(room.id).emit('game_ended', lastAlivePlayer.minify(true), link); // winnner
           console.log('Game ended, replay link: ', link);
 
           room.gameStarted = false;
@@ -465,7 +467,7 @@ async function handleGame(room: Room, io: Server) {
         let room_sockets = await io.in(room.id).fetchSockets();
 
         for (let socket of room_sockets) {
-          let playerIndex = await getPlayerIndexBySocket(room, socket.id);
+          let playerIndex = getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1 && room.players[playerIndex].patchView) {
             if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar || room.players[playerIndex].spectating) {
               await room.players[playerIndex].patchView.patch(room.map.map);
@@ -555,7 +557,7 @@ io.on('connection', async (socket) => {
   if (myPlayerId) {
     // reconnect or same user with multiple tabs
     // todo: unfinished 因为玩家 disconnect 后，对应的 id会被清空，需要区分正常退出（清除id）和异常退出（保留玩家id）的情况
-    let playerIndex = await getPlayerIndex(room, myPlayerId);
+    let playerIndex = getPlayerIndex(room, myPlayerId);
 
     if (playerIndex !== -1) {
       isValidReconnectPlayer = true;
@@ -630,7 +632,7 @@ io.on('connection', async (socket) => {
     player.spectating = spectating;
 
     // set spectate will cancel force start
-    let playerIndex = await getPlayerIndex(room, player.id);
+    let playerIndex = getPlayerIndex(room, player.id);
     if (room.players[playerIndex].forceStart === true) {
       room.players[playerIndex].forceStart = false;
       --room.forceStartNum;
@@ -641,7 +643,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('surrender', async (playerId) => {
-    let playerIndex = await getPlayerIndex(room, playerId);
+    let playerIndex = getPlayerIndex(room, playerId);
     if (playerIndex === -1) {
       socket.emit('error', 'Surrender failed', 'Player not found.');
       return;
@@ -667,8 +669,8 @@ io.on('connection', async (socket) => {
       if (!player.isRoomHost) {
         throw new Error('You are not the room host.');
       }
-      let currentHost = await getPlayerIndex(room, player.id);
-      let newHost = await getPlayerIndex(room, playerId);
+      let currentHost = getPlayerIndex(room, player.id);
+      let newHost = getPlayerIndex(room, playerId);
       if (newHost !== -1) {
         room.players[currentHost].setRoomHost(false);
         room.players[newHost].setRoomHost(true);
@@ -773,7 +775,7 @@ io.on('connection', async (socket) => {
 
   socket.on('force_start', async () => {
     try {
-      let playerIndex = await getPlayerIndex(room, player.id);
+      let playerIndex = getPlayerIndex(room, player.id);
       if (!room.players[playerIndex].spectating) {
         if (room.players[playerIndex].forceStart === true) {
           room.players[playerIndex].forceStart = false;
@@ -809,7 +811,7 @@ io.on('connection', async (socket) => {
         return;
       }
 
-      let playerIndex = await getPlayerIndexBySocket(room, socket.id);
+      let playerIndex = getPlayerIndexBySocket(room, socket.id);
       if (playerIndex !== -1) {
         let player = room.players[playerIndex];
         if (room.map && player.operatedTurn <= room.map.turn && room.map.commandable(player, from, to)) {
