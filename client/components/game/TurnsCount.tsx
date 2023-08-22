@@ -11,12 +11,7 @@ function TurnsCount(props: TurnsCountProps) {
 
   return (
     <div
-      className='menu-container'
       style={{
-        position: 'absolute',
-        left: '5px',
-        top: '60px',
-        zIndex: '110',
         display: 'inline-block',
         fontSize: '1em',
       }}

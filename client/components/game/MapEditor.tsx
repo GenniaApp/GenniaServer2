@@ -42,6 +42,7 @@ import useMapDrag from '@/hooks/useMapDrag';
 import MapExplorer from '@/components/game/MapExplorer';
 import Loading from '@/components/Loading';
 import PublishMapDialog from '@/components/PublishMapDialog';
+import ReactMarkdown from 'react-markdown';
 import { v4 as uuidv4 } from 'uuid';
 
 const name2TileType: Record<string, TileType> = {
@@ -508,8 +509,8 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             zIndex: 101,
           }}
         >
-          <Typography variant='h4'>{mapName}</Typography>
-          <Typography variant='body1'>{mapDescription}</Typography>
+          <Typography variant='h5'>{mapName}</Typography>
+          <ReactMarkdown>{mapDescription}</ReactMarkdown>
           <Button variant='contained' color='info' onClick={handleDownloadMap}>
             {t('download')}
           </Button>

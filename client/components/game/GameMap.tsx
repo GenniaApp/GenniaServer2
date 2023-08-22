@@ -4,6 +4,7 @@ import { useGame, useGameDispatch } from '@/context/GameContext';
 import MapTile from './MapTile';
 import useMapDrag from '@/hooks/useMapDrag';
 import { Route, Position } from '@/lib/types';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 function GameMap() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -18,7 +19,12 @@ function GameMap() {
   const { setZoom, setSelectedMapTileInfo, mapQueueDataDispatch } =
     useGameDispatch();
   const mapRef = useRef<HTMLDivElement>(null);
-  const [tileSize, setTileSize] = useState(50);
+  const [tileSize, setTileSize] = useState(40);
+
+  const isSmallScreen = useMediaQuery('(max-width:600px)');
+  useEffect(() => {
+    setZoom(isSmallScreen ? 0.7 : 1.0);
+  }, [isSmallScreen]);
 
   useMapDrag(mapRef, position, setPosition, zoom, setZoom);
 

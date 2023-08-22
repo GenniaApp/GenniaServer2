@@ -25,6 +25,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-i18next": "^13.0.2",
+    "react-markdown": "^8.0.7",
     "sharp": "^0.32.3",
     "socket.io-client": "^4.7.1",
     "sweetalert2": "^11.7.18",

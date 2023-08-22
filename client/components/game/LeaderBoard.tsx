@@ -67,7 +67,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
           className='menu-container'
           sx={{
             position: 'absolute',
-            right: '5px',
+            right: '1px',
             top: '60px',
             width: 'min-content',
             zIndex: '110',
