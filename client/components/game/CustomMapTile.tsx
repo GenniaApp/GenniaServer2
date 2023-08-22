@@ -68,10 +68,6 @@ function CustomMapTile(props: CustomMapTileProps) {
       return MountainFill;
     }
 
-    if (tileType === TileType.Swamp) {
-      return notOwnedArmyFill;
-    }
-
     // 玩家单位
     if (color !== null) {
       return ColorArr[color];
@@ -82,6 +78,9 @@ function CustomMapTile(props: CustomMapTileProps) {
         return notOwnedCityFill;
       }
       if (unitsCount) {
+        return notOwnedArmyFill;
+      }
+      if (tileType === TileType.Swamp) {
         return notOwnedArmyFill;
       }
     }

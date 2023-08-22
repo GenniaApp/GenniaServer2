@@ -240,6 +240,9 @@ export default function GameReplay(props: any) {
         gameRecordTurns: gameRecord.gameRecordTurns,
         jumpToTurn: current_turn - 1,
       });
+
+      const { lead } = gameRecord.gameRecordTurns[current_turn - 1];
+      setLeaderBoardData(lead);
     }
   };
 
