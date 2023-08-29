@@ -404,7 +404,7 @@ async function handleGame(room: Room, io: Server) {
       try {
         let lastAlivePlayer = null;
 
-        room.players.forEach((player) => {
+        room.players.forEach(async (player) => {
           if (!room.map) throw new Error('king is null');
           if (!player.isDead && !player.spectating && !player.disconnected) {
             let block = room.map.getBlock(player.king);
@@ -427,6 +427,9 @@ async function handleGame(room: Room, io: Server) {
                 });
                 room.map.getBlock(player.king).kingBeDominated();
                 player.land.length = 0;
+              } else if (player.operatedTurn + 50 <= room.map.turn) {
+                await handleNeutralized(room, player);
+                io.in(room.id).emit('room_message', player.minify(), 'surrendered');
               }
             }
           }
