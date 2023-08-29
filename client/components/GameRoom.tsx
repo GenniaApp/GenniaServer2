@@ -222,7 +222,7 @@ function GamingRoom() {
         new Message(player1, t('captured'), player2),
       ]);
     });
-    socket.on('host_changement', (player1: UserData, player2: UserData) => {
+    socket.on('host_modification', (player1: UserData, player2: UserData) => {
       setMessages((messages) => [
         ...messages,
         new Message(player1, t('transfer-host-to'), player2),

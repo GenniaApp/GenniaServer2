@@ -63,7 +63,7 @@ class GameMap {
     );
     this.turn = 0;
     this.revealKing = revealKing;
-    this.minKingDistance = 6; // todo: change this acordding width height players
+    this.minKingDistance = 6; // todo: change this according to the Manhattan distance
   }
 
   toJSON() {

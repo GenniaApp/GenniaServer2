@@ -472,7 +472,7 @@ async function handleGame(room: Room, io: Server) {
         if (countAlive <= 1) {
           if (!lastAlivePlayer) throw new Error('lastAlivePlayer is null');
           let link = room.gameRecord.outPutToJSON(process.cwd());
-          io.in(room.id).emit('game_ended', lastAlivePlayer.minify(true), link); // winnner
+          io.in(room.id).emit('game_ended', lastAlivePlayer.minify(true), link); // winner
           console.log('Game ended, replay link: ', link);
 
           room.gameStarted = false;
@@ -613,7 +613,7 @@ io.on('connection', async (socket) => {
 
     room.players.push(player);
 
-    // boardcast new player message to room
+    // broadcast new player message to room
     io.in(room.id).emit('room_message', player.minify(), message);
     io.in(room.id).emit('update_room', room);
     console.log(player.username, message);
@@ -679,12 +679,12 @@ io.on('connection', async (socket) => {
         room.players[currentHost].setRoomHost(false);
         room.players[newHost].setRoomHost(true);
         io.in(room.id).emit('update_room', room);
-        io.in(room.id).emit('host_changement', player.minify(), room.players[newHost]);
+        io.in(room.id).emit('host_modification', player.minify(), room.players[newHost]);
       } else {
         throw new Error('Target player not found.');
       }
     } catch (e: any) {
-      socket.emit('error', 'Host changement failed', e.message);
+      socket.emit('error', 'Host modification failed', e.message);
     }
   });
 
@@ -697,13 +697,13 @@ io.on('connection', async (socket) => {
           switch (property) {
             case 'roomName':
               if (typeof value !== 'string' || value.length > 20) {
-                socket.emit('error', 'Changement was failed', 'Room name is too long.');
+                socket.emit('error', 'Modification was failed', 'Room name is too long.');
                 return;
               }
               break;
             case 'mapId':
               if (typeof value !== 'string' || value.length > 50) {
-                socket.emit('error', 'Changement was failed', 'invliad MapId');
+                socket.emit('error', 'Modification was failed', 'invalid MapId');
                 return;
               }
               const map = await prisma.customMapData.findUnique({
@@ -714,13 +714,13 @@ io.on('connection', async (socket) => {
               break;
             case 'maxPlayers':
               if (typeof value !== 'number' || value <= 1) {
-                socket.emit('error', 'Changement was failed', 'Max player num is invalid.');
+                socket.emit('error', 'Modification was failed', 'Max player num is invalid.');
                 return;
               }
               break;
             case 'gameSpeed':
               if (typeof value !== 'number' || ![0.5, 0.75, 1, 2, 3, 4].includes(value)) {
-                socket.emit('error', 'Changement was failed', `Game speed: ${value} is invalid. typeof value ${typeof value}}`);
+                socket.emit('error', 'Modification was failed', `Game speed: ${value} is invalid. typeof value ${typeof value}}`);
                 return;
               }
               break;
@@ -730,7 +730,7 @@ io.on('connection', async (socket) => {
             case 'city':
             case 'swamp':
               if (typeof value !== 'number' || value < 0 || value > 1) {
-                socket.emit('error', 'Changement was failed', `Map ${property} is invalid.`);
+                socket.emit('error', 'Modification was failed', `Map ${property} is invalid.`);
                 return;
               }
               break;
@@ -738,7 +738,7 @@ io.on('connection', async (socket) => {
             case 'revealKing':
             case 'deathSpectator':
               if (typeof value !== 'boolean') {
-                socket.emit('error', 'Changement was failed', 'Invalid value.');
+                socket.emit('error', 'Modification was failed', 'Invalid value.');
                 return;
               }
               break;
@@ -755,10 +755,10 @@ io.on('connection', async (socket) => {
             io.in(room.id).emit('room_message', player.minify(), `changed ${property} to ${value}.`);
           }
         } else {
-          socket.emit('error', 'Changement was failed', `Invalid property: ${property} or value: ${value}.`);
+          socket.emit('error', 'Modification was failed', `Invalid property: ${property} or value: ${value}.`);
         }
       } else {
-        socket.emit('error', 'Changement was failed', 'You are not the game host.');
+        socket.emit('error', 'Modification was failed', 'You are not the game host.');
       }
     } catch (e: any) {
       console.log(e.message);
@@ -818,7 +818,7 @@ io.on('connection', async (socket) => {
       let playerIndex = getPlayerIndexBySocket(room, socket.id);
       if (playerIndex !== -1) {
         let player = room.players[playerIndex];
-        if (room.map && player.operatedTurn <= room.map.turn && room.map.commandable(player, from, to)) {
+        if (room.map && player.operatedTurn <= room.map.turn && room.map.commendable(player, from, to)) {
           if (isHalf) {
             room.map.moveHalfMovableUnit(player, from, to);
           } else {
@@ -829,7 +829,7 @@ io.on('connection', async (socket) => {
           socket.emit('attack_success', from, to);
         } else {
           // socket.emit('attack_failure', from, to, 'Invalid operation');
-          socket.emit('attack_failure', from, to, `Invalid operation: ${player.operatedTurn} ${room.map.turn} ${room.map.commandable(player, from, to)}`);
+          socket.emit('attack_failure', from, to, `Invalid operation: ${player.operatedTurn} ${room.map.turn} ${room.map.commendable(player, from, to)}`);
         }
       }
     } catch (e: any) {
