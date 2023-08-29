@@ -383,7 +383,7 @@ class GameMap {
     }
   }
 
-  commandable(player: any, focus: Point, newFocus: Point): boolean {
+  commendable(player: any, focus: Point, newFocus: Point): boolean {
     const isOwner = this.ownBlock(player, focus);
     const possibleMove = this.withinMap(focus) && this.withinMap(newFocus);
     const notMountain = this.getBlock(newFocus).type !== TileType.Mountain;
