@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Image from 'next/image';
 import {
   TileType,
@@ -8,6 +8,7 @@ import {
 import { ColorArr } from '@/lib/constants';
 import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import {
+  defaultBgcolor,
   notRevealedFill,
   notOwnedArmyFill,
   notOwnedCityFill,
@@ -26,7 +27,7 @@ interface CustomMapTileProps {
   fontSize?: number;
 }
 
-export default function CustomMapTile(props: CustomMapTileProps) {
+function CustomMapTile(props: CustomMapTileProps) {
   const {
     zoom,
     size,
@@ -42,8 +43,6 @@ export default function CustomMapTile(props: CustomMapTileProps) {
   const image = TileType2Image[tileType];
 
   const zoomedSize = useMemo(() => size * zoom, [size, zoom]);
-  const bgPosition = useMemo(() => zoomedSize * 0.025, [zoomedSize]); // shift to create a "border"
-  const bgWidth = useMemo(() => zoomedSize * 0.95, [zoomedSize]);
   const zoomedFontSize = useMemo(() => fontSize * zoom, [fontSize, zoom]);
   const tileX = useMemo(() => zoomedSize * y, [zoomedSize, y]);
   const tileY = useMemo(() => zoomedSize * x, [zoomedSize, x]);
@@ -69,10 +68,6 @@ export default function CustomMapTile(props: CustomMapTileProps) {
       return MountainFill;
     }
 
-    if (tileType === TileType.Swamp) {
-      return notOwnedArmyFill;
-    }
-
     // 玩家单位
     if (color !== null) {
       return ColorArr[color];
@@ -83,6 +78,9 @@ export default function CustomMapTile(props: CustomMapTileProps) {
         return notOwnedCityFill;
       }
       if (unitsCount) {
+        return notOwnedArmyFill;
+      }
+      if (tileType === TileType.Swamp) {
         return notOwnedArmyFill;
       }
     }
@@ -99,16 +97,17 @@ export default function CustomMapTile(props: CustomMapTileProps) {
         top: tileY,
         width: zoomedSize,
         height: zoomedSize,
+        backgroundColor: defaultBgcolor,
       }}
       onClick={handleClick}
     >
       <div
         style={{
           position: 'absolute',
-          left: bgPosition,
-          top: bgPosition,
-          width: bgWidth,
-          height: bgWidth,
+          left: 0,
+          top: 0,
+          width: zoomedSize,
+          height: zoomedSize,
           backgroundColor: bgcolor,
           border: '#000 solid 1px',
         }}
@@ -144,6 +143,7 @@ export default function CustomMapTile(props: CustomMapTileProps) {
             textOverflow: 'ellipsis',
             overflow: 'visible',
             textShadow: '0 0 2px #000',
+            userSelect: 'none',
           }}
         >
           {unitsCount}
@@ -164,3 +164,5 @@ export default function CustomMapTile(props: CustomMapTileProps) {
     </div>
   );
 }
+
+export default React.memo(CustomMapTile);

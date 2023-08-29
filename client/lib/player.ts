@@ -16,6 +16,9 @@ class Player {
     public king: Block | null = null,
     public patchView: MapDiff | null = null,
     public spectating: boolean = false,
+    // when player disconnect, don't delete to keep game data
+    // clear disconnect player when game ended
+    public disconnected: boolean = false,
   ) { }
 
   minify(withId?: boolean): UserData {
@@ -34,7 +37,7 @@ class Player {
     this.isDead = false;
     this.operatedTurn = 0;
     this.land = [];
-    this.king = new Block(0, 0, TileType.King);
+    this.king = null;
     this.patchView = null;
   }
 

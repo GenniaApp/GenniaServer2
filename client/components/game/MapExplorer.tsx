@@ -53,17 +53,16 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
     fetchStarredMaps();
   }, [userId]);
 
-  const fetchMaps = async () => {
-    const endpoint = ['new', 'hot', 'best', 'search'][tabIndex];
-    const url = `${process.env.NEXT_PUBLIC_SERVER_API}/${endpoint}${
-      tabIndex === 3 ? `?q=${searchTerm}` : ''
-    }`;
-    const response = await fetch(url);
-    const data = await response.json();
-    setMaps(data);
-  };
-
   useEffect(() => {
+    const fetchMaps = async () => {
+      const endpoint = ['new', 'hot', 'best', 'search'][tabIndex];
+      const url = `${process.env.NEXT_PUBLIC_SERVER_API}/${endpoint}${
+        tabIndex === 3 ? `?q=${searchTerm}` : ''
+      }`;
+      const response = await fetch(url);
+      const data = await response.json();
+      setMaps(data);
+    };
     fetchMaps();
   }, [tabIndex, searchTerm]);
 
@@ -102,27 +101,7 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
         }),
       });
     } catch (error) {
-      // Revert the UI changes and show an error message
       console.log('star error', error);
-      // setMaps(
-      //   (prevMaps) =>
-      //     prevMaps?.map((map) =>
-      //       map.id === mapId
-      //         ? {
-      //             ...map,
-      //             starCount: starredMaps[mapId]
-      //               ? map.starCount - 1
-      //               : map.starCount,
-      //           }
-      //         : map
-      //     )
-      // );
-      // setStarredMaps((prevStarredMaps) => ({
-      //   ...prevStarredMaps,
-      //   [mapId]: starredMaps[mapId],
-      // }));
-      // console.error(error);
-      // alert('Failed to star the map. Please try again later.');
     }
   };
 
@@ -135,7 +114,7 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
   };
 
   return (
-    <Box sx={{ height: '500px', overflow: 'auto' }}>
+    <Box>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs
           value={tabIndex}
@@ -155,76 +134,82 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
           onChange={handleSearchChange}
         />
       )}
-      {maps &&
-        maps.map((map) => (
-          <Card className='menu-container' key={map.id} sx={{ my: 2 }}>
-            <CardContent>
-              <Box
-                display='flex'
-                alignItems='center'
-                justifyContent='space-between'
-              >
-                <Typography variant='h5'>{map.name}</Typography>
-                <IconButton>
-                  <VisibilityIcon />
-                  <Typography variant='body2' sx={{ ml: 1 }}>
-                    {map.views}
-                  </Typography>
-                </IconButton>
-                <IconButton onClick={() => handleStarClick(map.id)}>
-                  <StarIcon
-                    color={starredMaps[map.id] ? 'primary' : 'inherit'}
-                  />
-                  <Typography variant='body2' sx={{ ml: 1 }}>
-                    {map.starCount}
-                  </Typography>
-                </IconButton>
-              </Box>
 
-              <Box display='flex' alignItems='center'>
-                <AspectRatioRounded sx={{ ml: 1 }} />
-                <Typography variant='body2' sx={{ ml: 1 }}>
-                  {map.width} x {map.height}
+      <Box sx={{ height: '500px', overflow: 'auto' }}>
+        {maps &&
+          maps.map((map) => (
+            // <Card className='menu-container' key={map.id} sx={{ my: 2 }}>
+            <Card key={map.id} sx={{ my: 2 }}>
+              <CardContent>
+                <Box
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='space-between'
+                >
+                  <Typography variant='h5'>{map.name}</Typography>
+                  <IconButton>
+                    <VisibilityIcon />
+                    <Typography variant='body2' sx={{ ml: 1 }}>
+                      {map.views}
+                    </Typography>
+                  </IconButton>
+                  <IconButton onClick={() => handleStarClick(map.id)}>
+                    <StarIcon
+                      color={starredMaps[map.id] ? 'primary' : 'inherit'}
+                    />
+                    <Typography variant='body2' sx={{ ml: 1 }}>
+                      {map.starCount}
+                    </Typography>
+                  </IconButton>
+
+                  <Box display='flex' alignItems='center'>
+                    <AspectRatioRounded sx={{ ml: 1 }} />
+                    <Typography variant='body2' sx={{ ml: 1 }}>
+                      {map.width} x {map.height}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Typography variant='body2'>
+                  {t('created-by')} {map.creator} on{' '}
+                  {new Date(map.createdAt).toLocaleDateString()}
                 </Typography>
-              </Box>
-
-              <Typography variant='body2'>
-                {t('created-by')} {map.creator} on{' '}
-                {new Date(map.createdAt).toLocaleDateString()}
-              </Typography>
-              <Typography
-                variant='body2'
-                sx={{
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {map.description}
-              </Typography>
-              <Button
-                variant='contained'
-                color='primary'
-                onClick={() => router.push(`/maps/${map.id}`)}
-              >
-                {t('view-map')}
-              </Button>
-              {onSelect && (
+                <Typography
+                  variant='body2'
+                  sx={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {map.description}
+                </Typography>
                 <Button
                   variant='contained'
                   color='primary'
-                  onClick={() => {
-                    onSelect(map.id);
-                  }}
+                  onClick={() => router.push(`/maps/${map.id}`)}
+                  sx={{ margin: 1 }}
                 >
-                  {t('choose-map')}
+                  {t('view-map')}
                 </Button>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+                {onSelect && (
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={() => {
+                      onSelect(map.id);
+                    }}
+                    sx={{ margin: 1 }}
+                  >
+                    {t('choose-map')}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+      </Box>
     </Box>
   );
 }

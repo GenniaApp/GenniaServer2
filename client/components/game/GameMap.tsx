@@ -4,15 +4,27 @@ import { useGame, useGameDispatch } from '@/context/GameContext';
 import MapTile from './MapTile';
 import useMapDrag from '@/hooks/useMapDrag';
 import { Route, Position } from '@/lib/types';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 function GameMap() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const { attackQueueRef, room, mapData, selectedMapTileInfo, initGameInfo } =
-    useGame();
-  const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
+  const {
+    zoom,
+    attackQueueRef,
+    room,
+    mapData,
+    selectedMapTileInfo,
+    initGameInfo,
+  } = useGame();
+  const { setZoom, setSelectedMapTileInfo, mapQueueDataDispatch } =
+    useGameDispatch();
   const mapRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(1);
-  const [tileSize, setTileSize] = useState(50);
+  const [tileSize, setTileSize] = useState(40);
+
+  const isSmallScreen = useMediaQuery('(max-width:600px)');
+  useEffect(() => {
+    setZoom(isSmallScreen ? 0.7 : 1.0);
+  }, [isSmallScreen]);
 
   useMapDrag(mapRef, position, setPosition, zoom, setZoom);
 
@@ -52,7 +64,13 @@ function GameMap() {
         });
       }
     },
-    [selectedMapTileInfo, withinMap, attackQueueRef]
+    [
+      selectedMapTileInfo,
+      withinMap,
+      attackQueueRef,
+      mapQueueDataDispatch,
+      setSelectedMapTileInfo,
+    ]
   );
 
   const mapPixelWidth = useMemo(
@@ -72,11 +90,15 @@ function GameMap() {
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      console.log('keydown: ', event.key);
       switch (event.key) {
-        case '1':
-          setZoom(0.7);
+        case '1': {
+          if (initGameInfo && initGameInfo.mapWidth > 20) {
+            setZoom(0.5);
+          } else {
+            setZoom(0.7);
+          }
           break;
+        }
         case '2':
           setZoom(1.0);
           break;
@@ -94,26 +116,14 @@ function GameMap() {
       switch (event.key) {
         case 'z':
           // Z to half
-          if (selectedMapTileInfo.half) {
-            // 已经 half 则 取消 half
-            selectedMapTileInfo.half = false;
-            mapQueueDataDispatch({
-              type: 'change',
-              x: selectedMapTileInfo.x,
-              y: selectedMapTileInfo.y,
-              className: '',
-              text: selectedMapTileInfo.unitsCount, // 还原回原来的 unit? todo
-            });
-          } else {
-            selectedMapTileInfo.half = true;
-            mapQueueDataDispatch({
-              type: 'change',
-              x: selectedMapTileInfo.x,
-              y: selectedMapTileInfo.y,
-              className: '',
-              text: '50%',
-            });
-          }
+          selectedMapTileInfo.half = !selectedMapTileInfo.half;
+          mapQueueDataDispatch({
+            type: 'change',
+            x: selectedMapTileInfo.x,
+            y: selectedMapTileInfo.y,
+            className: '',
+            half: !selectedMapTileInfo.half,
+          });
           break;
         case 'e':
           // E to pop_back
@@ -160,6 +170,7 @@ function GameMap() {
           break;
         case 'w':
         case 'ArrowUp': // 38 Up
+          event.preventDefault();
           newPoint = {
             x: selectedMapTileInfo.x - 1,
             y: selectedMapTileInfo.y,
@@ -176,6 +187,7 @@ function GameMap() {
           break;
         case 's':
         case 'ArrowDown': // 40 Down
+          event.preventDefault();
           newPoint = {
             x: selectedMapTileInfo.x + 1,
             y: selectedMapTileInfo.y,
@@ -190,12 +202,15 @@ function GameMap() {
       selectedMapTileInfo,
       attackQueueRef,
       setSelectedMapTileInfo,
+      initGameInfo,
+      setZoom,
     ]
   );
 
   useEffect(() => {
     const mapNode = mapRef.current;
     if (mapNode) {
+      // mapNode.focus(); // todo: enable with OnBlur will cause `Maximum update depth exceeded error`
       mapNode.addEventListener('keydown', handleKeyDown);
       return () => {
         mapNode.removeEventListener('keydown', handleKeyDown);
@@ -208,6 +223,9 @@ function GameMap() {
     <div
       ref={mapRef}
       tabIndex={0}
+      onBlur={() => {
+        setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
+      }}
       style={{
         position: 'absolute',
         top: '50%',
@@ -215,7 +233,6 @@ function GameMap() {
         transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
         width: mapPixelWidth,
         height: mapPixelHeight,
-        backgroundColor: '#495468',
       }}
     >
       {mapData.map((tiles, x) => {

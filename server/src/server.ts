@@ -284,10 +284,31 @@ const io = new Server(server, {
   },
 });
 
+async function handleNeutralized(room: Room, player: Player) {
+  if (player.king) {
+    room.map.getBlock(player.king).kingBeDominated();
+  } else {
+    console.log('Error! king is null', player);
+  }
+  // 变成中立单元: todo 延迟一段时间再变为中立单元更合理
+  player.land.forEach((block) => {
+    block.beNeutralized();
+  });
+  player.land.length = 0;
+  player.king = null;
+  player.isDead = true;
+
+}
+
 async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
   try {
     io.in(room.id).emit('room_message', player, 'quit.');
-    room.players = room.players.filter((p) => p.id != player.id);
+    if (room.gameStarted) {
+      player.disconnected = true;
+      await handleNeutralized(room, player);
+    } else {
+      room.players = room.players.filter((p) => p.id != player.id);
+    }
 
     room.forceStartNum = 0;
     for (let i = 0, c = 0; i < room.players.length; ++i) {
@@ -295,10 +316,10 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
         ++room.forceStartNum;
       }
     }
-    if (room.players.length < 1) {
+    if (room.players.length < 1 && !room.keepAlive) {
       delete roomPool[room.id];
     } else {
-      room.players[0].setRoomHost(true);
+      if (room.players[0]) room.players[0].setRoomHost(true);
     }
     io.in(room.id).emit('update_room', room);
   } catch (e: any) {
@@ -307,8 +328,22 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
   }
 }
 
+async function checkForcedStart(room: Room, io: Server) {
+  let forceStartNum = forceStartOK[
+    room.players.filter((player) => !player.spectating).length
+  ]
+
+  if (room.forceStartNum >= forceStartNum) {
+    await handleGame(room, io);
+  }
+}
+
 async function handleGame(room: Room, io: Server) {
   if (room.gameStarted === false) {
+    room.players.forEach((player) => {
+      player.reset();
+    });
+
     if (room.mapId) {
       const data = await prisma.customMapData.findUnique({
         where: { id: room.mapId },
@@ -322,12 +357,11 @@ async function handleGame(room: Room, io: Server) {
         ...data,
         mapTilesData: JSON.parse(data.mapTilesData)
       }
-      room.map = GameMap.from_custom_map(customMapData, room.players);
+      room.map = GameMap.from_custom_map(customMapData, room.players, room.revealKing);
 
     } else {
-
-      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 6 * room.mapWidth)
-      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 6 * room.mapHeight)
+      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 10 * room.mapWidth)
+      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 10 * room.mapHeight)
       room.map = new GameMap(
         'random_map_id',
         'random_map_name',
@@ -336,10 +370,12 @@ async function handleGame(room: Room, io: Server) {
         room.mountain,
         room.city,
         room.swamp,
-        room.players
+        room.players,
+        room.revealKing
       );
-      await room.map.generate();
+      room.map.generate();
 
+      console.log(`Start game with random map `);
     }
     room.mapGenerated = true;
     room.globalMapDiff = new MapDiff();
@@ -366,14 +402,17 @@ async function handleGame(room: Room, io: Server) {
     let updTime = 500 / room.gameSpeed;
     room.gameLoop = setInterval(async () => {
       try {
-        room.players.forEach(async (player) => {
+        let lastAlivePlayer = null;
+
+        room.players.forEach((player) => {
           if (!room.map) throw new Error('king is null');
-          if (!player.isDead && !player.spectating) {
+          if (!player.isDead && !player.spectating && !player.disconnected) {
             let block = room.map.getBlock(player.king);
-            let blockPlayerIndex = await getPlayerIndex(room, block.player?.id);
+            let blockPlayerIndex = getPlayerIndex(room, block.player?.id);
             if (blockPlayerIndex !== -1) {
               if (block.player !== player && player.isDead === false) {
                 console.log(block.player.username, 'captured', player.username);
+                lastAlivePlayer = block.player;
                 io.in(room.id).emit('captured', block.player.minify(), player.minify());
                 let player_socket = io.sockets.sockets.get(player.socket_id);
                 if (player_socket) {
@@ -382,41 +421,16 @@ async function handleGame(room: Room, io: Server) {
                   throw new Error('socket is null');
                 }
                 player.isDead = true;
-                room.map.getBlock(player.king).kingBeDominated();
                 player.land.forEach((block) => {
                   room.map.transferBlock(block, room.players[blockPlayerIndex]);
                   room.players[blockPlayerIndex].winLand(block);
                 });
+                room.map.getBlock(player.king).kingBeDominated();
                 player.land.length = 0;
               }
             }
           }
         });
-
-        let alivePlayer = null;
-        let countAlive = 0;
-        for (let player of room.players) {
-          if (!player.isDead && !player.spectating) {
-            alivePlayer = player;
-            ++countAlive;
-          }
-        }
-        // Game over, Find Winner
-        if (countAlive === 1) {
-          if (!alivePlayer) throw new Error('alivePlayer is null');
-          let link = room.gameRecord.outPutToJSON(process.cwd());
-          io.in(room.id).emit('game_ended', alivePlayer.minify(true), link); // winnner
-          console.log('Game ended, replay link: ', link);
-
-          room.gameStarted = false;
-          room.forceStartNum = 0;
-          room.players.forEach((player) => {
-            player.reset();
-          });
-          io.in(room.id).emit('update_room', room);
-
-          clearInterval(room.gameLoop);
-        }
 
         let leaderBoardData: LeaderBoardTable = room.players
           .filter((player) => !player.spectating)
@@ -431,7 +445,7 @@ async function handleGame(room: Room, io: Server) {
         let room_sockets = await io.in(room.id).fetchSockets();
 
         for (let socket of room_sockets) {
-          let playerIndex = await getPlayerIndexBySocket(room, socket.id);
+          let playerIndex = getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1 && room.players[playerIndex].patchView) {
             if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar || room.players[playerIndex].spectating) {
               await room.players[playerIndex].patchView.patch(room.map.map);
@@ -446,6 +460,32 @@ async function handleGame(room: Room, io: Server) {
         room.gameRecord.addGameUpdate(room.globalMapDiff.data, room.map.turn, leaderBoardData);
         room.map.updateTurn();
         room.map.updateUnit();
+
+        let countAlive = 0;
+        for (let player of room.players) {
+          if (!player.isDead && !player.spectating) {
+            lastAlivePlayer = player;
+            ++countAlive;
+          }
+        }
+        // Game over, Find Winner
+        if (countAlive <= 1) {
+          if (!lastAlivePlayer) throw new Error('lastAlivePlayer is null');
+          let link = room.gameRecord.outPutToJSON(process.cwd());
+          io.in(room.id).emit('game_ended', lastAlivePlayer.minify(true), link); // winnner
+          console.log('Game ended, replay link: ', link);
+
+          room.gameStarted = false;
+          room.forceStartNum = 0;
+          io.in(room.id).emit('update_room', room);
+
+          room.players.forEach((player) => {
+            player.reset();
+          });
+
+          room.players = room.players.filter((p) => !p.disconnected);
+          clearInterval(room.gameLoop);
+        }
       } catch (e: any) {
         console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
         console.log(e.stack);
@@ -521,12 +561,13 @@ io.on('connection', async (socket) => {
   if (myPlayerId) {
     // reconnect or same user with multiple tabs
     // todo: unfinished 因为玩家 disconnect 后，对应的 id会被清空，需要区分正常退出（清除id）和异常退出（保留玩家id）的情况
-    let playerIndex = await getPlayerIndex(room, myPlayerId);
+    let playerIndex = getPlayerIndex(room, myPlayerId);
 
     if (playerIndex !== -1) {
       isValidReconnectPlayer = true;
       room.players = room.players.filter((p) => p !== player);
       player = room.players[playerIndex];
+      player.disconnected = false;
       room.players[playerIndex].socket_id = socket.id;
       io.in(room.id).emit('room_message', player.minify(), 're-joined the lobby.');
       io.in(room.id).emit('update_room', room);
@@ -577,9 +618,9 @@ io.on('connection', async (socket) => {
     io.in(room.id).emit('update_room', room);
     console.log(player.username, message);
 
-    if (room.players.length >= room.maxPlayers) {
-      await handleGame(room, io);
-    }
+    // if (room.players.length >= room.maxPlayers) {
+    //   await handleGame(room, io);
+    // }
   }
 
 
@@ -593,17 +634,26 @@ io.on('connection', async (socket) => {
 
   socket.on('set_spectating', async (spectating: boolean) => {
     player.spectating = spectating;
+
+    // set spectate will cancel force start
+    let playerIndex = getPlayerIndex(room, player.id);
+    if (room.players[playerIndex].forceStart === true) {
+      room.players[playerIndex].forceStart = false;
+      --room.forceStartNum;
+    }
     io.in(room.id).emit('update_room', room);
     io.in(room.id).emit('room_message', player.minify(), `set spectate to ${spectating}`);
+    checkForcedStart(room, io);
   });
 
   socket.on('surrender', async (playerId) => {
-    let playerIndex = await getPlayerIndex(room, playerId);
+    let playerIndex = getPlayerIndex(room, playerId);
     if (playerIndex === -1) {
       socket.emit('error', 'Surrender failed', 'Player not found.');
       return;
     }
     player = room.players[playerIndex];
+
     console.log(`${player.username} surrendered.`);
 
     if (!room.map) {
@@ -611,20 +661,11 @@ io.on('connection', async (socket) => {
       console.log('Error! Map not found.');
       return;
     }
-    if (player.king) {
-      room.map.getBlock(player.king).kingBeDominated();
-    } else {
-      console.log('Error! king is null', player);
-    }
-    // 变成中立单元: todo 延迟一段时间再变为中立单元更合理
-    player.land.forEach((block) => {
-      block.beNeutralized();
-    });
-    player.land.length = 0;
-    player.king = null;
-    player.isDead = true;
+
+    await handleNeutralized(room, player);
 
     io.in(room.id).emit('room_message', player.minify(), 'surrendered');
+
   });
 
   socket.on('change_host', async (playerId) => {
@@ -632,8 +673,8 @@ io.on('connection', async (socket) => {
       if (!player.isRoomHost) {
         throw new Error('You are not the room host.');
       }
-      let currentHost = await getPlayerIndex(room, player.id);
-      let newHost = await getPlayerIndex(room, playerId);
+      let currentHost = getPlayerIndex(room, player.id);
+      let newHost = getPlayerIndex(room, playerId);
       if (newHost !== -1) {
         room.players[currentHost].setRoomHost(false);
         room.players[newHost].setRoomHost(true);
@@ -694,6 +735,7 @@ io.on('connection', async (socket) => {
               }
               break;
             case 'fogOfWar':
+            case 'revealKing':
             case 'deathSpectator':
               if (typeof value !== 'boolean') {
                 socket.emit('error', 'Changement was failed', 'Invalid value.');
@@ -737,23 +779,20 @@ io.on('connection', async (socket) => {
 
   socket.on('force_start', async () => {
     try {
-      let playerIndex = await getPlayerIndex(room, player.id);
-      if (room.players[playerIndex].forceStart === true) {
-        room.players[playerIndex].forceStart = false;
-        --room.forceStartNum;
-      } else {
-        room.players[playerIndex].forceStart = true;
-        ++room.forceStartNum;
+      let playerIndex = getPlayerIndex(room, player.id);
+      if (!room.players[playerIndex].spectating) {
+        if (room.players[playerIndex].forceStart === true) {
+          room.players[playerIndex].forceStart = false;
+          --room.forceStartNum;
+        } else {
+          room.players[playerIndex].forceStart = true;
+          ++room.forceStartNum;
+        }
+        io.in(room.id).emit('update_room', room);
       }
-      io.in(room.id).emit('update_room', room);
 
-      let forceStartNum = forceStartOK[
-        room.players.filter((player) => !player.spectating).length
-      ]
+      checkForcedStart(room, io);
 
-      if (room.forceStartNum >= forceStartNum) {
-        await handleGame(room, io);
-      }
     } catch (e: any) {
       console.log(e.stack);
       console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
@@ -776,10 +815,10 @@ io.on('connection', async (socket) => {
         return;
       }
 
-      let playerIndex = await getPlayerIndexBySocket(room, socket.id);
+      let playerIndex = getPlayerIndexBySocket(room, socket.id);
       if (playerIndex !== -1) {
         let player = room.players[playerIndex];
-        if (room.map && player.operatedTurn < room.map.turn && room.map.commandable(player, from, to)) {
+        if (room.map && player.operatedTurn <= room.map.turn && room.map.commandable(player, from, to)) {
           if (isHalf) {
             room.map.moveHalfMovableUnit(player, from, to);
           } else {
@@ -789,7 +828,8 @@ io.on('connection', async (socket) => {
           room.players[playerIndex].operatedTurn = room.map.turn;
           socket.emit('attack_success', from, to);
         } else {
-          socket.emit('attack_failure', from, to, 'Invalid operation');
+          // socket.emit('attack_failure', from, to, 'Invalid operation');
+          socket.emit('attack_failure', from, to, `Invalid operation: ${player.operatedTurn} ${room.map.turn} ${room.map.commandable(player, from, to)}`);
         }
       }
     } catch (e: any) {

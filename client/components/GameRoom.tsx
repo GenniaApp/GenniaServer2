@@ -51,7 +51,9 @@ function GamingRoom() {
     setSelectedMapTileInfo,
     setInitGameInfo,
     setIsSurrendered,
+    setSpectating,
     setMyUserName,
+    setZoom,
   } = useGameDispatch();
 
   useEffect(() => {
@@ -62,7 +64,7 @@ function GamingRoom() {
       setMyUserName(tmp);
       setMyPlayerId(localStorage.getItem('playerId') || '');
     }
-  }, []);
+  }, [setMyPlayerId, setMyUserName, router]);
 
   useEffect(() => {
     // Game Logic Init
@@ -95,6 +97,7 @@ function GamingRoom() {
         let item = this.items.shift();
         if (this.lastItem) {
           this.clearFromMap(this.lastItem);
+          this.lastItem = undefined;
         }
         this.lastItem = item;
         return item;
@@ -135,6 +138,7 @@ function GamingRoom() {
       clearLastItem(): void {
         if (this.lastItem) {
           this.clearFromMap(this.lastItem);
+          this.lastItem = undefined;
         }
       }
     }
@@ -162,10 +166,15 @@ function GamingRoom() {
       console.log('Game started:', initGameInfo);
       setInitGameInfo(initGameInfo);
       setIsSurrendered(false);
+      if (initGameInfo.mapHeight > 40 || initGameInfo.mapHeight > 40) {
+        setZoom(0.5);
+      } else if (initGameInfo.mapHeight > 25 || initGameInfo.mapHeight > 25) {
+        setZoom(0.75);
+      }
 
       setSelectedMapTileInfo({
-        x: -1,
-        y: -1,
+        x: initGameInfo.king.x,
+        y: initGameInfo.king.y,
         half: false,
         unitsCount: 0,
       });
@@ -185,6 +194,13 @@ function GamingRoom() {
     socket.on('update_room', (room: Room) => {
       console.log('update_room');
       console.log(room);
+      // if my player id  equal to room's one of player ,setSpectating from room player
+      if (myPlayerId && room.players) {
+        let player = room.players.find((player) => player.id === myPlayerId);
+        if (player) {
+          setSpectating(player.spectating);
+        }
+      }
       roomDispatch({ type: 'update', payload: room });
     });
 
@@ -248,18 +264,22 @@ function GamingRoom() {
       }
     );
 
-    socket.on('attack_failure', (from: Position, to: Position) => {
-      attackQueueRef.current.clearLastItem();
-      while (!attackQueueRef.current.isEmpty()) {
-        let point = attackQueueRef.current.front().from;
-        if (point.x === to.x && point.y === to.y) {
-          attackQueueRef.current.pop();
-          to = point;
-        } else {
-          break;
+    socket.on(
+      'attack_failure',
+      (from: Position, to: Position, message: string) => {
+        // console.log('attack_failure: ', from, to, message);
+        attackQueueRef.current.clearLastItem();
+        while (!attackQueueRef.current.isEmpty()) {
+          let point = attackQueueRef.current.front().from;
+          if (point.x === to.x && point.y === to.y) {
+            attackQueueRef.current.pop();
+            to = point;
+          } else {
+            break;
+          }
         }
       }
-    });
+    );
 
     socket.on('reject_join', (message: string) => {
       Swal.fire({
@@ -331,7 +351,7 @@ function GamingRoom() {
     if (room.gameStarted && roomUiStatus === RoomUiStatus.gameSetting) {
       setRoomUiStatus(RoomUiStatus.loading);
     }
-  }, [room, roomUiStatus]);
+  }, [room, roomUiStatus, setRoomUiStatus]);
 
   return (
     <div className='app-container'>

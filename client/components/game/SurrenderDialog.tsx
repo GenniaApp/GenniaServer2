@@ -10,41 +10,48 @@ import {
 import { useTranslation } from 'next-i18next';
 import { useGame } from '@/context/GameContext';
 import { useRouter } from 'next/router';
+import { RoomUiStatus } from '@/lib/types';
 
 export default function SurrenderDialog({
+  isOpen,
+  setOpen,
   handleSurrender,
 }: {
+  isOpen: boolean;
+  setOpen: any;
   handleSurrender: () => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const { openOverDialog, isSurrendered, spectating } = useGame();
+  const { openOverDialog, isSurrendered, spectating, roomUiStatus } = useGame();
   const { t } = useTranslation();
   const router = useRouter();
 
   const handleClose = useCallback(() => {
-    setIsOpen(false);
-  }, []);
+    setOpen(false);
+  }, [setOpen]);
 
   const handleKeydown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'Escape' && !isOpen && !openOverDialog) {
-        setIsOpen(true);
+        setOpen(true);
       }
     },
-    [isOpen, openOverDialog]
+    [isOpen, openOverDialog, setOpen]
   );
 
-  const showExitTitle = isSurrendered || spectating;
+  const showExitTitle =
+    isSurrendered ||
+    spectating ||
+    roomUiStatus === RoomUiStatus.gameOverConfirm;
 
   const handleCloseSurrender = useCallback(() => {
-    setIsOpen(false);
+    setOpen(false);
     handleSurrender();
-  }, [handleSurrender]);
+  }, [handleSurrender, setOpen]);
 
   const handleExit = useCallback(() => {
-    setIsOpen(false);
+    setOpen(false);
     router.push('/');
-  }, [router]);
+  }, [router, setOpen]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeydown);

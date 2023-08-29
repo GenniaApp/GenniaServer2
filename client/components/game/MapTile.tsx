@@ -1,10 +1,11 @@
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { TileType, TileProp, Position, TileType2Image } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 import { Room } from '@/lib/types';
 import {
+  defaultBgcolor,
   notRevealedFill,
   notOwnedArmyFill,
   notOwnedCityFill,
@@ -31,7 +32,7 @@ interface MapTileProps {
   };
 }
 
-export default function MapTile(props: MapTileProps) {
+function MapTile(props: MapTileProps) {
   const {
     zoom,
     imageZoom = 0.8,
@@ -60,10 +61,12 @@ export default function MapTile(props: MapTileProps) {
   useEffect(() => {
     if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
       setTileHalf(selectedMapTileInfo.half);
+    } else if (mapQueueData.length !== 0 && mapQueueData[x][y].half) {
+      setTileHalf(true);
     } else {
       setTileHalf(false);
     }
-  }, [selectedMapTileInfo, x, y]);
+  }, [selectedMapTileInfo, x, y, mapQueueData]);
 
   const getPlayerIndex = useCallback((room: Room, playerId: string) => {
     for (let i = 0; i < room.players.length; ++i) {
@@ -165,7 +168,14 @@ export default function MapTile(props: MapTileProps) {
         className: className,
       });
     },
-    [selectedMapTileInfo, attackQueueRef]
+    [
+      selectedMapTileInfo,
+      attackQueueRef,
+      mapQueueDataDispatch,
+      setSelectedMapTileInfo,
+      x,
+      y,
+    ]
   );
 
   const handleClick = useCallback(() => {
@@ -186,8 +196,30 @@ export default function MapTile(props: MapTileProps) {
       } else {
         setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
       }
+    } else {
+      // cancel select andhalf
+      setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
+      mapQueueDataDispatch({
+        type: 'change',
+        x: x,
+        y: y,
+        className: '',
+        half: false,
+      });
     }
-  }, [canMove, x, y, selectedMapTileInfo, unitsCount]);
+  }, [
+    x,
+    y,
+    selectedMapTileInfo,
+    unitsCount,
+    tileHalf,
+    isOwned,
+    isNextPossibleMove,
+    whichNextPossibleMove,
+    handlePositionChange,
+    setSelectedMapTileInfo,
+    mapQueueDataDispatch,
+  ]);
 
   const handleMouseEnter = useCallback(() => {
     if (canMove) {
@@ -202,8 +234,6 @@ export default function MapTile(props: MapTileProps) {
   }, [canMove]);
 
   const zoomedSize = useMemo(() => size * zoom, [size, zoom]);
-  const bgPosition = useMemo(() => zoomedSize * 0.025, [zoomedSize]); // shift to create a "border"
-  const bgWidth = useMemo(() => zoomedSize * 0.95, [zoomedSize]);
   const zoomedFontSize = useMemo(() => fontSize * zoom, [fontSize, zoom]);
   const tileX = useMemo(() => zoomedSize * y, [zoomedSize, y]);
   const tileY = useMemo(() => zoomedSize * x, [zoomedSize, x]);
@@ -259,6 +289,7 @@ export default function MapTile(props: MapTileProps) {
         width: zoomedSize,
         height: zoomedSize,
         cursor: cursorStyle,
+        backgroundColor: defaultBgcolor,
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -267,10 +298,10 @@ export default function MapTile(props: MapTileProps) {
       <div
         style={{
           position: 'absolute',
-          left: bgPosition,
-          top: bgPosition,
-          width: bgWidth,
-          height: bgWidth,
+          left: 0,
+          top: 0,
+          width: zoomedSize,
+          height: zoomedSize,
           backgroundColor: bgcolor,
           border: stroke ? `${stroke} solid 1px` : `${bgcolor} solid 1px`,
         }}
@@ -306,16 +337,13 @@ export default function MapTile(props: MapTileProps) {
             textOverflow: 'ellipsis',
             overflow: 'visible',
             textShadow: '0 0 2px #000',
+            userSelect: 'none',
           }}
         >
           {/* 50% */}
-          {tileHalf
-            ? '50%'
-            : mapQueueData.length === 0
-            ? unitsCount
-            : mapQueueData[x][y].text
-            ? mapQueueData[x][y].text
-            : unitsCount}
+          {/* {tileHalf ? '50%' : unitsCount} */}
+
+          {tileHalf ? '50%' : unitsCount}
         </div>
       )}
 
@@ -336,3 +364,5 @@ export default function MapTile(props: MapTileProps) {
     </div>
   );
 }
+
+export default React.memo(MapTile);

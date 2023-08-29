@@ -16,34 +16,29 @@ import { useState } from 'react';
 import { useTranslation } from 'next-i18next';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import HowToPlay from './HowToPlay';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Link from 'next/link';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  boxShadow: 'box-shadow: rgba(0, 0, 0, 0.8) 0px -1px 8px',
-  p: 4,
-};
-
 const navItems = [
+  { href: 'https://github.com/GenniaApp/GenniaServer2', label: 'github' },
   { href: 'https://docs.gennia.io/', label: 'wiki' },
-  { href: 'https://docs.gennia.io/bot-api/', label: 'bot-api' },
-  { href: 'https://github.com/GenniaApp', label: 'about-us' },
+  { href: 'https://github.com/GenniaApp/GenniaBot', label: 'bot-api' },
   {
     href: 'https://github.com/GenniaApp/GenniaServer2/issues',
     label: 'feedback',
   },
-  { href: 'https://github.com/GenniaApp/GenniaServer2', label: 'github' },
 ];
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = useState(null);
+
+  const [show, setShow] = useState(false);
+
+  const toggleShow = () => {
+    setShow(!show);
+  };
 
   const router = useRouter();
 
@@ -86,7 +81,7 @@ function Navbar() {
             </Link>
             <Link href='/'>
               <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
-                Gennia Online
+                Gennia
               </Typography>
             </Link>
             <Chip
@@ -135,7 +130,7 @@ function Navbar() {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Image src='/img/favicon.png' width={32} height={32} alt='logo' />
               <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
-                Gennia Online
+                Gennia
               </Typography>
               <Chip
                 label='beta'
@@ -161,7 +156,25 @@ function Navbar() {
             </Link>
           ))}
         </Box>
-        <Box id='lng-selector'>
+        <Box
+          id='lng-selector'
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'row',
+          }}
+        >
+          <Button
+            variant='contained'
+            size='small'
+            onClick={toggleShow}
+            sx={{ margin: 2, height: '40px', fontSize: '15px' }}
+          >
+            <Typography variant='body2' sx={{ whiteSpace: 'nowrap' }}>
+              {t('how-to-play')}
+            </Typography>
+          </Button>
+          <HowToPlay show={show} toggleShow={toggleShow} />
           <FormControl>
             <Select
               color='secondary'
@@ -171,7 +184,7 @@ function Navbar() {
               {router.locales &&
                 router.locales.map((lang) => (
                   <MenuItem key={lang} value={lang} onClick={handleClick(lang)}>
-                    {lang}
+                    <Typography>{lang}</Typography>
                   </MenuItem>
                 ))}
             </Select>

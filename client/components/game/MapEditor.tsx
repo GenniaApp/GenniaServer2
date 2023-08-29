@@ -42,6 +42,7 @@ import useMapDrag from '@/hooks/useMapDrag';
 import MapExplorer from '@/components/game/MapExplorer';
 import Loading from '@/components/Loading';
 import PublishMapDialog from '@/components/PublishMapDialog';
+import ReactMarkdown from 'react-markdown';
 import { v4 as uuidv4 } from 'uuid';
 
 const name2TileType: Record<string, TileType> = {
@@ -151,13 +152,15 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         setLoading(false);
       });
   }, []);
+
   useEffect(() => {
     if (editMode) return;
     getMapDataFromServer(mapId);
-  }, [editMode, getMapDataFromServer]);
+  }, [mapId, editMode, getMapDataFromServer]);
 
   const handleMapSelect = (mapId: string) => {
     getMapDataFromServer(mapId);
+    setOpenMapExplorer(false);
   };
 
   const mapPixelWidth = useMemo(
@@ -477,7 +480,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
   }, [mapRef, editMode, handleKeyDown]);
 
   return (
-    <div className='app-container'>
+    <div className='app-container' style={{ position: 'relative' }}>
       <Snackbar
         open={snackState.open}
         autoHideDuration={snackState.duration}
@@ -499,14 +502,20 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             position: 'absolute',
             top: '60px',
             left: '50%',
-            width: '50dvw',
+            width: {
+              xs: '90vw',
+              md: '55vw',
+              lg: '45vw',
+            },
             transform: `translate(-50%, 0)`,
-            height: 'min-content',
+            height: '20vh',
+            overflowY: 'auto',
             borderRadius: '0 10px 10px 0 !important',
+            zIndex: 101,
           }}
         >
-          <Typography variant='h4'>{mapName}</Typography>
-          <Typography variant='body1'>{mapDescription}</Typography>
+          <Typography variant='h5'>{mapName}</Typography>
+          <ReactMarkdown>{mapDescription}</ReactMarkdown>
           <Button variant='contained' color='info' onClick={handleDownloadMap}>
             {t('download')}
           </Button>
@@ -767,8 +776,8 @@ function MapEditor({ editMode }: { editMode: boolean }) {
           top: '50%',
           left: '50%',
           transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
-          width: mapPixelWidth,
-          height: mapPixelHeight,
+          width: mapPixelHeight, // we should swap width and height here
+          height: mapPixelWidth,
           backgroundColor: '#495468',
         }}
       >

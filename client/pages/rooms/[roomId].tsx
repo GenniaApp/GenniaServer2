@@ -3,7 +3,6 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import theme from '@/components/theme';
 import Navbar from '@/components/Navbar';
 import GameRoom from '@/components/GameRoom';
-import Footer from '@/components/Footer';
 import { GameProvider } from '@/context/GameContext';
 
 function RoomPage() {
@@ -13,7 +12,6 @@ function RoomPage() {
       <GameProvider>
         <GameRoom />
       </GameProvider>
-      <Footer />
     </ThemeProvider>
   );
 }

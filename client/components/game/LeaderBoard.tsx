@@ -6,22 +6,15 @@ import {
   TableBody,
   TableHead,
   TableRow,
-  Card,
-  CardHeader,
-  CardContent,
   Checkbox,
-  IconButton,
 } from '@mui/material';
-import StartRoundedIcon from '@mui/icons-material/StartRounded';
-import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 import useMediaQuery from '@mui/material/useMediaQuery';
-
+import { useTranslation } from 'next-i18next';
 import { useState, useEffect } from 'react';
 import { Player, LeaderBoardTable, UserData } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 
 interface LeaderBoardProps {
-  turnsCount: number;
   players: Player[];
   leaderBoardTable: LeaderBoardTable | null;
   checkedPlayers?: UserData[];
@@ -36,20 +29,16 @@ type LeaderBoardData = {
 }[];
 
 export default function LeaderBoard(props: LeaderBoardProps) {
-  const {
-    players,
-    turnsCount,
-    leaderBoardTable,
-    checkedPlayers,
-    setCheckedPlayers,
-  } = props;
+  const { players, leaderBoardTable, checkedPlayers, setCheckedPlayers } =
+    props;
   const [gameDockExpand, setGameDockExpand] = useState(true);
+  const { t } = useTranslation();
 
   const isSmallScreen = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
-    setGameDockExpand(!isSmallScreen);
-  }, [isSmallScreen]);
+    if (!checkedPlayers) setGameDockExpand(!isSmallScreen);
+  }, [isSmallScreen, checkedPlayers]);
 
   if (!leaderBoardTable) return null;
 
@@ -69,97 +58,93 @@ export default function LeaderBoard(props: LeaderBoardProps) {
   });
   return (
     <Box
-      sx={{
-        position: 'absolute',
-        width: 'max-content',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'transparent',
+      onClick={() => {
+        if (!checkedPlayers) setGameDockExpand(!gameDockExpand);
       }}
     >
-      <Card
-        sx={{
-          width: '100%',
-          height: 'max-content',
-          marginTop: '80px',
-          marginBottom: '80px',
-          backdropFilter: 'blur(3px)',
-          backgroundColor: 'rgb(99 97 141 / 68%)',
-          borderRadius: '0 10px 10px 0',
-          zIndex: 66,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'space-around',
-          overflow: 'auto',
-          padding: '0',
-        }}
-      >
-        <CardHeader
-          sx={{ width: '100%' }}
-          title={gameDockExpand ? `Turn ${turnsCount}` : `${turnsCount}`}
-          action={
-            <IconButton onClick={() => setGameDockExpand(!gameDockExpand)}>
-              {gameDockExpand ? <MenuOpenRoundedIcon /> : <StartRoundedIcon />}
-            </IconButton>
-          }
-        />
-        <CardContent sx={{ display: gameDockExpand ? '' : 'none' }}>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: 'transparent' }}>
-                  {checkedPlayers && setCheckedPlayers && (
-                    <TableCell>View</TableCell>
-                  )}
-                  <TableCell>Player</TableCell>
-                  <TableCell>Army</TableCell>
-                  <TableCell>Land</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {leaderBoardData.map((player, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{ backgroundColor: ColorArr[player.color] }}
+      <TableContainer>
+        <Table
+          className='menu-container'
+          sx={{
+            position: 'absolute',
+            right: '1px',
+            top: '60px',
+            width: 'min-content',
+            zIndex: '110',
+            overflow: 'hidden',
+            '& .MuiTableCell-root': {
+              paddingY: '0.6rem',
+              paddingX: gameDockExpand ? '0.8rem' : '0.4rem',
+            },
+          }}
+        >
+          <TableHead>
+            <TableRow
+              sx={{ backgroundColor: 'transparent', whiteSpace: 'nowrap' }}
+            >
+              {checkedPlayers && setCheckedPlayers && (
+                <TableCell>View</TableCell>
+              )}
+              {gameDockExpand ? (
+                <TableCell>{t('player')}</TableCell>
+              ) : (
+                <TableCell sx={{ padding: '1px' }}></TableCell>
+              )}
+              <TableCell>{t('army')}</TableCell>
+              <TableCell>{t('land')}</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {leaderBoardData.map((player, index) => (
+              <TableRow key={index} sx={{ backgroundColor: 'transparnet' }}>
+                {checkedPlayers && setCheckedPlayers && (
+                  <TableCell>
+                    <Checkbox
+                      defaultChecked={false}
+                      onChange={(event: any) => {
+                        if (event.target.checked) {
+                          let newCheckedPlayers = [
+                            ...checkedPlayers,
+                            {
+                              username: player.username,
+                              color: player.color,
+                            } as UserData,
+                          ];
+                          setCheckedPlayers(newCheckedPlayers);
+                        } else {
+                          setCheckedPlayers(
+                            checkedPlayers.filter(
+                              (p) => p.color !== player.color
+                            )
+                          );
+                        }
+                      }}
+                    />
+                  </TableCell>
+                )}
+                {gameDockExpand ? (
+                  <TableCell
+                    sx={{
+                      backgroundColor: ColorArr[player.color],
+                    }}
                   >
-                    {checkedPlayers && setCheckedPlayers && (
-                      <TableCell>
-                        <Checkbox
-                          defaultChecked={false}
-                          onChange={(event: any) => {
-                            if (event.target.checked) {
-                              let newCheckedPlayers = [
-                                ...checkedPlayers,
-                                {
-                                  username: player.username,
-                                  color: player.color,
-                                } as UserData,
-                              ];
-                              setCheckedPlayers(newCheckedPlayers);
-                            } else {
-                              setCheckedPlayers(
-                                checkedPlayers.filter(
-                                  (p) => p.color !== player.color
-                                )
-                              );
-                            }
-                          }}
-                        />
-                      </TableCell>
-                    )}
-                    <TableCell>{player.username}</TableCell>
-                    <TableCell>{player.armyCount}</TableCell>
-                    <TableCell>{player.landsCount}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
+                    {player.username}
+                  </TableCell>
+                ) : (
+                  <TableCell
+                    sx={{
+                      padding: '3px',
+                      backgroundColor: ColorArr[player.color],
+                    }}
+                  ></TableCell>
+                )}
+                <TableCell>{player.armyCount}</TableCell>
+                <TableCell>{player.landsCount}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   );
 }

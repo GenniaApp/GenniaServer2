@@ -26,7 +26,7 @@ import {
 } from '@mui/icons-material';
 import { mapDataReducer } from '@/context/GameReducer';
 import CustomMapTile from '@/components/game/CustomMapTile';
-import { SpeedOptions } from '@/lib/constants';
+import { ReplaySpeedOptions } from '@/lib/constants';
 import {
   Position,
   LeaderBoardTable,
@@ -35,6 +35,7 @@ import {
   TileProp,
   TileType,
 } from '@/lib/types';
+import TurnsCount from './TurnsCount';
 import LeaderBoard from './LeaderBoard';
 import { useTranslation } from 'next-i18next';
 import GameLoading from '@/components/GameLoading';
@@ -42,6 +43,7 @@ import useMapDrag from '@/hooks/useMapDrag';
 import GameRecord from '@/lib/game-record';
 import ChatBox from '@/components/ChatBox';
 import Swal from 'sweetalert2';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function GameReplay(props: any) {
   const [gameRecord, setGameRecord] = useState<GameRecord | null>(null);
@@ -70,6 +72,11 @@ export default function GameReplay(props: any) {
 
   const router = useRouter();
   const replayId = router.query.replayId as string;
+
+  const isSmallScreen = useMediaQuery('(max-width:600px)');
+  useEffect(() => {
+    setZoom(isSmallScreen ? 0.7 : 1.0);
+  }, [isSmallScreen]);
 
   const mapPixelWidth = useMemo(
     () => tileSize * mapWidth,
@@ -164,7 +171,7 @@ export default function GameReplay(props: any) {
         clearInterval(intervalId.current);
       }
     }
-  }, [gameRecord, isPlay, playSpeed]);
+  }, [gameRecord, isPlay, playSpeed]); // don't add turnsCount
 
   useEffect(() => {
     if (checkedPlayers && checkedPlayers.length > 0) {
@@ -210,11 +217,14 @@ export default function GameReplay(props: any) {
     } else {
       setLimitedView(mapData);
     }
-  }, [mapData, checkedPlayers]);
+  }, [mapData, checkedPlayers, mapWidth, mapHeight]);
 
   const changeTurn = (current_turn: number) => {
     if (gameRecord) {
       if (current_turn >= maxTurn) current_turn = maxTurn;
+
+      setIsPlay(false);
+      clearInterval(intervalId.current);
 
       setTurnsCount(current_turn);
 
@@ -230,6 +240,9 @@ export default function GameReplay(props: any) {
         gameRecordTurns: gameRecord.gameRecordTurns,
         jumpToTurn: current_turn - 1,
       });
+
+      const { lead } = gameRecord.gameRecordTurns[current_turn - 1];
+      setLeaderBoardData(lead);
     }
   };
 
@@ -260,145 +273,152 @@ export default function GameReplay(props: any) {
     );
   } else {
     return (
-      <Box sx={{ width: '100dvw', height: '100dvh' }}>
-        <Box
-          className='menu-container'
-          sx={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translate(-50%, 0) translate(0, 0)',
-            width: 'max-content',
-            height: 'max-content',
-            bottom: '65px',
-            borderRadius: '10px !important',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-            zIndex: 1000,
-            padding: '10px !important',
-            boxShadow: '2',
-            '@media screen and (max-width: 900px)': {
-              width: '100dvw',
-            },
-          }}
-        >
+      <Box className='app-container'>
+        <Box className='Game'>
           <Box
-            display='flex'
-            flexDirection='row'
-            justifyContent='space-between'
-          >
-            <IconButton
-              disabled={turnsCount === 1}
-              onClick={() => changeTurn(turnsCount > 1 ? turnsCount - 1 : 1)}
-            >
-              <FastRewindRounded fontSize='large' />
-            </IconButton>
-            <IconButton onClick={() => setIsPlay(!isPlay)}>
-              {isPlay ? (
-                <PauseRounded sx={{ fontSize: '3rem' }} />
-              ) : (
-                <PlayArrowRounded sx={{ fontSize: '3rem' }} />
-              )}
-            </IconButton>
-            <IconButton
-              disabled={turnsCount === maxTurn}
-              onClick={() =>
-                changeTurn(turnsCount < maxTurn ? turnsCount + 1 : maxTurn)
-              }
-            >
-              <FastForwardRounded fontSize='large' />
-            </IconButton>
-          </Box>
-          <Slider
-            size='medium'
-            value={turnsCount}
-            min={0}
-            step={1}
-            max={maxTurn}
-            onChange={handleChangeTurn}
+            className='menu-container'
             sx={{
-              color: '#fff',
-              height: 8,
-              '& .MuiSlider-thumb': {
-                width: 16,
-                height: 16,
-                transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
-                '&:before': {
-                  boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
-                },
-                '&:hover, &.Mui-focusVisible': {
-                  boxShadow: `0px 0px 0px 8px rgb(255 255 255 / 16%)`,
-                },
-                '&.Mui-active': {
-                  width: 26,
-                  height: 26,
-                },
+              position: 'absolute',
+              left: '50%',
+              transform: 'translate(-50%, 0) translate(0, 0)',
+              width: 'max-content',
+              height: 'max-content',
+              bottom: '65px',
+              borderRadius: '10px !important',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'column',
+              zIndex: 1000,
+              padding: '10px !important',
+              boxShadow: '2',
+              '@media screen and (max-width: 900px)': {
+                width: '100dvw',
               },
-              '& .MuiSlider-rail': {
-                opacity: 0.28,
-              },
+            }}
+          >
+            <Box
+              display='flex'
+              flexDirection='row'
+              justifyContent='space-between'
+            >
+              <IconButton
+                disabled={turnsCount === 1}
+                onClick={() => changeTurn(turnsCount > 1 ? turnsCount - 1 : 1)}
+              >
+                <FastRewindRounded fontSize='large' />
+              </IconButton>
+              <IconButton onClick={() => setIsPlay(!isPlay)}>
+                {isPlay ? (
+                  <PauseRounded sx={{ fontSize: '3rem' }} />
+                ) : (
+                  <PlayArrowRounded sx={{ fontSize: '3rem' }} />
+                )}
+              </IconButton>
+              <IconButton
+                disabled={turnsCount === maxTurn}
+                onClick={() =>
+                  changeTurn(turnsCount < maxTurn ? turnsCount + 1 : maxTurn)
+                }
+              >
+                <FastForwardRounded fontSize='large' />
+              </IconButton>
+            </Box>
+            <Slider
+              size='medium'
+              value={turnsCount}
+              min={0}
+              step={1}
+              max={maxTurn}
+              onChange={handleChangeTurn}
+              sx={{
+                color: '#fff',
+                height: 8,
+                '& .MuiSlider-thumb': {
+                  width: 16,
+                  height: 16,
+                  transition: '0.3s cubic-bezier(.47,1.64,.41,.8)',
+                  '&:before': {
+                    boxShadow: '0 2px 12px 0 rgba(0,0,0,0.4)',
+                  },
+                  '&:hover, &.Mui-focusVisible': {
+                    boxShadow: `0px 0px 0px 8px rgb(255 255 255 / 16%)`,
+                  },
+                  '&.Mui-active': {
+                    width: 26,
+                    height: 26,
+                  },
+                },
+                '& .MuiSlider-rail': {
+                  opacity: 0.28,
+                },
+              }}
+            />
+            <RadioGroup
+              sx={{ width: '100%' }}
+              aria-label='game-speed'
+              name='game-speed'
+              value={playSpeed}
+              row
+              onChange={(event) => {
+                setIsPlay(false);
+                setPlaySpeed(Number.parseFloat(event.target.value));
+              }}
+            >
+              {ReplaySpeedOptions.map((value) => (
+                <FormControlLabel
+                  key={value}
+                  value={value}
+                  control={<Radio size='small' />}
+                  label={`${value}x`}
+                />
+              ))}
+            </RadioGroup>
+          </Box>
+
+          <TurnsCount
+            count={turnsCount}
+            handleReturnClick={() => {
+              router.push('/');
             }}
           />
-          <RadioGroup
-            sx={{ width: '100%' }}
-            aria-label='game-speed'
-            name='game-speed'
-            value={playSpeed}
-            row
-            onChange={(event) => {
-              setIsPlay(false);
-              setPlaySpeed(Number.parseFloat(event.target.value));
+
+          <LeaderBoard
+            leaderBoardTable={leaderBoardData}
+            players={gameRecord.players}
+            checkedPlayers={checkedPlayers}
+            setCheckedPlayers={setCheckedPlayers}
+          />
+          <ChatBox socket={null} messages={messages} />
+          <div
+            ref={mapRef}
+            tabIndex={0}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
+              width: mapPixelWidth,
+              height: mapPixelHeight,
             }}
           >
-            {SpeedOptions.map((value) => (
-              <FormControlLabel
-                key={value}
-                value={value}
-                control={<Radio size='small' />}
-                label={`${value}x`}
-              />
-            ))}
-          </RadioGroup>
+            {limitedView.map((tiles, x) => {
+              return tiles.map((tile, y) => {
+                return (
+                  <CustomMapTile
+                    key={`${x}/${y}`}
+                    zoom={zoom}
+                    size={tileSize}
+                    x={x}
+                    y={y}
+                    tile={[...tile, false, 0]}
+                    handleClick={() => {}}
+                  />
+                );
+              });
+            })}
+          </div>
         </Box>
-
-        <LeaderBoard
-          leaderBoardTable={leaderBoardData}
-          players={gameRecord.players}
-          turnsCount={turnsCount}
-          checkedPlayers={checkedPlayers}
-          setCheckedPlayers={setCheckedPlayers}
-        />
-        <ChatBox socket={null} messages={messages} />
-        <div
-          ref={mapRef}
-          tabIndex={0}
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
-            width: mapPixelWidth,
-            height: mapPixelHeight,
-            backgroundColor: '#495468',
-          }}
-        >
-          {limitedView.map((tiles, x) => {
-            return tiles.map((tile, y) => {
-              return (
-                <CustomMapTile
-                  key={`${x}/${y}`}
-                  zoom={zoom}
-                  size={tileSize}
-                  x={x}
-                  y={y}
-                  tile={[...tile, false, 0]}
-                  handleClick={() => {}}
-                />
-              );
-            });
-          })}
-        </div>
       </Box>
     );
   }

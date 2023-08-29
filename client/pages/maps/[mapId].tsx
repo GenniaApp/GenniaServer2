@@ -2,7 +2,6 @@ import { ThemeProvider } from '@mui/material/styles';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import theme from '@/components/theme';
 import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import MapEditor from '@/components/game/MapEditor';
 
 function ReplayPage() {
@@ -10,7 +9,6 @@ function ReplayPage() {
     <ThemeProvider theme={theme}>
       <Navbar />
       <MapEditor editMode={false} />
-      <Footer />
     </ThemeProvider>
   );
 }

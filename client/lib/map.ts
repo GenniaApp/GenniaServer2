@@ -28,6 +28,7 @@ function getRandomInt(min: number, max: number): number {
 class GameMap {
   map: Block[][];
   turn: number;
+  minKingDistance: number;
 
   constructor(
     public id: string,
@@ -37,7 +38,8 @@ class GameMap {
     public mountain: number,
     public city: number,
     public swamp: number,
-    public players: Player[]
+    public players: Player[],
+    public revealKing: boolean
   ) {
     this.width = width;
     this.height = height;
@@ -60,6 +62,8 @@ class GameMap {
       Array(this.height).fill(null)
     );
     this.turn = 0;
+    this.revealKing = revealKing;
+    this.minKingDistance = 6; // todo: change this acordding width height players
   }
 
   toJSON() {
@@ -138,6 +142,7 @@ class GameMap {
 
     return connected;
   }
+
   assign_random_king(): void {
     for (let i = 0; i < this.players.length; ++i) {
       let pos = null;
@@ -153,7 +158,10 @@ class GameMap {
         let y = getRandomInt(0, this.height);
         pos = new Point(x, y);
         let block = this.getBlock(pos);
-        if (block.type !== TileType.King) {
+        if (block.type !== TileType.King
+          && block.type !== TileType.Swamp
+          && block.type !== TileType.Mountain
+          && block.type !== TileType.City) {
           let flag = true;
           for (let j = 0; j < i; ++j) {
             const otherKing = this.players[j].king;
@@ -162,7 +170,7 @@ class GameMap {
               calcDistance(
                 new Point(otherKing.x, otherKing.y),
                 new Point(x, y)
-              ) <= 6
+              ) <= this.minKingDistance
             ) {
               flag = false;
               break;
@@ -170,6 +178,7 @@ class GameMap {
           }
           if (flag) {
             block.initKing(this.players[i]);
+            if (this.revealKing) block.isAlwaysRevealed = true;
             this.players[i].initKing(block);
             break;
           }
@@ -179,9 +188,9 @@ class GameMap {
     }
   }
 
-  static from_custom_map(customMapData: CustomMapData, players: Player[]): GameMap {
+  static from_custom_map(customMapData: CustomMapData, players: Player[], revealKing: boolean): GameMap {
     const { id, name, width, height, mapTilesData } = customMapData;
-    let map = new GameMap(id, name, width, height, 0, 0, 0, players);
+    let map = new GameMap(id, name, width, height, 0, 0, 0, players, revealKing);
 
     // Initialize the map's blocks from the custom map data
     for (let i = 0; i < width; i++) {
@@ -214,6 +223,7 @@ class GameMap {
       if (i < kings.length) {
         if (players[i].spectating) continue;
         kings[i].initKing(players[i]);
+        if (map.revealKing) kings[i].isAlwaysRevealed = true;
         players[i].initKing(kings[i]);
       }
     }
@@ -240,7 +250,7 @@ class GameMap {
     // Generate the king
     this.assign_random_king();
 
-    console.log('Kings generated successfully');
+    // console.log('Kings generated successfully');
     // Generate the mountain
     for (let i = 1; i <= this.mountain; ++i) {
       let generated = false;
@@ -260,11 +270,11 @@ class GameMap {
       }
       if (!generated) {
         this.mountain = i - 1;
-        console.log('Mountain Interrupted', i);
+        // console.log('Mountain Interrupted', i);
         break;
       }
     }
-    console.log('Mountains generated successfully');
+    // console.log('Mountains generated successfully');
     // Generate the city
     for (let i = 1; i <= this.city; ++i) {
       let generated = false;
@@ -285,11 +295,11 @@ class GameMap {
       }
       if (!generated) {
         this.city = i - 1;
-        console.log('City Interrupted', i);
+        // console.log('City Interrupted', i);
         break;
       }
     }
-    console.log('Cities generated successfully');
+    // console.log('Cities generated successfully');
     // Generate the swamp.
     for (let i = 1, x, y; i <= this.swamp; ++i) {
       while (true) {
@@ -299,7 +309,7 @@ class GameMap {
       }
       this.map[x][y].type = TileType.Swamp;
     }
-    console.log('Swamps generated successfully');
+    // console.log('Swamps generated successfully');
   }
 
   getTotal(player: any): { army: number; land: number } {
@@ -324,11 +334,13 @@ class GameMap {
     return player === this.getBlock(point).player;
   }
 
-  transferBlock(point: Point, player: any): void {
-    this.map[point.x][point.y].player = player;
-    this.map[point.x][point.y].unit = Math.ceil(
-      this.map[point.x][point.y].unit / 2
-    );
+  transferBlock(block: Block, player: any): void {
+    this.map[block.x][block.y].player = player;
+    if (block.type !== TileType.King) { // at this time, king have been dominated
+      this.map[block.x][block.y].unit = Math.ceil(
+        this.map[block.x][block.y].unit / 2
+      );
+    }
   }
 
   withinMap(point: Point): boolean {

@@ -68,7 +68,7 @@ function Lobby() {
     } else {
       setUsername(tmp);
     }
-  }, [setUsername]);
+  }, [setUsername, router]);
 
   const handleRoomClick = (roomName: string) => {
     router.push(`/rooms/${roomName}`);
@@ -161,12 +161,12 @@ function Lobby() {
               <Table size='small'>
                 <TableHead>
                   <TableRow>
-                    <TableCell>{t('room-id')}</TableCell>
+                    <TableCell></TableCell>
+                    {/* <TableCell>{t('room-id')}</TableCell> */}
                     <TableCell>{t('room-name')}</TableCell>
                     <TableCell>{t('game-speed')}</TableCell>
                     <TableCell>{t('players')}</TableCell>
                     <TableCell>{t('status')}</TableCell>
-                    <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -185,14 +185,18 @@ function Lobby() {
                   ) : (
                     Object.values(rooms).map((room: Room) => (
                       <TableRow key={room.id}>
-                        <TableCell
-                          component='th'
-                          scope='row'
-                          onClick={() => handleRoomClick(room.id)}
-                          sx={{ cursor: 'pointer' }}
-                        >
-                          {room.id}
+                        <TableCell>
+                          <Button
+                            variant='contained'
+                            color='primary'
+                            onClick={() => handleRoomClick(room.id)}
+                          >
+                            {room.gameStarted ? t('spectate') : t('join')}
+                          </Button>
                         </TableCell>
+                        {/* <TableCell component='th' scope='row'>
+                          {room.id}
+                        </TableCell> */}
                         <TableCell>{room.roomName}</TableCell>
                         <TableCell>{room.gameSpeed}</TableCell>
                         <TableCell>{`${room.players.length}/${room.maxPlayers}`}</TableCell>
@@ -203,15 +207,6 @@ function Lobby() {
                           >
                             {room.gameStarted ? t('started') : t('waiting')}
                           </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            variant='contained'
-                            color='primary'
-                            onClick={() => handleRoomClick(room.id)}
-                          >
-                            {t('join')}
-                          </Button>
                         </TableCell>
                       </TableRow>
                     ))
