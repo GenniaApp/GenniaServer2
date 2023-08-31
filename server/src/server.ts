@@ -360,8 +360,8 @@ async function handleGame(room: Room, io: Server) {
       room.map = GameMap.from_custom_map(customMapData, room.players, room.revealKing);
 
     } else {
-      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 10 * room.mapWidth)
-      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 10 * room.mapHeight)
+      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 12 * room.mapWidth)
+      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 12 * room.mapHeight)
       room.map = new GameMap(
         'random_map_id',
         'random_map_name',
@@ -449,7 +449,7 @@ async function handleGame(room: Room, io: Server) {
 
         for (let socket of room_sockets) {
           let playerIndex = getPlayerIndexBySocket(room, socket.id);
-          if (playerIndex !== -1 && room.players[playerIndex].patchView) {
+          if (playerIndex !== -1 && room.players[playerIndex].patchView && !room.players[playerIndex].disconnected) {
             if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar || room.players[playerIndex].spectating) {
               await room.players[playerIndex].patchView.patch(room.map.map);
             } else {

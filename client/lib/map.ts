@@ -149,7 +149,7 @@ class GameMap {
       if (this.players[i].king) continue;
       if (this.players[i].spectating) continue;
       let attempts = 0;
-      const maxAttempts = 10;
+      const maxAttempts = 15;
       while (true) {
         if (attempts >= maxAttempts) {
           throw new Error('Failed to place king after ' + maxAttempts + ' attempts');

@@ -75,7 +75,7 @@ export default function GameReplay(props: any) {
 
   const isSmallScreen = useMediaQuery('(max-width:600px)');
   useEffect(() => {
-    setZoom(isSmallScreen ? 0.7 : 1.0);
+    setZoom(isSmallScreen ? 0.6 : 0.8);
   }, [isSmallScreen]);
 
   const mapPixelWidth = useMemo(

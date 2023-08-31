@@ -22,7 +22,7 @@ function PlayerTable(props: PlayerTableProps) {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
       {players.map((player) => (
         <Tooltip
           key={player.id}

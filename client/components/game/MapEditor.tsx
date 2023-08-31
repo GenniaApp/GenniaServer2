@@ -178,11 +178,6 @@ function MapEditor({ editMode }: { editMode: boolean }) {
     priority: priority,
     revealed: '',
   };
-  const property2setVar: Record<string, any> = {
-    team: setTeam,
-    unitsCount: setUnitCount,
-    priority: setPriority,
-  };
 
   const property2min: Record<string, any> = {
     team: 0,
@@ -196,6 +191,22 @@ function MapEditor({ editMode }: { editMode: boolean }) {
     unitsCount: 9999,
     priority: 100,
     revealed: '',
+  };
+
+  const checkSetUnitCount = (value: number) => {
+    if (value < property2min.unitsCount) {
+      setUnitCount(property2min.unitsCount);
+    } else if (value > property2max.unitsCount) {
+      setUnitCount(property2max.unitsCount);
+    } else {
+      setUnitCount(value);
+    }
+  };
+
+  const property2setVar: Record<string, any> = {
+    team: setTeam,
+    unitsCount: checkSetUnitCount,
+    priority: setPriority,
   };
 
   useEffect(() => {
