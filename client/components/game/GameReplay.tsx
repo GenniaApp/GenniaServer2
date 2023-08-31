@@ -1,3 +1,4 @@
+// cSpell:ignore swal sweetalert
 import React, {
   useCallback,
   useState,
@@ -59,7 +60,7 @@ export default function GameReplay(props: any) {
   const [limitedView, setLimitedView] = useState<TileProp[][]>([[]]);
   const [checkedPlayers, setCheckedPlayers] = useState<UserData[]>([]);
   const { t } = useTranslation();
-  const [notFounderror, setNotFoundError] = useState('');
+  const [notFoundError, setNotFoundError] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [zoom, setZoom] = useState(1);
   const [tileSize, setTileSize] = useState(40);
@@ -250,7 +251,7 @@ export default function GameReplay(props: any) {
     changeTurn(event.target.value as number);
   };
 
-  if (notFounderror) {
+  if (notFoundError) {
     Swal.fire({
       title: 'Replay Not Found',
       text: 'Return to Lobby.',

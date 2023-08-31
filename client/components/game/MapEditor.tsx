@@ -1,3 +1,4 @@
+// cSpell:ignore uuidv gennia
 import {
   useCallback,
   useMemo,

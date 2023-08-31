@@ -1,5 +1,5 @@
 import { styled } from '@mui/material/styles';
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TextField, Button, IconButton, Typography } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import { useTranslation } from 'next-i18next';
@@ -109,7 +109,7 @@ interface ChatBoxProp {
   messages: Message[];
 }
 
-const ChatBox = ({ socket, messages }: ChatBoxProp) => {
+export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
   const [inputValue, setInputValue] = useState('');
   const [isExpand, setIsExpand] = useState(true);
   const textFieldRef = useRef<any>(null);
@@ -192,6 +192,4 @@ const ChatBox = ({ socket, messages }: ChatBoxProp) => {
       )}
     </ChatBoxContainer>
   );
-};
-
-export default ChatBox;
+});

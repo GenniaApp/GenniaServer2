@@ -284,7 +284,7 @@ const io = new Server(server, {
   },
 });
 
-async function handleNeutralized(room: Room, player: Player) {
+function handleNeutralized(room: Room, player: Player) {
   if (player.king) {
     room.map.getBlock(player.king).kingBeDominated();
   } else {
@@ -305,7 +305,7 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
     io.in(room.id).emit('room_message', player, 'quit.');
     if (room.gameStarted) {
       player.disconnected = true;
-      await handleNeutralized(room, player);
+      handleNeutralized(room, player);
     } else {
       room.players = room.players.filter((p) => p.id != player.id);
     }
@@ -399,12 +399,12 @@ async function handleGame(room: Room, io: Server) {
       }
     });
 
+    let lastAlivePlayer = room.players[0];
+
     let updTime = 500 / room.gameSpeed;
     room.gameLoop = setInterval(async () => {
       try {
-        let lastAlivePlayer = null;
-
-        room.players.forEach(async (player) => {
+        room.players.forEach((player) => {
           if (!room.map) throw new Error('king is null');
           if (!player.isDead && !player.spectating && !player.disconnected) {
             let block = room.map.getBlock(player.king);
@@ -427,8 +427,9 @@ async function handleGame(room: Room, io: Server) {
                 });
                 room.map.getBlock(player.king).kingBeDominated();
                 player.land.length = 0;
-              } else if (player.operatedTurn + 50 <= room.map.turn) {
-                await handleNeutralized(room, player);
+              } else if (player.operatedTurn + 160 <= room.map.turn) {
+                // if player is not operated for 160/2 turns, it will be neutralized
+                handleNeutralized(room, player);
                 io.in(room.id).emit('room_message', player.minify(), 'surrendered');
               }
             }

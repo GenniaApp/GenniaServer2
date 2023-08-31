@@ -3,7 +3,7 @@ import usePossibleNextMapPositions from '@/lib/use-possible-next-map-positions';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 import MapTile from './MapTile';
 import useMapDrag from '@/hooks/useMapDrag';
-import { Route, Position } from '@/lib/types';
+import { TileType, Room, Route, Position } from '@/lib/types';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 function GameMap() {
@@ -13,20 +13,29 @@ function GameMap() {
     attackQueueRef,
     room,
     mapData,
+    myPlayerId,
+    mapQueueData,
     selectedMapTileInfo,
     initGameInfo,
   } = useGame();
+
   const { setZoom, setSelectedMapTileInfo, mapQueueDataDispatch } =
     useGameDispatch();
   const mapRef = useRef<HTMLDivElement>(null);
+  const selectRef = useRef<any>(null);
+
   const [tileSize, setTileSize] = useState(40);
 
   const isSmallScreen = useMediaQuery('(max-width:600px)');
   useEffect(() => {
     setZoom(isSmallScreen ? 0.7 : 1.0);
-  }, [isSmallScreen]);
+  }, [isSmallScreen, setZoom]);
 
   useMapDrag(mapRef, position, setPosition, zoom, setZoom);
+
+  useEffect(() => {
+    selectRef.current = selectedMapTileInfo;
+  }, [selectedMapTileInfo]);
 
   const withinMap = useCallback(
     (point: Position) => {
@@ -219,6 +228,90 @@ function GameMap() {
     return () => {};
   }, [mapRef, handleKeyDown]);
 
+  const getPlayerIndex = useCallback((room: Room, playerId: string) => {
+    for (let i = 0; i < room.players.length; ++i) {
+      if (room.players[i].id === playerId) {
+        return i;
+      }
+    }
+    return -1;
+  }, []);
+
+  const myPlayerIndex = useMemo(() => {
+    return getPlayerIndex(room, myPlayerId);
+  }, [room, myPlayerId, getPlayerIndex]);
+
+  let displayMapData = mapData.map((tiles, x) => {
+    return tiles.map((tile, y) => {
+      const [tileType, color, unitsCount] = tile;
+      const isOwned = color === room.players[myPlayerIndex].color;
+      const _className =
+        mapQueueData.length === 0 ? '' : mapQueueData[x][y].className;
+
+      let tileHalf = false;
+
+      if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
+        tileHalf = selectedMapTileInfo.half;
+      } else if (mapQueueData.length !== 0 && mapQueueData[x][y].half) {
+        tileHalf = true;
+      } else {
+        tileHalf = false;
+      }
+      const isSelected =
+        x === selectedMapTileInfo.x && y === selectedMapTileInfo.y;
+
+      const isNextPossibleMapPosition = Object.values(
+        possibleNextMapPositions
+      ).some((maybeNextMapPosition) => {
+        return (
+          maybeNextMapPosition &&
+          maybeNextMapPosition.x === x &&
+          maybeNextMapPosition.y === y
+        );
+      });
+
+      const isNextPossibleMove =
+        isNextPossibleMapPosition && tileType !== TileType.Mountain;
+
+      const whichNextPossibleMove = () => {
+        if (isNextPossibleMove) {
+          if (
+            possibleNextMapPositions.bottom &&
+            possibleNextMapPositions.bottom.x === x &&
+            possibleNextMapPositions.bottom.y === y
+          )
+            return 'down';
+          else if (
+            possibleNextMapPositions.left &&
+            possibleNextMapPositions.left.x === x &&
+            possibleNextMapPositions.left.y === y
+          )
+            return 'left';
+          else if (
+            possibleNextMapPositions.right &&
+            possibleNextMapPositions.right.x === x &&
+            possibleNextMapPositions.right.y === y
+          )
+            return 'right';
+          else return 'up';
+        } else {
+          return '';
+        }
+      };
+
+      return {
+        tile,
+        isOwned,
+        _className,
+        tileHalf,
+        isSelected,
+        selectRef,
+        isNextPossibleMove,
+        whichNextPossibleMove,
+      };
+    });
+  });
+
   return (
     <div
       ref={mapRef}
@@ -235,7 +328,7 @@ function GameMap() {
         height: mapPixelHeight,
       }}
     >
-      {mapData.map((tiles, x) => {
+      {displayMapData.map((tiles, x) => {
         return tiles.map((tile, y) => {
           return (
             <MapTile
@@ -244,8 +337,10 @@ function GameMap() {
               size={tileSize}
               x={x}
               y={y}
-              tile={tile}
-              possibleNextMapPositions={possibleNextMapPositions}
+              {...tile}
+              attackQueueRef={attackQueueRef}
+              setSelectedMapTileInfo={setSelectedMapTileInfo}
+              mapQueueDataDispatch={mapQueueDataDispatch}
             />
           );
         });

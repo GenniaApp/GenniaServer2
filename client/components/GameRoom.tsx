@@ -1,3 +1,4 @@
+// cSpell:ignore swal sweetalert
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { io } from 'socket.io-client';
@@ -300,7 +301,7 @@ function GamingRoom() {
       socket.disconnect();
       Swal.fire({
         title: "Can't connect to the server",
-        text: 'Please reflush the App.',
+        text: 'Please refresh the App.',
         icon: 'error',
         showDenyButton: false,
         showCancelButton: false,
@@ -321,7 +322,7 @@ function GamingRoom() {
       });
       // Swal.fire({
       //   title: 'Disconnected from the server',
-      //   html: 'Please reflush the App.',
+      //   html: 'Please refresh the App.',
       //   icon: 'error',
       //   showDenyButton: false,
       //   showCancelButton: false,

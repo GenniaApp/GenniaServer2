@@ -1,10 +1,8 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import Image from 'next/image';
-import { TileType, TileProp, Position, TileType2Image } from '@/lib/types';
-import { ColorArr } from '@/lib/constants';
-import { useGame, useGameDispatch } from '@/context/GameContext';
-import { Room } from '@/lib/types';
+import { TileType, TileProp, TileType2Image } from '@/lib/types';
 import {
+  ColorArr,
   defaultBgcolor,
   notRevealedFill,
   notOwnedArmyFill,
@@ -20,19 +18,22 @@ interface MapTileProps {
   imageZoom?: number;
   size: number;
   fontSize?: number;
-  onChangeSize?: (size: number) => void;
   tile: TileProp;
   x: number;
   y: number;
-  possibleNextMapPositions: {
-    top?: Position;
-    right?: Position;
-    bottom?: Position;
-    left?: Position;
-  };
+  isOwned: boolean;
+  _className: string;
+  tileHalf: boolean;
+  isSelected: boolean;
+  selectRef: any;
+  attackQueueRef: any;
+  setSelectedMapTileInfo: any;
+  mapQueueDataDispatch: any;
+  isNextPossibleMove: boolean;
+  whichNextPossibleMove: any;
 }
 
-function MapTile(props: MapTileProps) {
+export default React.memo(function MapTile(props: MapTileProps) {
   const {
     zoom,
     imageZoom = 0.8,
@@ -41,93 +42,21 @@ function MapTile(props: MapTileProps) {
     x,
     y,
     tile,
-    possibleNextMapPositions,
-  } = props;
-
-  const [cursorStyle, setCursorStyle] = useState('default');
-  const {
-    room,
-    myPlayerId,
-    selectedMapTileInfo,
-    mapQueueData,
+    isOwned,
+    _className,
+    tileHalf,
+    isSelected,
+    selectRef,
     attackQueueRef,
-  } = useGame();
-  const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
+    setSelectedMapTileInfo,
+    mapQueueDataDispatch,
+    isNextPossibleMove,
+    whichNextPossibleMove,
+  } = props;
+  const [cursorStyle, setCursorStyle] = useState('default');
 
   const [tileType, color, unitsCount] = tile;
-  const [tileHalf, setTileHalf] = useState(false);
   const image = TileType2Image[tileType];
-
-  useEffect(() => {
-    if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
-      setTileHalf(selectedMapTileInfo.half);
-    } else if (mapQueueData.length !== 0 && mapQueueData[x][y].half) {
-      setTileHalf(true);
-    } else {
-      setTileHalf(false);
-    }
-  }, [selectedMapTileInfo, x, y, mapQueueData]);
-
-  const getPlayerIndex = useCallback((room: Room, playerId: string) => {
-    for (let i = 0; i < room.players.length; ++i) {
-      if (room.players[i].id === playerId) {
-        return i;
-      }
-    }
-    return -1;
-  }, []);
-
-  const myPlayerIndex = useMemo(() => {
-    return getPlayerIndex(room, myPlayerId);
-  }, [room, myPlayerId, getPlayerIndex]);
-
-  const isOwned = useMemo(() => {
-    return color === room.players[myPlayerIndex].color;
-  }, [myPlayerIndex, color, room]);
-
-  const isNextPossibleMove = useMemo(() => {
-    const isNextPossibleMapPosition = Object.values(
-      possibleNextMapPositions
-    ).some((maybeNextMapPosition) => {
-      return (
-        maybeNextMapPosition &&
-        maybeNextMapPosition.x === x &&
-        maybeNextMapPosition.y === y
-      );
-    });
-
-    return isNextPossibleMapPosition && tileType !== TileType.Mountain;
-  }, [possibleNextMapPositions, x, y, tileType]);
-
-  const whichNextPossibleMove = useMemo(() => {
-    if (isNextPossibleMove) {
-      if (
-        possibleNextMapPositions.bottom &&
-        possibleNextMapPositions.bottom.x === x &&
-        possibleNextMapPositions.bottom.y === y
-      )
-        return 'down';
-      else if (
-        possibleNextMapPositions.left &&
-        possibleNextMapPositions.left.x === x &&
-        possibleNextMapPositions.left.y === y
-      )
-        return 'left';
-      else if (
-        possibleNextMapPositions.right &&
-        possibleNextMapPositions.right.x === x &&
-        possibleNextMapPositions.right.y === y
-      )
-        return 'right';
-      else return 'up';
-    } else {
-      return '';
-    }
-  }, [isNextPossibleMove, possibleNextMapPositions, x, y]);
-
-  const isSelected = useMemo(() => {
-    return x === selectedMapTileInfo.x && y === selectedMapTileInfo.y;
-  }, [selectedMapTileInfo, x, y]);
 
   const isRevealed = useMemo(() => {
     return unitsCount !== null;
@@ -150,12 +79,12 @@ function MapTile(props: MapTileProps) {
   const handlePositionChange = useCallback(
     (className: string) => {
       attackQueueRef.current.insert({
-        from: selectedMapTileInfo,
+        from: selectRef.current,
         to: { x, y },
-        half: selectedMapTileInfo.half,
+        half: selectRef.current.half,
       });
       setSelectedMapTileInfo({
-        // ...selectedMapTileInfo,
+        // ...selectRef.current,
         x,
         y,
         half: false,
@@ -163,13 +92,13 @@ function MapTile(props: MapTileProps) {
       });
       mapQueueDataDispatch({
         type: 'change',
-        x: selectedMapTileInfo.x,
-        y: selectedMapTileInfo.y,
+        x: selectRef.current.x,
+        y: selectRef.current.y,
         className: className,
       });
     },
     [
-      selectedMapTileInfo,
+      selectRef.current,
       attackQueueRef,
       mapQueueDataDispatch,
       setSelectedMapTileInfo,
@@ -182,7 +111,7 @@ function MapTile(props: MapTileProps) {
     if (isNextPossibleMove) {
       handlePositionChange(`queue_${whichNextPossibleMove}`);
     } else if (isOwned) {
-      if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
+      if (selectRef.current.x === x && selectRef.current.y === y) {
         console.log(
           'Clicked on the current tile, changing tile half state to',
           !tileHalf
@@ -197,7 +126,6 @@ function MapTile(props: MapTileProps) {
         setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
       }
     } else {
-      // cancel select andhalf
       setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
       mapQueueDataDispatch({
         type: 'change',
@@ -210,7 +138,7 @@ function MapTile(props: MapTileProps) {
   }, [
     x,
     y,
-    selectedMapTileInfo,
+    selectRef.current,
     unitsCount,
     tileHalf,
     isOwned,
@@ -281,7 +209,7 @@ function MapTile(props: MapTileProps) {
 
   return (
     <div
-      className={mapQueueData.length === 0 ? '' : mapQueueData[x][y].className}
+      className={_className}
       style={{
         position: 'absolute',
         left: tileX,
@@ -347,7 +275,7 @@ function MapTile(props: MapTileProps) {
         </div>
       )}
 
-      {/* higlight when select*/}
+      {/* highlight when select*/}
       {isNextPossibleMove && (
         <div
           style={{
@@ -363,6 +291,4 @@ function MapTile(props: MapTileProps) {
       )}
     </div>
   );
-}
-
-export default React.memo(MapTile);
+});
