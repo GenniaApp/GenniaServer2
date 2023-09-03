@@ -64,7 +64,8 @@ export default function OverDialog() {
   return (
     <Dialog
       open={openOverDialog}
-      onClose={() => {
+      onClose={(event: any, reason) => {
+        if (reason === 'backdropClick') return;
         setOpenOverDialog(false);
       }}
     >

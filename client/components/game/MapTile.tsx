@@ -30,7 +30,7 @@ interface MapTileProps {
   setSelectedMapTileInfo: any;
   mapQueueDataDispatch: any;
   isNextPossibleMove: boolean;
-  whichNextPossibleMove: any;
+  moveDirection: string;
 }
 
 export default React.memo(function MapTile(props: MapTileProps) {
@@ -51,8 +51,9 @@ export default React.memo(function MapTile(props: MapTileProps) {
     setSelectedMapTileInfo,
     mapQueueDataDispatch,
     isNextPossibleMove,
-    whichNextPossibleMove,
+    moveDirection,
   } = props;
+  console.log(`${x} ${y} render`);
   const [cursorStyle, setCursorStyle] = useState('default');
 
   const [tileType, color, unitsCount] = tile;
@@ -98,7 +99,7 @@ export default React.memo(function MapTile(props: MapTileProps) {
       });
     },
     [
-      selectRef.current,
+      selectRef,
       attackQueueRef,
       mapQueueDataDispatch,
       setSelectedMapTileInfo,
@@ -109,7 +110,7 @@ export default React.memo(function MapTile(props: MapTileProps) {
 
   const handleClick = useCallback(() => {
     if (isNextPossibleMove) {
-      handlePositionChange(`queue_${whichNextPossibleMove}`);
+      handlePositionChange(`queue_${moveDirection}`);
     } else if (isOwned) {
       if (selectRef.current.x === x && selectRef.current.y === y) {
         console.log(
@@ -143,7 +144,7 @@ export default React.memo(function MapTile(props: MapTileProps) {
     tileHalf,
     isOwned,
     isNextPossibleMove,
-    whichNextPossibleMove,
+    moveDirection,
     handlePositionChange,
     setSelectedMapTileInfo,
     mapQueueDataDispatch,

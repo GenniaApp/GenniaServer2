@@ -241,12 +241,13 @@ function GameMap() {
     return getPlayerIndex(room, myPlayerId);
   }, [room, myPlayerId, getPlayerIndex]);
 
+  const queueEmpty = mapQueueData.length === 0;
+
   let displayMapData = mapData.map((tiles, x) => {
     return tiles.map((tile, y) => {
       const [tileType, color, unitsCount] = tile;
       const isOwned = color === room.players[myPlayerIndex].color;
-      const _className =
-        mapQueueData.length === 0 ? '' : mapQueueData[x][y].className;
+      const _className = queueEmpty ? '' : mapQueueData[x][y].className;
 
       let tileHalf = false;
 
@@ -262,42 +263,24 @@ function GameMap() {
 
       const isNextPossibleMapPosition = Object.values(
         possibleNextMapPositions
-      ).some((maybeNextMapPosition) => {
-        return (
-          maybeNextMapPosition &&
-          maybeNextMapPosition.x === x &&
-          maybeNextMapPosition.y === y
-        );
+      ).some((p) => {
+        return p && p.x === x && p.y === y;
       });
 
       const isNextPossibleMove =
         isNextPossibleMapPosition && tileType !== TileType.Mountain;
 
-      const whichNextPossibleMove = () => {
+      const getPossibleMoveDirection = () => {
         if (isNextPossibleMove) {
-          if (
-            possibleNextMapPositions.bottom &&
-            possibleNextMapPositions.bottom.x === x &&
-            possibleNextMapPositions.bottom.y === y
-          )
-            return 'down';
-          else if (
-            possibleNextMapPositions.left &&
-            possibleNextMapPositions.left.x === x &&
-            possibleNextMapPositions.left.y === y
-          )
-            return 'left';
-          else if (
-            possibleNextMapPositions.right &&
-            possibleNextMapPositions.right.x === x &&
-            possibleNextMapPositions.right.y === y
-          )
-            return 'right';
-          else return 'up';
-        } else {
-          return '';
+          const { bottom, left, right } = possibleNextMapPositions;
+          if (bottom && bottom.x === x && bottom.y === y) return 'down';
+          if (left && left.x === x && left.y === y) return 'left';
+          if (right && right.x === x && right.y === y) return 'right';
+          return 'up';
         }
+        return '';
       };
+      const moveDirection = getPossibleMoveDirection();
 
       return {
         tile,
@@ -307,7 +290,7 @@ function GameMap() {
         isSelected,
         selectRef,
         isNextPossibleMove,
-        whichNextPossibleMove,
+        moveDirection,
       };
     });
   });

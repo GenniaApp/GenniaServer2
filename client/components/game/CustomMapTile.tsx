@@ -27,7 +27,7 @@ interface CustomMapTileProps {
   fontSize?: number;
 }
 
-function CustomMapTile(props: CustomMapTileProps) {
+export default React.memo(function CustomMapTile(props: CustomMapTileProps) {
   const {
     zoom,
     size,
@@ -163,6 +163,4 @@ function CustomMapTile(props: CustomMapTileProps) {
       )}
     </div>
   );
-}
-
-export default React.memo(CustomMapTile);
+});

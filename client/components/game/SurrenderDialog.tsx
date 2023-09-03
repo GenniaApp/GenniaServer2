@@ -25,9 +25,13 @@ export default function SurrenderDialog({
   const { t } = useTranslation();
   const router = useRouter();
 
-  const handleClose = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
+  const handleClose = useCallback(
+    (event: any, reason: string) => {
+      if (reason === 'backdropClick') return;
+      setOpen(false);
+    },
+    [setOpen]
+  );
 
   const handleKeydown = useCallback(
     (event: KeyboardEvent) => {
@@ -79,7 +83,13 @@ export default function SurrenderDialog({
           <Button onClick={handleExit}>{t('exit')}</Button>
         ) : (
           <>
-            <Button onClick={handleClose}>{t('cancel')}</Button>
+            <Button
+              onClick={() => {
+                setOpen(false);
+              }}
+            >
+              {t('cancel')}
+            </Button>
             <Button onClick={handleCloseSurrender}>{t('surrender')}</Button>
           </>
         )}

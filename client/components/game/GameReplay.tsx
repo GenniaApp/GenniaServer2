@@ -50,7 +50,7 @@ export default function GameReplay(props: any) {
   const [gameRecord, setGameRecord] = useState<GameRecord | null>(null);
   const [mapWidth, setMapWidth] = useState(10);
   const [mapHeight, setMapHeight] = useState(10);
-  const [playSpeed, setPlaySpeed] = useState(2);
+  const [playSpeed, setPlaySpeed] = useState(4);
   const [turnsCount, setTurnsCount] = useState(1);
   const [maxTurn, setMaxTurn] = useState(1);
   const [leaderBoardData, setLeaderBoardData] =

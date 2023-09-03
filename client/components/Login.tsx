@@ -13,14 +13,14 @@ interface LoginProps {
 const Login: React.FC<LoginProps> = (props) => {
   const { username, handlePlayClick } = props;
   const { t } = useTranslation();
-  const [inputname, setInputName] = useState('Anonymous');
+  const [inputName, setInputName] = useState('Anonymous');
 
   const handleUsernameChange = (event: any) => {
     setInputName(event.target.value);
   };
   const handleInputKeyDown = (event: any) => {
     if (event.key === 'Enter') {
-      handlePlayClick(inputname);
+      handlePlayClick(inputName);
     }
   };
 
@@ -36,6 +36,7 @@ const Login: React.FC<LoginProps> = (props) => {
         }}
       >
         <Avatar
+          className='menu-container'
           src='/img/favicon.png'
           sx={{
             width: { xs: '8rem', md: '10rem' },
@@ -64,7 +65,7 @@ const Login: React.FC<LoginProps> = (props) => {
             sx={{ width: '100%' }}
             id='outlined-basic'
             placeholder={t('username-placeholder')}
-            // value={inputname}
+            // value={inputName}
             color='primary'
             focused
             variant='filled'
@@ -75,7 +76,7 @@ const Login: React.FC<LoginProps> = (props) => {
           />
           <Button
             variant='contained'
-            onClick={() => handlePlayClick(inputname)}
+            onClick={() => handlePlayClick(inputName)}
             sx={{ margin: 2, width: '100%', height: '40px', fontSize: '15px' }}
           >
             {t('play')}

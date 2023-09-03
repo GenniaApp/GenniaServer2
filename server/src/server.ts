@@ -33,6 +33,10 @@ console.log(cors_urls);
 app.use(express.json());
 app.use(cors({ origin: cors_urls }));
 
+app.get('/ping', (req: Request, res: Response) => {
+  res.status(200).json('');
+});
+
 app.get('/get_rooms', (req: Request, res: Response) => {
   res.status(200).json(roomPool);
 });

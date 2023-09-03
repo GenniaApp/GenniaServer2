@@ -23,7 +23,7 @@ interface MapExplorerProps {
 }
 
 export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
-  const [tabIndex, setTabIndex] = useState(0);
+  const [tabIndex, setTabIndex] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [maps, setMaps] = useState<CustomMapInfo[] | undefined>(undefined);
   const router = useRouter();

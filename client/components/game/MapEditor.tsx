@@ -257,7 +257,6 @@ function MapEditor({ editMode }: { editMode: boolean }) {
   };
 
   const handleTileClick = (x: number, y: number) => {
-    if (!editMode) return;
     console.log('handleTileClick', x, y, selectedTileType, selectedProperty);
     const newMapData = [...mapData];
 
@@ -803,7 +802,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                 x={x}
                 y={y}
                 tile={tile}
-                handleClick={() => handleTileClick(x, y)}
+                handleClick={editMode ? () => handleTileClick(x, y) : () => {}}
               />
             );
           });
