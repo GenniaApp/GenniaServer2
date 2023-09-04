@@ -74,7 +74,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
             overflow: 'hidden',
             '& .MuiTableCell-root': {
               paddingY: '0.6rem',
-              paddingX: gameDockExpand ? '0.8rem' : '0.4rem',
+              paddingX: gameDockExpand ? '0.6rem' : '0.4rem',
             },
           }}
         >
@@ -83,15 +83,15 @@ export default function LeaderBoard(props: LeaderBoardProps) {
               sx={{ backgroundColor: 'transparent', whiteSpace: 'nowrap' }}
             >
               {checkedPlayers && setCheckedPlayers && (
-                <TableCell>View</TableCell>
+                <TableCell align='center'>{t('view')}</TableCell>
               )}
               {gameDockExpand ? (
-                <TableCell>{t('player')}</TableCell>
+                <TableCell align='center'>{t('player')}</TableCell>
               ) : (
-                <TableCell sx={{ padding: '1px' }}></TableCell>
+                <TableCell align='center' sx={{ padding: '1px' }}></TableCell>
               )}
-              <TableCell>{t('army')}</TableCell>
-              <TableCell>{t('land')}</TableCell>
+              <TableCell align='center'>{t('army')}</TableCell>
+              <TableCell align='center'>{t('land')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -138,8 +138,8 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                     }}
                   ></TableCell>
                 )}
-                <TableCell>{player.armyCount}</TableCell>
-                <TableCell>{player.landsCount}</TableCell>
+                <TableCell align='center'>{player.armyCount}</TableCell>
+                <TableCell align='center'>{player.landsCount}</TableCell>
               </TableRow>
             ))}
           </TableBody>

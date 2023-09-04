@@ -274,7 +274,7 @@ export default function GameReplay(props: any) {
               left: '50%',
               transform: 'translate(-50%, 0) translate(0, 0)',
               width: 'max-content',
-              height: 'max-content',
+              height: 'min-content',
               bottom: '65px',
               borderRadius: '10px !important',
               display: 'flex',
@@ -285,7 +285,7 @@ export default function GameReplay(props: any) {
               padding: '10px !important',
               boxShadow: '2',
               '@media screen and (max-width: 900px)': {
-                width: '100dvw',
+                width: '90dvw',
               },
             }}
           >
