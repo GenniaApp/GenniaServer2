@@ -19,11 +19,11 @@ import GameMap from './lib/map';
 import MapDiff from './lib/map-diff';
 import GameRecord from './lib/game-record';
 
+dotenv.config();
+
 if (!process.env.CLIENT_URL || !process.env.PORT) {
   throw new Error('Please fill in `CLIENT_URL` and `PORT`.');
 }
-
-dotenv.config();
 
 const prisma = new PrismaClient();
 const app = express();
