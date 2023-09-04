@@ -139,7 +139,7 @@ export default React.memo(function MapTile(props: MapTileProps) {
   }, [
     x,
     y,
-    selectRef.current,
+    selectRef,
     unitsCount,
     tileHalf,
     isOwned,

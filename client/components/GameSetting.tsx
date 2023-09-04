@@ -265,6 +265,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             <Tab label={t('game')} />
             <Tab label={t('map')} />
             <Tab label={t('terrain')} />
+            <Tab label={t('modifiers')} />
           </Tabs>
           <TabPanel value={tabIndex} index={0}>
             <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
@@ -300,68 +301,6 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                   ))}
                 </RadioGroup>
               </Box>
-              <SliderBox
-                label={t('max-player-num')}
-                value={room.maxPlayers}
-                valueLabelDisplay='auto'
-                disabled={disabled_ui}
-                min={2}
-                max={12}
-                step={1}
-                marks={Array.from({ length: 11 }, (_, i) => ({
-                  value: i + 2,
-                  label: `${i + 2}`,
-                }))}
-                handleChange={handleSettingChange('maxPlayers')}
-              />
-              <FormGroup sx={{ display: 'flex', flexDirection: 'row' }}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={room.fogOfWar}
-                      // @ts-ignore
-                      onChange={handleSettingChange('fogOfWar')}
-                      disabled={disabled_ui}
-                    />
-                  }
-                  label={t('fog-of-war')}
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={room.revealKing}
-                      // @ts-ignore
-                      onChange={handleSettingChange('revealKing')}
-                      disabled={disabled_ui}
-                    />
-                  }
-                  label={t('reveal-king')}
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={spectating}
-                      // @ts-ignore
-                      onChange={() => {
-                        setSpectating(!spectating);
-                        socketRef.current.emit('set_spectating', !spectating);
-                      }}
-                    />
-                  }
-                  label={t('spectate')}
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={room.deathSpectator}
-                      // @ts-ignore
-                      onChange={handleSettingChange('deathSpectator')}
-                      disabled={disabled_ui}
-                    />
-                  }
-                  label={t('death-spectator')}
-                />
-              </FormGroup>
             </Box>
           </TabPanel>
           <TabPanel value={tabIndex} index={1}>
@@ -405,6 +344,59 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
               />
             </Box>
           </TabPanel>
+          <TabPanel value={tabIndex} index={3}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+              <SliderBox
+                label={t('max-player-num')}
+                value={room.maxPlayers}
+                valueLabelDisplay='auto'
+                disabled={disabled_ui}
+                min={2}
+                max={12}
+                step={1}
+                marks={Array.from({ length: 11 }, (_, i) => ({
+                  value: i + 2,
+                  label: `${i + 2}`,
+                }))}
+                handleChange={handleSettingChange('maxPlayers')}
+              />
+              <FormGroup sx={{ display: 'flex', flexDirection: 'row' }}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={room.fogOfWar}
+                      // @ts-ignore
+                      onChange={handleSettingChange('fogOfWar')}
+                      disabled={disabled_ui}
+                    />
+                  }
+                  label={t('fog-of-war')}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={room.revealKing}
+                      // @ts-ignore
+                      onChange={handleSettingChange('revealKing')}
+                      disabled={disabled_ui}
+                    />
+                  }
+                  label={t('reveal-king')}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={room.deathSpectator}
+                      // @ts-ignore
+                      onChange={handleSettingChange('deathSpectator')}
+                      disabled={disabled_ui}
+                    />
+                  }
+                  label={t('death-spectator')}
+                />
+              </FormGroup>
+            </Box>
+          </TabPanel>
         </CardContent>
       </Card>
       <Card
@@ -419,7 +411,28 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         <CardHeader
           avatar={<GroupIcon color='primary' />}
           title={
-            <Typography sx={{ color: 'white' }}>{t('players')}</Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography sx={{ color: 'white' }}>{t('players')}</Typography>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={spectating}
+                    // @ts-ignore
+                    onChange={() => {
+                      setSpectating(!spectating);
+                      socketRef.current.emit('set_spectating', !spectating);
+                    }}
+                  />
+                }
+                label={t('spectate')}
+              />
+            </Box>
           }
           sx={{ padding: 'sm' }}
         />
@@ -450,7 +463,8 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         }}
         onClick={handleClickForceStart}
       >
-        {t('force-start')}({room.forceStartNum}/
+        {/* {t('force-start')}({room.forceStartNum}/ */}
+        {t('ready')}({room.forceStartNum}/
         {
           forceStartOK[
             room.players.filter((player) => !player.spectating).length
