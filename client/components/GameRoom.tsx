@@ -1,10 +1,8 @@
-// cSpell:ignore swal sweetalert
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { io } from 'socket.io-client';
 import { useTranslation } from 'next-i18next';
 import ChatBox from '@/components/ChatBox';
-import Swal from 'sweetalert2';
 
 import {
   Room,
@@ -295,32 +293,24 @@ function GamingRoom() {
     );
 
     socket.on('reject_join', (message: string) => {
-      Swal.fire({
+      snackStateDispatch({
+        type: 'update',
         title: t('reject-join'),
-        text: message,
-        icon: 'error',
-        showDenyButton: false,
-        showCancelButton: false,
-        allowOutsideClick: false,
-        confirmButtonText: 'OK',
-      }).then((result) => {
-        router.push(`/`);
+        status: 'error',
+        message: 'Please choose another room.',
       });
+      // router.push(`/`);
     });
 
     socket.on('connect_error', (error: Error) => {
       console.log('\nConnection Failed: ' + error);
       socket.disconnect();
-      Swal.fire({
-        title: "Can't connect to the server",
-        text: 'Please refresh the App.',
-        icon: 'error',
-        showDenyButton: false,
-        showCancelButton: false,
-        allowOutsideClick: false,
-        confirmButtonText: 'OK',
-      }).then((result) => {
-        router.push(`/`);
+
+      snackStateDispatch({
+        type: 'update',
+        title: 'Connect Error',
+        status: 'error',
+        message: 'Please refresh the App.',
       });
     });
 
@@ -330,20 +320,9 @@ function GamingRoom() {
       snackStateDispatch({
         type: 'update',
         title: 'Reconnecting...',
+        status: 'error',
         message: 'Disconnected from the server',
       });
-      // Swal.fire({
-      //   title: 'Disconnected from the server',
-      //   html: 'Please refresh the App.',
-      //   icon: 'error',
-      //   showDenyButton: false,
-      //   showCancelButton: false,
-      //   allowOutsideClick: false,
-      //   confirmButtonText: 'Quit',
-      // }).then((result) => {
-      //   /* Read more about isConfirmed, isDenied below */
-      //   router.push(`/`);
-      // });
     });
 
     socket.on('reconnect', () => {

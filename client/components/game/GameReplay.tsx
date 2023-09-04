@@ -1,4 +1,3 @@
-// cSpell:ignore swal sweetalert
 import React, {
   useCallback,
   useState,
@@ -42,7 +41,6 @@ import { useTranslation } from 'next-i18next';
 import GameLoading from '@/components/GameLoading';
 import GameRecord from '@/lib/game-record';
 import ChatBox from '@/components/ChatBox';
-import Swal from 'sweetalert2';
 import useMap from '@/hooks/useMap';
 
 export default function GameReplay(props: any) {
@@ -242,18 +240,7 @@ export default function GameReplay(props: any) {
   };
 
   if (notFoundError) {
-    Swal.fire({
-      title: 'Replay Not Found',
-      text: 'Return to Lobby.',
-      icon: 'error',
-      showDenyButton: false,
-      showCancelButton: false,
-      allowOutsideClick: false,
-      confirmButtonText: 'OK',
-    }).then((result) => {
-      router.push(`/`);
-    });
-    return null;
+    return { notFound: true };
   }
 
   if (!gameRecord) {

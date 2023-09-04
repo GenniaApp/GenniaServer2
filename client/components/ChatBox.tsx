@@ -16,7 +16,7 @@ const ChatBoxContainer = styled('div')`
   bottom: 0;
   right: 0;
   width: 300px;
-  height: 500px;
+  height: 50vh;
   overflow: auto;
   z-index: 1001;
   backdrop-filter: blur(3px);
