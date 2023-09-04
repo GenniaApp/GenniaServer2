@@ -54,7 +54,6 @@ function GamingRoom() {
     setIsSurrendered,
     setSpectating,
     setMyUserName,
-    setZoom,
   } = useGameDispatch();
 
   useEffect(() => {
@@ -169,11 +168,6 @@ function GamingRoom() {
       console.log('Game started:', initGameInfo);
       setInitGameInfo(initGameInfo);
       setIsSurrendered(false);
-      if (initGameInfo.mapHeight > 40 || initGameInfo.mapHeight > 40) {
-        setZoom(0.5);
-      } else if (initGameInfo.mapHeight > 25 || initGameInfo.mapHeight > 25) {
-        setZoom(0.75);
-      }
 
       setSelectedMapTileInfo({
         x: initGameInfo.king.x,

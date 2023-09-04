@@ -39,7 +39,7 @@ import LightbulbOutlinedIcon from '@mui/icons-material/LightbulbOutlined';
 import ClearIcon from '@mui/icons-material/Clear';
 import { AspectRatioRounded, InfoRounded } from '@mui/icons-material';
 import { snackStateReducer } from '@/context/GameReducer';
-import useMapDrag from '@/hooks/useMapDrag';
+import useMap from '@/hooks/useMap';
 import MapExplorer from '@/components/game/MapExplorer';
 import Loading from '@/components/Loading';
 import PublishMapDialog from '@/components/PublishMapDialog';
@@ -77,11 +77,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
   const [mapName, setMapName] = useState('');
   const [mapDescription, setMapDescription] = useState('');
   const [draftSaved, setDraftSaved] = useState(false);
-  const [zoom, setZoom] = useState(1);
-  const [tileSize, setTileSize] = useState(40);
   const { t } = useTranslation();
-  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const mapRef = useRef<HTMLDivElement>(null);
   const [snackState, snackStateDispatch] = useReducer(snackStateReducer, {
     open: false,
     title: '',
@@ -98,7 +94,18 @@ function MapEditor({ editMode }: { editMode: boolean }) {
   const router = useRouter();
   const mapId = router.query.mapId as string;
 
-  useMapDrag(mapRef, position, setPosition, zoom, setZoom);
+  const {
+    tileSize,
+    position,
+    mapRef,
+    mapPixelWidth,
+    mapPixelHeight,
+    zoom,
+    setZoom,
+  } = useMap({
+    mapWidth,
+    mapHeight,
+  });
 
   const handleOpenMapExplorer = () => {
     setOpenMapExplorer(true);
@@ -163,15 +170,6 @@ function MapEditor({ editMode }: { editMode: boolean }) {
     getMapDataFromServer(mapId);
     setOpenMapExplorer(false);
   };
-
-  const mapPixelWidth = useMemo(
-    () => tileSize * mapWidth * zoom,
-    [tileSize, mapWidth, zoom]
-  );
-  const mapPixelHeight = useMemo(
-    () => tileSize * mapHeight * zoom,
-    [tileSize, mapHeight, zoom]
-  );
 
   const property2var: Record<string, any> = {
     team: team,

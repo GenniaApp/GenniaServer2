@@ -2,14 +2,11 @@ import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
 import usePossibleNextMapPositions from '@/lib/use-possible-next-map-positions';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 import MapTile from './MapTile';
-import useMapDrag from '@/hooks/useMapDrag';
 import { TileType, Room, Route, Position } from '@/lib/types';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import useMap from '@/hooks/useMap';
 
 function GameMap() {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
   const {
-    zoom,
     attackQueueRef,
     socketRef,
     room,
@@ -21,19 +18,23 @@ function GameMap() {
     turnsCount,
   } = useGame();
 
-  const { setZoom, setSelectedMapTileInfo, mapQueueDataDispatch } =
-    useGameDispatch();
-  const mapRef = useRef<HTMLDivElement>(null);
+  const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
   const selectRef = useRef<any>(null);
+  // todo: selectedMapTileInfo is a often change value, use ref to sync update to prevent rerender, not sure if it's a good idea
 
-  const [tileSize, setTileSize] = useState(40);
-
-  const isSmallScreen = useMediaQuery('(max-width:600px)');
-  useEffect(() => {
-    setZoom(isSmallScreen ? 0.7 : 1.0);
-  }, [isSmallScreen, setZoom]);
-
-  useMapDrag(mapRef, position, setPosition, zoom, setZoom);
+  const {
+    tileSize,
+    position,
+    mapRef,
+    mapPixelWidth,
+    mapPixelHeight,
+    zoom,
+    setZoom,
+    handleZoomOption,
+  } = useMap({
+    mapWidth: initGameInfo ? initGameInfo.mapWidth : 0,
+    mapHeight: initGameInfo ? initGameInfo.mapHeight : 0,
+  });
 
   useEffect(() => {
     selectRef.current = selectedMapTileInfo;
@@ -54,14 +55,15 @@ function GameMap() {
 
   const handlePositionChange = useCallback(
     (newPoint: Position, className: string) => {
+      let selectPos = selectRef.current;
       if (withinMap(newPoint)) {
         attackQueueRef.current.insert({
-          from: selectedMapTileInfo,
+          from: selectPos,
           to: newPoint,
-          half: selectedMapTileInfo.half,
+          half: selectPos.half,
         });
         setSelectedMapTileInfo({
-          // ...selectedMapTileInfo,
+          // ...selectPos,
           x: newPoint.x,
           y: newPoint.y,
           half: false,
@@ -69,8 +71,8 @@ function GameMap() {
         });
         mapQueueDataDispatch({
           type: 'change',
-          x: selectedMapTileInfo.x,
-          y: selectedMapTileInfo.y,
+          x: selectPos.x,
+          y: selectPos.y,
           className: className,
         });
         if (attackQueueRef.current.allowAttackThisTurn) {
@@ -96,15 +98,6 @@ function GameMap() {
     ]
   );
 
-  const mapPixelWidth = useMemo(
-    () => tileSize * (room.map ? room.map.width : 0) * zoom,
-    [tileSize, room, zoom]
-  );
-  const mapPixelHeight = useMemo(
-    () => tileSize * (room.map ? room.map.width : 0) * zoom,
-    [tileSize, room, zoom]
-  );
-
   const possibleNextMapPositions = usePossibleNextMapPositions({
     width: room.map ? room.map.width : 0,
     height: room.map ? room.map.height : 0,
@@ -113,39 +106,24 @@ function GameMap() {
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      switch (event.key) {
-        case '1': {
-          if (initGameInfo && initGameInfo.mapWidth > 20) {
-            setZoom(0.5);
-          } else {
-            setZoom(0.7);
-          }
-          break;
-        }
-        case '2':
-          setZoom(1.0);
-          break;
-        case '3':
-          setZoom(1.3);
-          break;
-        default:
-          break;
-      }
+      handleZoomOption(event.key);
 
       let newPoint = { x: -1, y: -1 };
       let route: Route | undefined;
 
-      if (!selectedMapTileInfo) return;
+      let selectPos = selectRef.current;
+
+      if (!selectPos) return;
       switch (event.key) {
         case 'z':
           // Z to half
-          selectedMapTileInfo.half = !selectedMapTileInfo.half;
+          selectPos.half = !selectPos.half;
           mapQueueDataDispatch({
             type: 'change',
-            x: selectedMapTileInfo.x,
-            y: selectedMapTileInfo.y,
+            x: selectPos.x,
+            y: selectPos.y,
             className: '',
-            half: !selectedMapTileInfo.half,
+            half: !selectPos.half,
           });
           break;
         case 'e':
@@ -153,7 +131,7 @@ function GameMap() {
           route = attackQueueRef.current.pop_back();
           if (route) {
             setSelectedMapTileInfo({
-              ...selectedMapTileInfo,
+              ...selectPos,
               x: route.from.x,
               y: route.from.y,
               //  todo: fix half/unitsCount logic
@@ -166,7 +144,7 @@ function GameMap() {
           if (route) {
             attackQueueRef.current.clear();
             setSelectedMapTileInfo({
-              ...selectedMapTileInfo,
+              ...selectPos,
               x: route.from.x,
               y: route.from.y,
             });
@@ -176,7 +154,7 @@ function GameMap() {
           // G to select king
           if (initGameInfo) {
             setSelectedMapTileInfo({
-              ...selectedMapTileInfo,
+              ...selectPos,
               x: initGameInfo.king.x,
               y: initGameInfo.king.y,
             });
@@ -185,9 +163,10 @@ function GameMap() {
         case 'a':
         case 'ArrowLeft': // 37 Left
           // todo 这里 x y 方向相反
+          event.preventDefault();
           newPoint = {
-            x: selectedMapTileInfo.x,
-            y: selectedMapTileInfo.y - 1,
+            x: selectPos.x,
+            y: selectPos.y - 1,
           };
           handlePositionChange(newPoint, 'queue_left');
           break;
@@ -195,16 +174,17 @@ function GameMap() {
         case 'ArrowUp': // 38 Up
           event.preventDefault();
           newPoint = {
-            x: selectedMapTileInfo.x - 1,
-            y: selectedMapTileInfo.y,
+            x: selectPos.x - 1,
+            y: selectPos.y,
           };
           handlePositionChange(newPoint, 'queue_up');
           break;
         case 'd':
         case 'ArrowRight': // 39 Right
+          event.preventDefault();
           newPoint = {
-            x: selectedMapTileInfo.x,
-            y: selectedMapTileInfo.y + 1,
+            x: selectPos.x,
+            y: selectPos.y + 1,
           };
           handlePositionChange(newPoint, 'queue_right');
           break;
@@ -212,8 +192,8 @@ function GameMap() {
         case 'ArrowDown': // 40 Down
           event.preventDefault();
           newPoint = {
-            x: selectedMapTileInfo.x + 1,
-            y: selectedMapTileInfo.y,
+            x: selectPos.x + 1,
+            y: selectPos.y,
           };
           handlePositionChange(newPoint, 'queue_down');
           break;
@@ -222,7 +202,7 @@ function GameMap() {
     [
       handlePositionChange,
       mapQueueDataDispatch,
-      selectedMapTileInfo,
+      selectRef,
       attackQueueRef,
       setSelectedMapTileInfo,
       initGameInfo,
@@ -233,14 +213,14 @@ function GameMap() {
   useEffect(() => {
     const mapNode = mapRef.current;
     if (mapNode) {
-      // mapNode.focus(); // todo: enable with OnBlur will cause `Maximum update depth exceeded error`
+      mapNode.focus();
       mapNode.addEventListener('keydown', handleKeyDown);
       return () => {
         mapNode.removeEventListener('keydown', handleKeyDown);
       };
     }
     return () => {};
-  }, [mapRef, handleKeyDown]);
+  }, [mapRef]);
 
   const getPlayerIndex = useCallback((room: Room, playerId: string) => {
     for (let i = 0; i < room.players.length; ++i) {

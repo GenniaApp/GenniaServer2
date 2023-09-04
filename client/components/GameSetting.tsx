@@ -247,9 +247,11 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
               >
                 {t('custom-map')}: {room.mapName}
               </Typography>
-              <IconButton onClick={clearRoomMap}>
-                <ClearIcon />
-              </IconButton>
+              {!disabled_ui && (
+                <IconButton onClick={clearRoomMap}>
+                  <ClearIcon />
+                </IconButton>
+              )}
             </Box>
           )}
           <Tabs
@@ -266,7 +268,11 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           </Tabs>
           <TabPanel value={tabIndex} index={0}>
             <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
-              <Button variant='contained' onClick={handleOpenMapExplorer}>
+              <Button
+                variant='contained'
+                disabled={disabled_ui}
+                onClick={handleOpenMapExplorer}
+              >
                 {t('select-a-custom-map')}
               </Button>
 

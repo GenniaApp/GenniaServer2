@@ -40,11 +40,10 @@ import TurnsCount from './TurnsCount';
 import LeaderBoard from './LeaderBoard';
 import { useTranslation } from 'next-i18next';
 import GameLoading from '@/components/GameLoading';
-import useMapDrag from '@/hooks/useMapDrag';
 import GameRecord from '@/lib/game-record';
 import ChatBox from '@/components/ChatBox';
 import Swal from 'sweetalert2';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import useMap from '@/hooks/useMap';
 
 export default function GameReplay(props: any) {
   const [gameRecord, setGameRecord] = useState<GameRecord | null>(null);
@@ -62,34 +61,25 @@ export default function GameReplay(props: any) {
   const { t } = useTranslation();
   const [notFoundError, setNotFoundError] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [zoom, setZoom] = useState(1);
-  const [tileSize, setTileSize] = useState(40);
-  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const mapRef = useRef<HTMLDivElement>(null);
-
   const intervalId = useRef<any>(undefined);
 
-  useMapDrag(mapRef, position, setPosition, zoom, setZoom);
+  const {
+    tileSize,
+    position,
+    mapRef,
+    mapPixelWidth,
+    mapPixelHeight,
+    zoom,
+    setZoom,
+    handleZoomOption,
+  } = useMap({ mapWidth, mapHeight });
 
   const router = useRouter();
   const replayId = router.query.replayId as string;
 
-  const isSmallScreen = useMediaQuery('(max-width:600px)');
-  useEffect(() => {
-    setZoom(isSmallScreen ? 0.6 : 0.8);
-  }, [isSmallScreen]);
-
-  const mapPixelWidth = useMemo(
-    () => tileSize * mapWidth,
-    [tileSize, mapWidth]
-  );
-  const mapPixelHeight = useMemo(
-    () => tileSize * mapHeight,
-    [tileSize, mapHeight]
-  );
-
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
+      handleZoomOption(event.key);
       switch (event.key) {
         case ' ': // black space
           setIsPlay(!isPlay);
@@ -98,7 +88,7 @@ export default function GameReplay(props: any) {
           break;
       }
     },
-    [isPlay]
+    [isPlay, mapWidth]
   );
 
   useEffect(() => {
@@ -276,6 +266,7 @@ export default function GameReplay(props: any) {
     return (
       <Box className='app-container'>
         <Box className='Game'>
+          {/* Replay Control Menu */}
           <Box
             className='menu-container'
             sx={{

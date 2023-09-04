@@ -412,6 +412,7 @@ class GameMap {
       Array(this.height).fill(null)
     );
 
+    // init
     for (let i = 0; i < this.width; i++) {
       for (let j = 0; j < this.height; j++) {
         const origin = this.getBlock(new Point(i, j));
