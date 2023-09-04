@@ -11,12 +11,14 @@ function GameMap() {
   const {
     zoom,
     attackQueueRef,
+    socketRef,
     room,
     mapData,
     myPlayerId,
     mapQueueData,
     selectedMapTileInfo,
     initGameInfo,
+    turnsCount,
   } = useGame();
 
   const { setZoom, setSelectedMapTileInfo, mapQueueDataDispatch } =
@@ -71,6 +73,18 @@ function GameMap() {
           y: selectedMapTileInfo.y,
           className: className,
         });
+        if (attackQueueRef.current.allowAttackThisTurn) {
+          let item = attackQueueRef.current.pop();
+          socketRef.current.emit('attack', item.from, item.to, item.half);
+          attackQueueRef.current.allowAttackThisTurn = false;
+          console.log(
+            `emit attack: `,
+            item.from,
+            item.to,
+            item.half,
+            turnsCount
+          );
+        }
       }
     },
     [

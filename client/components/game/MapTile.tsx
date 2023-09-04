@@ -53,7 +53,7 @@ export default React.memo(function MapTile(props: MapTileProps) {
     isNextPossibleMove,
     moveDirection,
   } = props;
-  console.log(`${x} ${y} render`);
+  // console.log(`${x} ${y} render`, new Date().toISOString());
   const [cursorStyle, setCursorStyle] = useState('default');
 
   const [tileType, color, unitsCount] = tile;

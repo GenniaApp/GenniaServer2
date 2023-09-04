@@ -74,10 +74,12 @@ function GamingRoom() {
     class AttackQueue {
       public items: Route[];
       public lastItem: Route | undefined;
+      public allowAttackThisTurn: boolean;
 
       constructor() {
         this.items = new Array<Route>();
         this.lastItem = undefined;
+        this.allowAttackThisTurn = false;
       }
 
       insert(item: Route): void {
@@ -243,13 +245,22 @@ function GamingRoom() {
     });
 
     socket.on(
+      'attack_success',
+      (from: Position, to: Position, turn: number) => {
+        console.log('attach success: ', from, to, turn);
+      }
+    );
+
+    socket.on(
       'game_update',
       (
         mapDiff: MapDiffData,
         turnsCount: number,
         leaderBoardData: LeaderBoardTable
       ) => {
-        console.log(`game_update: ${turnsCount}`);
+        console.log(`game_update: ${turnsCount}`, new Date().toISOString());
+
+        attackQueueRef.current.allowAttackThisTurn = true;
         setRoomUiStatus(RoomUiStatus.gameRealStarted);
         mapDataDispatch({ type: 'update', mapDiff });
         setTurnsCount(turnsCount);
@@ -258,7 +269,14 @@ function GamingRoom() {
         if (!attackQueueRef.current.isEmpty()) {
           let item = attackQueueRef.current.pop();
           socket.emit('attack', item.from, item.to, item.half);
-          console.log('emit attack: ', item.from, item.to, item.half);
+          attackQueueRef.current.allowAttackThisTurn = false;
+          console.log(
+            `emit attack: `,
+            item.from,
+            item.to,
+            item.half,
+            turnsCount
+          );
         } else if (attackQueueRef.current.lastItem) {
           attackQueueRef.current.clearLastItem();
         }
