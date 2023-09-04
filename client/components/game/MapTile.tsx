@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { TileType, TileProp, TileType2Image } from '@/lib/types';
 import {
   ColorArr,
+  WarringStates,
   defaultBgcolor,
   notRevealedFill,
   notOwnedArmyFill,
@@ -31,6 +32,7 @@ interface MapTileProps {
   mapQueueDataDispatch: any;
   isNextPossibleMove: boolean;
   moveDirection: string;
+  warringStatesMode: boolean;
 }
 
 export default React.memo(function MapTile(props: MapTileProps) {
@@ -52,6 +54,7 @@ export default React.memo(function MapTile(props: MapTileProps) {
     mapQueueDataDispatch,
     isNextPossibleMove,
     moveDirection,
+    warringStatesMode = false,
   } = props;
   // console.log(`${x} ${y} render`, new Date().toISOString());
   const [cursorStyle, setCursorStyle] = useState('default');
@@ -177,6 +180,13 @@ export default React.memo(function MapTile(props: MapTileProps) {
     [zoomedSize, zoomedImageSize]
   );
 
+  const country = useMemo(() => {
+    if (color !== null && warringStatesMode) {
+      return WarringStates[color];
+    }
+    return '';
+  }, [color]);
+
   const bgcolor = useMemo(() => {
     // 战争迷雾
     if (!isRevealed) {
@@ -233,8 +243,13 @@ export default React.memo(function MapTile(props: MapTileProps) {
           height: zoomedSize,
           backgroundColor: bgcolor,
           border: stroke ? `${stroke} solid 1px` : `${bgcolor} solid 1px`,
+          display: 'flex',
+          color: 'rgba(0, 0, 0, 0.4)',
+          fontSize: zoomedFontSize,
         }}
-      />
+      >
+        {country}
+      </div>
       {image && (
         <Image
           src={image}

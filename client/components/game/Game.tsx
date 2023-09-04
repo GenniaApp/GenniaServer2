@@ -31,7 +31,11 @@ export default function Game() {
     <Box className='Game'>
       <PingTest />
       <TurnsCount count={turnsCount} handleReturnClick={handleReturnClick} />
-      <LeaderBoard leaderBoardTable={leaderBoardData} players={room.players} />
+      <LeaderBoard
+        leaderBoardTable={leaderBoardData}
+        players={room.players}
+        warringStatesMode={room.warringStatesMode}
+      />
       <GameMap />
       <SurrenderDialog
         isOpen={isSurrenderDialogOpen}

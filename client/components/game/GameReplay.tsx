@@ -240,7 +240,11 @@ export default function GameReplay(props: any) {
   };
 
   if (notFoundError) {
-    return { notFound: true };
+    return (
+      <div className='menu-container'>
+        <Typography variant='h4'>{t('Replay not found')}</Typography>
+      </div>
+    );
   }
 
   if (!gameRecord) {

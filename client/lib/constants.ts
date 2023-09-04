@@ -14,6 +14,22 @@ export const ColorArr = [
   '#ffc107',
 ];
 
+// China Warring States Period Countries 战国时期国家名称
+export const WarringStates = [
+  '齐',
+  '晋',
+  '楚',
+  '秦',
+  '宋',
+  '越',
+  '吴',
+  '卫',
+  '鲁',
+  '滕',
+  '邹',
+  '费',
+]
+
 export const forceStartOK = [1, 2, 2, 3, 3, 4, 5, 5, 6, 6, 7, 7, 8];
 //                    0  1  2  3  4  5  6  7  8  9 10 11 12
 

@@ -12,13 +12,14 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTranslation } from 'next-i18next';
 import { useState, useEffect } from 'react';
 import { Player, LeaderBoardTable, UserData } from '@/lib/types';
-import { ColorArr } from '@/lib/constants';
+import { ColorArr, WarringStates } from '@/lib/constants';
 
 interface LeaderBoardProps {
   players: Player[];
   leaderBoardTable: LeaderBoardTable | null;
   checkedPlayers?: UserData[];
   setCheckedPlayers?: (value: UserData[]) => void;
+  warringStatesMode?: boolean;
 }
 
 type LeaderBoardData = {
@@ -29,8 +30,13 @@ type LeaderBoardData = {
 }[];
 
 export default function LeaderBoard(props: LeaderBoardProps) {
-  const { players, leaderBoardTable, checkedPlayers, setCheckedPlayers } =
-    props;
+  const {
+    players,
+    leaderBoardTable,
+    checkedPlayers,
+    setCheckedPlayers,
+    warringStatesMode = false,
+  } = props;
   const [gameDockExpand, setGameDockExpand] = useState(true);
   const { t } = useTranslation();
 
@@ -82,6 +88,9 @@ export default function LeaderBoard(props: LeaderBoardProps) {
             <TableRow
               sx={{ backgroundColor: 'transparent', whiteSpace: 'nowrap' }}
             >
+              {warringStatesMode && (
+                <TableCell align='center'>{t('country')}</TableCell>
+              )}
               {checkedPlayers && setCheckedPlayers && (
                 <TableCell align='center'>{t('view')}</TableCell>
               )}
@@ -97,6 +106,11 @@ export default function LeaderBoard(props: LeaderBoardProps) {
           <TableBody>
             {leaderBoardData.map((player, index) => (
               <TableRow key={index} sx={{ backgroundColor: 'transparnet' }}>
+                {warringStatesMode && (
+                  <TableCell align='center'>
+                    {WarringStates[player.color]}
+                  </TableCell>
+                )}
                 {checkedPlayers && setCheckedPlayers && (
                   <TableCell>
                     <Checkbox

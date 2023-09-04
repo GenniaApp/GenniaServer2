@@ -318,6 +318,7 @@ function GameMap() {
               attackQueueRef={attackQueueRef}
               setSelectedMapTileInfo={setSelectedMapTileInfo}
               mapQueueDataDispatch={mapQueueDataDispatch}
+              warringStatesMode={room.warringStatesMode}
             />
           );
         });

@@ -394,6 +394,18 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                   }
                   label={t('death-spectator')}
                 />
+
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={room.warringStatesMode}
+                      // @ts-ignore
+                      onChange={handleSettingChange('warringStatesMode')}
+                      disabled={disabled_ui}
+                    />
+                  }
+                  label={t('warring-states-mode')}
+                />
               </FormGroup>
             </Box>
           </TabPanel>
@@ -447,6 +459,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             players={room.players}
             handleChangeHost={handleChangeHost}
             disabled_ui={disabled_ui}
+            warringStatesMode={room.warringStatesMode}
           />
         </CardContent>
       </Card>

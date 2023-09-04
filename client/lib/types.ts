@@ -78,6 +78,7 @@ export class Room {
     public mapName: string = '', // custom map name
     public keepAlive: boolean = false, // keep alive after game over
     public revealKing: boolean = false, // reveal all king
+    public warringStatesMode: boolean = false, // warring states 战国 mode
   ) { }
 
   toJSON() {

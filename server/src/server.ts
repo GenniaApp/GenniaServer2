@@ -744,6 +744,7 @@ io.on('connection', async (socket) => {
               break;
             case 'fogOfWar':
             case 'revealKing':
+            case 'warringStatesMode':
             case 'deathSpectator':
               if (typeof value !== 'boolean') {
                 socket.emit('error', 'Modification was failed', 'Invalid value.');

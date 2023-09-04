@@ -3,17 +3,24 @@ import StarsRoundedIcon from '@mui/icons-material/StarsRounded';
 import { useTranslation } from 'next-i18next';
 
 import { Player } from '@/lib/types';
-import { ColorArr } from '@/lib/constants';
+import { ColorArr, WarringStates } from '@/lib/constants';
 
 interface PlayerTableProps {
   myPlayerId: string;
   players: Player[];
   handleChangeHost: any;
   disabled_ui: boolean;
+  warringStatesMode: boolean;
 }
 
 function PlayerTable(props: PlayerTableProps) {
-  const { myPlayerId, players, handleChangeHost, disabled_ui } = props;
+  const {
+    myPlayerId,
+    players,
+    handleChangeHost,
+    disabled_ui,
+    warringStatesMode,
+  } = props;
   const { t } = useTranslation();
 
   const getBgcolor = (player: Player) => {
@@ -67,6 +74,7 @@ function PlayerTable(props: PlayerTableProps) {
                 textDecoration: player.forceStart ? 'underline' : 'none',
               }}
             >
+              {warringStatesMode ? WarringStates[player.color] : ''}
               {player.username}
             </Typography>
           </Button>
