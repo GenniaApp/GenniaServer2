@@ -8,22 +8,27 @@ interface Position {
   y: number;
 }
 
-interface GameReplayProps {
+interface useMapProps {
   mapWidth: number;
   mapHeight: number;
+  listenTouch?: boolean;
 }
 
-export default function useMap({ mapWidth, mapHeight }: GameReplayProps) {
+export default function useMap({
+  mapWidth,
+  mapHeight,
+  listenTouch = true,
+}: useMapProps) {
   const [zoom, setZoom] = useState<number>(1.0);
   const [tileSize, setTileSize] = useState(40);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const mapRef = useRef<HTMLDivElement>(null);
 
-  useMapDrag(mapRef, position, setPosition, zoom, setZoom);
+  useMapDrag(mapRef, position, setPosition, zoom, setZoom, listenTouch);
 
   const isSmallScreen = useMediaQuery('(max-width:600px)');
   useEffect(() => {
-    setZoom(isSmallScreen ? 0.6 : 0.9);
+    setZoom(isSmallScreen ? 0.7 : 1.0);
 
     if (mapHeight > 40 || mapHeight > 40) {
       setZoom(0.5);
@@ -71,5 +76,7 @@ export default function useMap({ mapWidth, mapHeight }: GameReplayProps) {
     zoom,
     setZoom,
     handleZoomOption,
+    setPosition,
+    setTileSize,
   };
 }

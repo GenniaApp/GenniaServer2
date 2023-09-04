@@ -4,6 +4,7 @@ import { useGame, useGameDispatch } from '@/context/GameContext';
 import MapTile from './MapTile';
 import { TileType, Room, Route, Position } from '@/lib/types';
 import useMap from '@/hooks/useMap';
+import { debounce } from 'lodash';
 
 function GameMap() {
   const {
@@ -17,6 +18,16 @@ function GameMap() {
     initGameInfo,
     turnsCount,
   } = useGame();
+  const [lastTouchPosition, setLastTouchPosition] = useState<Position>({
+    x: -1,
+    y: -1,
+  });
+  const [touchAttacking, setTouchAttacking] = useState(false);
+
+  // touch drag
+  const [touchDragging, setTouchDragging] = useState(false);
+  const [touchStartPosition, setTouchStartPosition] = useState({ x: 0, y: 0 });
+  const [initialDistance, setInitialDistance] = useState(0);
 
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
   const selectRef = useRef<any>(null);
@@ -31,9 +42,11 @@ function GameMap() {
     zoom,
     setZoom,
     handleZoomOption,
+    setPosition,
   } = useMap({
     mapWidth: initGameInfo ? initGameInfo.mapWidth : 0,
     mapHeight: initGameInfo ? initGameInfo.mapHeight : 0,
+    listenTouch: false, // implement touch later
   });
 
   useEffect(() => {
@@ -90,7 +103,7 @@ function GameMap() {
       }
     },
     [
-      selectedMapTileInfo,
+      selectRef,
       withinMap,
       attackQueueRef,
       mapQueueDataDispatch,
@@ -162,7 +175,6 @@ function GameMap() {
           break;
         case 'a':
         case 'ArrowLeft': // 37 Left
-          // todo 这里 x y 方向相反
           event.preventDefault();
           newPoint = {
             x: selectPos.x,
@@ -209,18 +221,6 @@ function GameMap() {
       setZoom,
     ]
   );
-
-  useEffect(() => {
-    const mapNode = mapRef.current;
-    if (mapNode) {
-      mapNode.focus();
-      mapNode.addEventListener('keydown', handleKeyDown);
-      return () => {
-        mapNode.removeEventListener('keydown', handleKeyDown);
-      };
-    }
-    return () => {};
-  }, [mapRef]);
 
   const getPlayerIndex = useCallback((room: Room, playerId: string) => {
     for (let i = 0; i < room.players.length; ++i) {
@@ -289,6 +289,169 @@ function GameMap() {
     });
   });
 
+  const handleTouchStart = useCallback(
+    (event: TouchEvent) => {
+      event.preventDefault();
+
+      if (event.touches.length === 1) {
+        // touch drag or touch attack
+        if (mapRef.current) {
+          const touch = event.touches[0];
+          const rect = mapRef.current.getBoundingClientRect();
+          const y = Math.floor((touch.clientX - rect.left) / (tileSize * zoom));
+          const x = Math.floor((touch.clientY - rect.top) / (tileSize * zoom));
+          const [tileType, color] = mapData[x][y];
+          const isOwned = color === room.players[myPlayerIndex].color;
+          if (!isOwned) {
+            setTouchDragging(true);
+            setTouchStartPosition({
+              x: event.touches[0].clientX - position.x,
+              y: event.touches[0].clientY - position.y,
+            });
+            // console.log('touch drag at ', x, y);
+          } else {
+            setTouchAttacking(true);
+            setSelectedMapTileInfo({ x, y, half: false, unitsCount: 0 });
+            // console.log('touch attack at ', x, y);
+          }
+        }
+      } else if (event.touches.length === 2) {
+        // zoom
+        const touch1 = event.touches[0];
+        const touch2 = event.touches[1];
+        const distance = Math.sqrt(
+          Math.pow(touch1.clientX - touch2.clientX, 2) +
+            Math.pow(touch1.clientY - touch2.clientY, 2)
+        );
+        setInitialDistance(distance);
+      }
+    },
+    [tileSize, mapRef, mapData, room, myPlayerIndex, position]
+  );
+
+  const handleTouchMove = useCallback(
+    debounce((event: TouchEvent) => {
+      event.preventDefault();
+
+      if (event.touches.length === 1) {
+        if (touchDragging) {
+          const updatePosition = () => {
+            setPosition({
+              x: event.touches[0].clientX - touchStartPosition.x,
+              y: event.touches[0].clientY - touchStartPosition.y,
+            });
+          };
+          requestAnimationFrame(updatePosition);
+        }
+
+        if (touchAttacking && mapRef.current) {
+          const touch = event.touches[0];
+          const rect = mapRef.current.getBoundingClientRect();
+          const y = Math.floor((touch.clientX - rect.left) / (tileSize * zoom));
+          const x = Math.floor((touch.clientY - rect.top) / (tileSize * zoom));
+
+          const dx = x - selectRef.current.x;
+          const dy = y - selectRef.current.y;
+          // check if newPosition is valid
+          if (
+            (dx === 0 && dy === 0) ||
+            (x === lastTouchPosition.x && y === lastTouchPosition.y)
+          ) {
+            return;
+          }
+          const [tileType, color] = mapData[x][y];
+          // check tileType
+          if (
+            tileType === TileType.Mountain ||
+            tileType === TileType.Obstacle
+          ) {
+            setTouchAttacking(false);
+            return;
+          }
+          // check neighbor
+          let direction = '';
+          if (dy === 1 && dx === 0) {
+            direction = 'right';
+          } else if (dy === -1 && dx === 0) {
+            direction = 'left';
+          } else if (dy === 0 && dx === 1) {
+            direction = 'down';
+          } else if (dy === 0 && dx === -1) {
+            direction = 'up';
+          } else {
+            // not valid move
+            setTouchAttacking(false);
+            return;
+          }
+          // console.log('valid touch move attack', x, y, className);
+          const newPoint = { x, y };
+          handlePositionChange(newPoint, `queue_${direction}`);
+          setLastTouchPosition(newPoint);
+        }
+      } else if (event.touches.length === 2) {
+        const touch1 = event.touches[0];
+        const touch2 = event.touches[1];
+        const distance = Math.sqrt(
+          Math.pow(touch1.clientX - touch2.clientX, 2) +
+            Math.pow(touch1.clientY - touch2.clientY, 2)
+        );
+        const delta = distance - initialDistance;
+        const newZoom = Math.min(Math.max(zoom + delta * 0.0002, 0.2), 4.0);
+        setZoom(newZoom);
+      }
+      ///////////
+    }, 10), // debounce in millisecond to avoid too many calls
+    [
+      tileSize,
+      mapRef,
+      selectRef,
+      lastTouchPosition,
+      mapData,
+      room,
+      myPlayerIndex,
+      handlePositionChange,
+      initialDistance,
+      touchStartPosition,
+      zoom,
+    ]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    setTouchAttacking(false);
+    setTouchDragging(false);
+  }, []);
+
+  useEffect(() => {
+    const mapNode = mapRef.current;
+    if (mapNode) {
+      mapNode.focus();
+      mapNode.addEventListener('keydown', handleKeyDown);
+      return () => {
+        mapNode.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+    return () => {};
+  }, [mapRef]);
+
+  useEffect(() => {
+    const mapNode = mapRef.current;
+    if (mapNode) {
+      mapNode.addEventListener('touchstart', handleTouchStart, {
+        passive: false,
+      });
+      mapNode.addEventListener('touchmove', handleTouchMove, {
+        passive: false,
+      });
+      mapNode.addEventListener('touchend', handleTouchEnd);
+      return () => {
+        mapNode.removeEventListener('touchstart', handleTouchStart);
+        mapNode.removeEventListener('touchmove', handleTouchMove);
+        mapNode.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
+    return () => {};
+  }, [mapRef, handleTouchStart, handleTouchMove, handleTouchEnd]);
+
   return (
     <div
       ref={mapRef}
@@ -305,6 +468,9 @@ function GameMap() {
         height: mapPixelHeight,
       }}
     >
+      {/* map key (x,y) example */}
+      {/* 0,0 / 0, 1 */}
+      {/* 1,0 / 1, 1 */}
       {displayMapData.map((tiles, x) => {
         return tiles.map((tile, y) => {
           return (

@@ -16,6 +16,7 @@ export const ColorArr = [
 
 // China Warring States Period Countries 战国时期国家名称
 export const WarringStates = [
+  '中', // neutral, not player
   '齐',
   '晋',
   '楚',
