@@ -300,7 +300,15 @@ function GameMap() {
             // console.log('touch drag at ', x, y);
           } else {
             touchAttacking.current = true;
-            setSelectedMapTileInfo({ x, y, half: false, unitsCount: 0 });
+            if (
+              lastTouchPosition.current.x === x &&
+              lastTouchPosition.current.y === y
+            ) {
+              setSelectedMapTileInfo({ x, y, half: true, unitsCount: 0 });
+            } else {
+              setSelectedMapTileInfo({ x, y, half: false, unitsCount: 0 });
+            }
+            lastTouchPosition.current = { x, y };
             // console.log('touch attack at ', x, y);
           }
         }
@@ -405,7 +413,7 @@ function GameMap() {
     ]
   );
 
-  const handleTouchEnd = useCallback(() => {
+  const handleTouchEnd = useCallback((event: TouchEvent) => {
     touchAttacking.current = false;
     touchDragging.current = false;
   }, []);
