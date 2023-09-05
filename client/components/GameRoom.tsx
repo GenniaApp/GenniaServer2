@@ -281,10 +281,10 @@ function GamingRoom() {
         // console.log('attack_failure: ', from, to, message);
         attackQueueRef.current.clearLastItem();
         while (!attackQueueRef.current.isEmpty()) {
-          let point = attackQueueRef.current.front().from;
-          if (point.x === to.x && point.y === to.y) {
+          let route = attackQueueRef.current.front();
+          if (route.from.x === to.x && route.from.y === to.y) {
             attackQueueRef.current.pop();
-            to = point;
+            to = route.to;
           } else {
             break;
           }

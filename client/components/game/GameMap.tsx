@@ -5,6 +5,7 @@ import MapTile from './MapTile';
 import { TileType, Room, Route, Position } from '@/lib/types';
 import useMap from '@/hooks/useMap';
 import { debounce } from 'lodash';
+import { getPlayerIndex } from '@/lib/utils';
 
 function GameMap() {
   const {
@@ -219,18 +220,9 @@ function GameMap() {
     ]
   );
 
-  const getPlayerIndex = useCallback((room: Room, playerId: string) => {
-    for (let i = 0; i < room.players.length; ++i) {
-      if (room.players[i].id === playerId) {
-        return i;
-      }
-    }
-    return -1;
-  }, []);
-
   const myPlayerIndex = useMemo(() => {
     return getPlayerIndex(room, myPlayerId);
-  }, [room, myPlayerId, getPlayerIndex]);
+  }, [room.players, myPlayerId, getPlayerIndex]);
 
   const queueEmpty = mapQueueData.length === 0;
 

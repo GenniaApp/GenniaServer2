@@ -837,7 +837,6 @@ io.on('connection', async (socket) => {
           room.players[playerIndex].operatedTurn = room.map.turn;
           socket.emit('attack_success', from, to, room.map.turn);
         } else {
-          // socket.emit('attack_failure', from, to, 'Invalid operation');
           socket.emit('attack_failure', from, to, `Invalid operation: ${player.operatedTurn} ${room.map.turn} ${room.map.commendable(player, from, to)}`);
         }
       }
