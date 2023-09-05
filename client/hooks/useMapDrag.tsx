@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { Position } from '@/lib/types';
 
 const useMapDrag = (
@@ -9,49 +9,46 @@ const useMapDrag = (
   setZoom: any,
   listenTouch: boolean
 ) => {
-  const [mouseDragging, setMouseDragging] = useState(false);
-  const [touchDragging, setTouchDragging] = useState(false);
-  const [mouseStartPosition, setMouseStartPosition] = useState({ x: 0, y: 0 });
-  const [touchStartPosition, setTouchStartPosition] = useState({ x: 0, y: 0 });
-  const [initialDistance, setInitialDistance] = useState(0);
+  const mouseDragging = useRef(false);
+  const touchDragging = useRef(false);
+  const mouseStartPosition = useRef({ x: 0, y: 0 });
+  const touchStartPosition = useRef({ x: 0, y: 0 });
+  const initialDistance = useRef(0);
 
   const timeoutId = useRef<any>(undefined);
 
   const handleMouseDown = useCallback(
     (event: MouseEvent) => {
-      setMouseDragging(true);
-      setMouseStartPosition({
+      mouseDragging.current = true;
+      mouseStartPosition.current = {
         x: event.clientX - position.x,
         y: event.clientY - position.y,
-      });
+      };
     },
     [position]
   );
 
-  const handleMouseMove = useCallback(
-    (event: MouseEvent) => {
-      if (mouseDragging) {
-        setPosition({
-          x: event.clientX - mouseStartPosition.x,
-          y: event.clientY - mouseStartPosition.y,
-        });
-      }
-    },
-    [mouseDragging, mouseStartPosition]
-  );
+  const handleMouseMove = useCallback((event: MouseEvent) => {
+    if (mouseDragging.current) {
+      setPosition({
+        x: event.clientX - mouseStartPosition.current.x,
+        y: event.clientY - mouseStartPosition.current.y,
+      });
+    }
+  }, []);
 
   const handleMouseUp = useCallback(() => {
-    setMouseDragging(false);
+    mouseDragging.current = false;
   }, []);
 
   const handleTouchStart = useCallback(
     (event: TouchEvent) => {
       if (event.touches.length === 1) {
-        setTouchDragging(true);
-        setTouchStartPosition({
+        touchDragging.current = true;
+        touchStartPosition.current = {
           x: event.touches[0].clientX - position.x,
           y: event.touches[0].clientY - position.y,
-        });
+        };
       } else if (event.touches.length === 2) {
         const touch1 = event.touches[0];
         const touch2 = event.touches[1];
@@ -59,7 +56,7 @@ const useMapDrag = (
           Math.pow(touch1.clientX - touch2.clientX, 2) +
             Math.pow(touch1.clientY - touch2.clientY, 2)
         );
-        setInitialDistance(distance);
+        initialDistance.current = distance;
       }
     },
     [position]
@@ -68,12 +65,12 @@ const useMapDrag = (
   const handleTouchMove = useCallback(
     (event: TouchEvent) => {
       event.preventDefault();
-      if (!touchDragging) return;
+      if (!touchDragging.current) return;
       if (event.touches.length === 1) {
         const updatePosition = () => {
           setPosition({
-            x: event.touches[0].clientX - touchStartPosition.x,
-            y: event.touches[0].clientY - touchStartPosition.y,
+            x: event.touches[0].clientX - touchStartPosition.current.x,
+            y: event.touches[0].clientY - touchStartPosition.current.y,
           });
         };
         requestAnimationFrame(updatePosition);
@@ -84,16 +81,16 @@ const useMapDrag = (
           Math.pow(touch1.clientX - touch2.clientX, 2) +
             Math.pow(touch1.clientY - touch2.clientY, 2)
         );
-        const delta = distance - initialDistance;
+        const delta = distance - initialDistance.current;
         const newZoom = Math.min(Math.max(zoom + delta * 0.0002, 0.2), 4.0);
         setZoom(newZoom);
       }
     },
-    [initialDistance, touchStartPosition, zoom]
+    [touchDragging.current, zoom]
   );
 
   const handleTouchEnd = useCallback(() => {
-    setTouchDragging(false);
+    touchDragging.current = false;
   }, []);
 
   const handleWheel = useCallback(
