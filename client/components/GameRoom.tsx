@@ -22,6 +22,7 @@ import GameLoading from '@/components/GameLoading';
 
 function GamingRoom() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const myPlayerIdRef = useRef<string>(''); // fix useEffect don't get newest myPlayerId
 
   const router = useRouter();
   const roomId = router.query.roomId as string;
@@ -60,7 +61,9 @@ function GamingRoom() {
       router.push('/');
     } else {
       setMyUserName(tmp);
-      setMyPlayerId(localStorage.getItem('playerId') || '');
+      const tmpId = localStorage.getItem('playerId') || '';
+      setMyPlayerId(tmpId);
+      myPlayerIdRef.current = tmpId;
     }
   }, [setMyPlayerId, setMyUserName, router]);
 
@@ -147,7 +150,11 @@ function GamingRoom() {
 
     // myPlayerId could be null for first connect
     socketRef.current = io(process.env.NEXT_PUBLIC_SERVER_API, {
-      query: { roomId: roomId, username: myUserName, myPlayerId: myPlayerId },
+      query: {
+        roomId: roomId,
+        username: myUserName,
+        myPlayerId: myPlayerIdRef.current,
+      },
     });
     let socket = socketRef.current;
     socket.emit('get_room_info');
@@ -160,6 +167,7 @@ function GamingRoom() {
     socket.on('set_player_id', (playerId: string) => {
       console.log(`set_player_id: ${playerId}`);
       setMyPlayerId(playerId);
+      myPlayerIdRef.current = playerId;
       localStorage.setItem('playerId', playerId);
     });
     socket.on('game_started', (initGameInfo: initGameInfo) => {
@@ -189,11 +197,15 @@ function GamingRoom() {
     socket.on('update_room', (room: Room) => {
       console.log('update_room');
       console.log(room);
+      console.log(myPlayerIdRef.current);
       // if my player id  equal to room's one of player ,setSpectating from room player
-      if (myPlayerId && room.players) {
-        let player = room.players.find((player) => player.id === myPlayerId);
+      if (myPlayerIdRef.current && room.players) {
+        let player = room.players.find(
+          (player) => player.id === myPlayerIdRef.current
+        );
         if (player) {
           setSpectating(player.spectating);
+          console.log('set spectating');
         }
       }
       roomDispatch({ type: 'update', payload: room });
@@ -327,8 +339,8 @@ function GamingRoom() {
 
     socket.on('reconnect', () => {
       console.log('Reconnected to server.');
-      if (room.gameStarted && myPlayerId) {
-        socket.emit('reconnect', myPlayerId);
+      if (room.gameStarted && myPlayerIdRef.current) {
+        socket.emit('reconnect', myPlayerIdRef.current);
       } else {
         socket.emit('get_room_info');
       }
