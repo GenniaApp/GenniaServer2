@@ -115,10 +115,11 @@
     "clearQueuedMoves": "清除队列中的移动",
     "selectGeneral": "选择将军",
     "toggle50": "切换50%",
+    "how-to-toggle-50": "Z / 两次点击",
     "setZoom": "设置预设缩放",
     "zoomInOut": "缩放",
     "mouse-wheel": "鼠标滚轮",
-    "wsad": "WSAD / 方向键 / 鼠标点击",
+    "wsad": "WSAD / 方向键 / 鼠标点击 / 手机拖拽",
     "enter": "回车键",
     "surrender": "投降"
   }

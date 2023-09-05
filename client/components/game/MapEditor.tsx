@@ -517,14 +517,16 @@ function MapEditor({ editMode }: { editMode: boolean }) {
               lg: '45vw',
             },
             transform: `translate(-50%, 0)`,
-            height: '20vh',
+            height: '30vh',
             overflowY: 'auto',
-            borderRadius: '0 10px 10px 0 !important',
+            borderRadius: '10px 10px 10px 10px !important',
             zIndex: 101,
           }}
         >
           <Typography variant='h5'>{mapName}</Typography>
-          <ReactMarkdown>{mapDescription}</ReactMarkdown>
+          <ReactMarkdown className='react_markdown'>
+            {mapDescription}
+          </ReactMarkdown>
           <Button variant='contained' color='info' onClick={handleDownloadMap}>
             {t('download')}
           </Button>

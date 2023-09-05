@@ -1,14 +1,12 @@
 import { ThemeProvider } from '@mui/material/styles';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import theme from '@/components/theme';
-import Navbar from '@/components/Navbar';
 import GameRoom from '@/components/GameRoom';
 import { GameProvider } from '@/context/GameContext';
 
 function RoomPage() {
   return (
     <ThemeProvider theme={theme}>
-      <Navbar />
       <GameProvider>
         <GameRoom />
       </GameProvider>

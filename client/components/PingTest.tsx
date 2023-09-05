@@ -23,12 +23,10 @@ const PingTest = () => {
     <div
       className='menu-container'
       style={{
-        position: 'absolute',
-        left: '5px',
-        top: '120px',
         zIndex: '110',
         display: 'flex',
         alignItems: 'center',
+        marginRight: '0.5rem',
       }}
     >
       {ping !== null ? `Ping: ${ping}ms` : 'error'}

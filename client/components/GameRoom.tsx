@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { io } from 'socket.io-client';
 import { useTranslation } from 'next-i18next';
 import ChatBox from '@/components/ChatBox';
+import Navbar from '@/components/Navbar';
 
 import {
   Room,
@@ -360,8 +361,11 @@ function GamingRoom() {
   return (
     <div className='app-container'>
       {roomUiStatus === RoomUiStatus.gameSetting && (
-        <div className='center-layout'>
-          <GameSetting />
+        <div>
+          <Navbar />
+          <div className='center-layout'>
+            <GameSetting />
+          </div>
         </div>
       )}
       {roomUiStatus === RoomUiStatus.loading && (

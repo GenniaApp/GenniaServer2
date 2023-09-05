@@ -73,14 +73,19 @@ export default function LeaderBoard(props: LeaderBoardProps) {
           className='menu-container'
           sx={{
             position: 'absolute',
-            right: '1px',
-            top: '60px',
+            right: '0px',
+            top: '0px',
             width: 'min-content',
             zIndex: '110',
             overflow: 'hidden',
             '& .MuiTableCell-root': {
-              paddingY: '0.6rem',
-              paddingX: gameDockExpand ? '0.6rem' : '0.4rem',
+              paddingY: {
+                xs: '0rem',
+                md: '0.5rem',
+              },
+              paddingX: gameDockExpand
+                ? { xs: '0.6rem', md: '0.8rem' }
+                : { xs: '0.4rem', md: '0.6rem' },
             },
           }}
         >
@@ -115,6 +120,10 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                   <TableCell>
                     <Checkbox
                       defaultChecked={false}
+                      sx={{
+                        width: '1.5rem',
+                        height: '1.5rem',
+                      }}
                       onChange={(event: any) => {
                         if (event.target.checked) {
                           let newCheckedPlayers = [

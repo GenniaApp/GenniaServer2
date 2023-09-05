@@ -6,7 +6,6 @@ import TurnsCount from './TurnsCount';
 import OverDialog from './OverDialog';
 import { Box } from '@mui/material';
 import { useGame, useGameDispatch } from '@/context/GameContext';
-import PingTest from '../PingTest';
 
 export default function Game() {
   const { room, socketRef, myPlayerId, turnsCount, leaderBoardData } =
@@ -29,7 +28,6 @@ export default function Game() {
 
   return (
     <Box className='Game'>
-      <PingTest />
       <TurnsCount count={turnsCount} handleReturnClick={handleReturnClick} />
       <LeaderBoard
         leaderBoardTable={leaderBoardData}

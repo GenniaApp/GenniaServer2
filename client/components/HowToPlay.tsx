@@ -28,7 +28,7 @@ const HowToPlay: React.FC<HowToPlayProps> = ({ show, toggleShow }) => {
     { label: t('howToPlay.openChat'), value: t('howToPlay.enter') },
     { label: t('howToPlay.surrender'), value: 'Esc' },
     { label: t('howToPlay.selectGeneral'), value: 'G' },
-    { label: t('howToPlay.toggle50'), value: 'Z' },
+    { label: t('howToPlay.toggle50'), value:  t('howToPlay.how-to-toggle-50') },
     { label: t('howToPlay.undoMove'), value: 'E' },
     { label: t('howToPlay.clearQueuedMoves'), value: 'Q' },
     { label: t('howToPlay.setZoom'), value: '1 / 2 / 3' },

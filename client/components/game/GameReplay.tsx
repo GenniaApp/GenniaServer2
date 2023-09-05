@@ -261,44 +261,53 @@ export default function GameReplay(props: any) {
           <Box
             className='menu-container'
             sx={{
+              margin: 0,
+              padding: '5px',
               position: 'absolute',
               left: '50%',
               transform: 'translate(-50%, 0) translate(0, 0)',
-              width: 'max-content',
+              width: {
+                xs: '90dvw',
+                md: 'max-content',
+              },
               height: 'min-content',
-              bottom: '65px',
+              bottom: { xs: '5px', md: '20px' },
               borderRadius: '10px !important',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
               flexDirection: 'column',
               zIndex: 1000,
-              padding: '10px !important',
               boxShadow: '2',
-              '@media screen and (max-width: 900px)': {
-                width: '90dvw',
-              },
             }}
           >
             <Box
               display='flex'
               flexDirection='row'
               justifyContent='space-between'
+              sx={{
+                marginBottom: {
+                  xs: '-8px',
+                  md: '10px',
+                },
+              }}
             >
               <IconButton
+                size='small'
                 disabled={turnsCount === 1}
                 onClick={() => changeTurn(turnsCount > 1 ? turnsCount - 1 : 1)}
               >
                 <FastRewindRounded fontSize='large' />
               </IconButton>
-              <IconButton onClick={() => setIsPlay(!isPlay)}>
+              <IconButton size='small' onClick={() => setIsPlay(!isPlay)}>
                 {isPlay ? (
-                  <PauseRounded sx={{ fontSize: '3rem' }} />
+                  <PauseRounded fontSize='large' />
                 ) : (
-                  <PlayArrowRounded sx={{ fontSize: '3rem' }} />
+                  <PlayArrowRounded fontSize='large' />
                 )}
               </IconButton>
               <IconButton
+                size='small'
                 disabled={turnsCount === maxTurn}
                 onClick={() =>
                   changeTurn(turnsCount < maxTurn ? turnsCount + 1 : maxTurn)
@@ -308,7 +317,7 @@ export default function GameReplay(props: any) {
               </IconButton>
             </Box>
             <Slider
-              size='medium'
+              size='small'
               value={turnsCount}
               min={0}
               step={1}
@@ -316,7 +325,8 @@ export default function GameReplay(props: any) {
               onChange={handleChangeTurn}
               sx={{
                 color: '#fff',
-                height: 8,
+                padding: '4px 0px',
+                height: 6,
                 '& .MuiSlider-thumb': {
                   width: 16,
                   height: 16,
@@ -338,7 +348,13 @@ export default function GameReplay(props: any) {
               }}
             />
             <RadioGroup
-              sx={{ width: '100%' }}
+              sx={{
+                width: '100%',
+                marginTop: {
+                  xs: '-8px',
+                  md: '10px',
+                },
+              }}
               aria-label='game-speed'
               name='game-speed'
               value={playSpeed}
@@ -350,6 +366,12 @@ export default function GameReplay(props: any) {
             >
               {ReplaySpeedOptions.map((value) => (
                 <FormControlLabel
+                  sx={{
+                    marginX: {
+                      xs: '1px',
+                      md: '3px',
+                    },
+                  }}
                   key={value}
                   value={value}
                   control={<Radio size='small' />}
@@ -372,7 +394,7 @@ export default function GameReplay(props: any) {
             checkedPlayers={checkedPlayers}
             setCheckedPlayers={setCheckedPlayers}
           />
-          <ChatBox socket={null} messages={messages} />
+          {/* <ChatBox socket={null} messages={messages} /> */}
           <div
             ref={mapRef}
             tabIndex={0}

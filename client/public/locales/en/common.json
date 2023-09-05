@@ -113,10 +113,11 @@
     "clearQueuedMoves": "Clear Queued Moves",
     "selectGeneral": "Select on general",
     "toggle50": "Toggle 50%",
+    "how-to-toggle-50": "Z / Click Twice",
     "setZoom": "Set Zoom to Preset",
     "zoomInOut": "Zoom in / out",
     "mouse-wheel": "Mouse Wheel",
-    "wsad": "WSAD / ArrowKey / MouseClick",
+    "wsad": "WSAD / ArrowKey / MouseClick / TouchDrag on Mobile",
     "enter": "Enter",
     "surrender": "Surrender"
   }

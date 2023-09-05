@@ -1,13 +1,11 @@
 import { ThemeProvider } from '@mui/material/styles';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import theme from '@/components/theme';
-import Navbar from '@/components/Navbar';
 import GameReplay from '@/components/game/GameReplay';
 
 function ReplayPage() {
   return (
     <ThemeProvider theme={theme}>
-      <Navbar />
       <GameReplay />
     </ThemeProvider>
   );
