@@ -26,6 +26,8 @@ function GameMap() {
   const touchDragging = useRef(false);
   const touchStartPosition = useRef({ x: 0, y: 0 });
   const initialDistance = useRef(0);
+  const lastTouchTime = useRef(0);
+  const touchHalf = useRef(false);
 
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
   const selectRef = useRef<any>(null);
@@ -291,6 +293,7 @@ function GameMap() {
           const x = Math.floor((touch.clientY - rect.top) / (tileSize * zoom));
           const [tileType, color] = mapData[x][y];
           const isOwned = color === room.players[myPlayerIndex].color;
+          const currentTime = new Date().getTime();
           if (!isOwned) {
             touchDragging.current = true;
             touchStartPosition.current = {
@@ -302,14 +305,19 @@ function GameMap() {
             touchAttacking.current = true;
             if (
               lastTouchPosition.current.x === x &&
-              lastTouchPosition.current.y === y
+              lastTouchPosition.current.y === y &&
+              currentTime - lastTouchTime.current <= 400 // quick double touch 400ms
             ) {
-              setSelectedMapTileInfo({ x, y, half: true, unitsCount: 0 });
-            } else {
-              setSelectedMapTileInfo({ x, y, half: false, unitsCount: 0 });
+              touchHalf.current = !touchHalf.current;
             }
+            setSelectedMapTileInfo({
+              x,
+              y,
+              half: touchHalf.current,
+              unitsCount: 0,
+            });
             lastTouchPosition.current = { x, y };
-            // console.log('touch attack at ', x, y);
+            lastTouchTime.current = currentTime;
           }
         }
       } else if (event.touches.length === 2) {
@@ -363,7 +371,6 @@ function GameMap() {
             tileType === TileType.Mountain ||
             tileType === TileType.Obstacle
           ) {
-            touchAttacking.current = false;
             return;
           }
           // check neighbor
@@ -382,6 +389,7 @@ function GameMap() {
             return;
           }
           // console.log('valid touch move attack', x, y, className);
+          touchHalf.current = false;
           const newPoint = { x, y };
           handlePositionChange(newPoint, `queue_${direction}`);
           lastTouchPosition.current = newPoint;
