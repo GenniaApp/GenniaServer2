@@ -381,8 +381,8 @@ export default function GameReplay(props: any) {
               top: '50%',
               left: '50%',
               transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
-              width: mapPixelWidth,
-              height: mapPixelHeight,
+              width: mapPixelHeight, // game's width and height are swapped
+              height: mapPixelWidth,
             }}
           >
             {limitedView.map((tiles, x) => {

@@ -306,13 +306,13 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           <TabPanel value={tabIndex} index={1}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <SliderBox
-                label={t('width')}
+                label={t('height')} // game's width and height is reversed
                 value={room.mapWidth}
                 disabled={disabled_ui}
                 handleChange={handleSettingChange('mapWidth')}
               />
               <SliderBox
-                label={t('height')}
+                label={t('width')} // game's width and height is reversed
                 value={room.mapHeight}
                 disabled={disabled_ui}
                 handleChange={handleSettingChange('mapHeight')}

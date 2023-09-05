@@ -785,7 +785,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
           top: '50%',
           left: '50%',
           transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
-          width: mapPixelHeight, // we should swap width and height here
+          width: mapPixelHeight, // game's width and height are swapped
           height: mapPixelWidth,
           backgroundColor: '#495468',
         }}
