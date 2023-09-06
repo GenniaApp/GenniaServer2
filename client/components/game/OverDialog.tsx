@@ -68,6 +68,12 @@ export default function OverDialog() {
         if (reason === 'backdropClick') return;
         setOpenOverDialog(false);
       }}
+      sx={{
+        '& .MuiDialog-paper': {
+          backdropFilter: 'blur(3px)',
+          backgroundColor: 'rgb(18 18 18 / 78%) !important',
+        },
+      }}
     >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>{subtitle}</DialogContent>

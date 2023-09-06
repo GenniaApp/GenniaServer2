@@ -263,7 +263,8 @@ function GamingRoom() {
         turnsCount: number,
         leaderBoardData: LeaderBoardTable
       ) => {
-        console.log(`game_update: ${turnsCount}`, new Date().toISOString());
+        // console.log(`game_update: ${turnsCount}`, new Date().toISOString());
+        console.log(`game_update: ${turnsCount}`);
 
         attackQueueRef.current.allowAttackThisTurn = true;
         setRoomUiStatus(RoomUiStatus.gameRealStarted);

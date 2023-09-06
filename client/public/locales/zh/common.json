@@ -99,6 +99,7 @@
   "clear-all": "清除全部",
   "warring-states-mode": "战国模式",
   "country": "国家",
+  "expandWASD": "展开WASD",
   "howToPlay": {
     "title": "如何玩",
     "shortcut": "快捷键",
@@ -113,7 +114,7 @@
     "openChat": "打开聊天",
     "undoMove": "撤销移动",
     "clearQueuedMoves": "清除队列中的移动",
-    "selectGeneral": "选择将军",
+    "selectCenterGeneral": "聚焦将军",
     "toggle50": "切换50%",
     "how-to-toggle-50": "Z / 鼠标两次点击 / 手机：快速触摸两次",
     "setZoom": "设置预设缩放",

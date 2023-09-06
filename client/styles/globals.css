@@ -277,6 +277,15 @@ a {
   color: white;
 }
 
+.attack-button {
+  backdrop-filter: blur(3px);
+  background-color: rgb(99 97 141 / 68%) !important;
+  border-radius: 10px !important;
+  padding: 8px;
+  color: white;
+  box-shadow: 2;
+}
+
 .icon-box {
   display: flex;
   flex-direction: column;

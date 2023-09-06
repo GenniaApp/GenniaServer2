@@ -237,7 +237,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
               }}
             >
               <Typography
-                variant='h5'
+                variant='h6'
                 sx={{ mr: 2, whiteSpace: 'nowrap', color: 'white' }}
                 align='center'
                 component={Link}

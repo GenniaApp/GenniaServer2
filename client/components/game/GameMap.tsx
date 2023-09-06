@@ -5,6 +5,18 @@ import MapTile from './MapTile';
 import { TileType, Room, Route, Position } from '@/lib/types';
 import useMap from '@/hooks/useMap';
 import { getPlayerIndex } from '@/lib/utils';
+import { Box, IconButton, Tooltip, Typography } from '@mui/material';
+import { useTranslation } from 'next-i18next';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import HomeIcon from '@mui/icons-material/Home';
+import ClearIcon from '@mui/icons-material/Clear';
+import UndoIcon from '@mui/icons-material/Undo';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 function GameMap() {
   const {
@@ -19,6 +31,10 @@ function GameMap() {
     turnsCount,
   } = useGame();
 
+  const { t } = useTranslation();
+
+  const isSmallScreen = useMediaQuery('(max-width:600px)');
+
   const touchAttacking = useRef(false);
   const lastTouchPosition = useRef({ x: -1, y: -1 });
 
@@ -27,6 +43,11 @@ function GameMap() {
   const initialDistance = useRef(0);
   const lastTouchTime = useRef(0);
   const touchHalf = useRef(false);
+  const [showDirections, setShowDirections] = useState(false);
+
+  const toggleDirections = () => {
+    setShowDirections(!showDirections);
+  };
 
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
   const selectRef = useRef<any>(null);
@@ -116,109 +137,146 @@ function GameMap() {
     selectedMapTileInfo,
   });
 
+  const halfArmy = useCallback(() => {
+    if (selectRef.current) {
+      let selectPos = selectRef.current;
+      if (selectPos.x === -1 || selectPos.y === -1) return;
+      selectPos.half = !selectPos.half;
+      mapQueueDataDispatch({
+        type: 'change',
+        x: selectPos.x,
+        y: selectPos.y,
+        className: '',
+        half: !selectPos.half,
+      });
+    }
+  }, [mapQueueDataDispatch]);
+
+  const selectCenterGeneral = useCallback(() => {
+    if (initGameInfo && selectRef.current) {
+      const { king } = initGameInfo;
+      const pixel_x = Math.floor(mapPixelWidth / 2 - king.x * zoom * tileSize);
+      const pixel_y = Math.floor(mapPixelHeight / 2 - king.y * zoom * tileSize);
+      setPosition({ x: pixel_y, y: pixel_x });
+      setSelectedMapTileInfo({ ...selectRef.current, x: king.x, y: king.y });
+    }
+  }, [
+    initGameInfo,
+    mapPixelHeight,
+    mapPixelWidth,
+    zoom,
+    tileSize,
+    setPosition,
+  ]);
+
+  const popQueue = useCallback(() => {
+    if (selectRef.current) {
+      let route = attackQueueRef.current.pop_back();
+      if (route) {
+        setSelectedMapTileInfo({
+          ...selectRef.current,
+          x: route.from.x,
+          y: route.from.y,
+          //  todo: fix half/unitsCount logic
+        });
+      }
+    }
+  }, []);
+  const clearQueue = useCallback(() => {
+    if (selectRef.current) {
+      let route = attackQueueRef.current.front();
+      if (route) {
+        attackQueueRef.current.clear();
+        setSelectedMapTileInfo({
+          ...selectRef.current,
+          x: route.from.x,
+          y: route.from.y,
+        });
+      }
+    }
+  }, []);
+  const attackUp = useCallback(() => {
+    if (selectRef.current) {
+      let selectPos = selectRef.current;
+      let newPoint = {
+        x: selectPos.x - 1,
+        y: selectPos.y,
+      };
+      handlePositionChange(newPoint, 'queue_up');
+    }
+  }, []);
+  const attackDown = useCallback(() => {
+    if (selectRef.current) {
+      let selectPos = selectRef.current;
+
+      let newPoint = {
+        x: selectPos.x + 1,
+        y: selectPos.y,
+      };
+      handlePositionChange(newPoint, 'queue_down');
+    }
+  }, []);
+  const attackLeft = useCallback(() => {
+    if (selectRef.current) {
+      let selectPos = selectRef.current;
+      let newPoint = {
+        x: selectPos.x,
+        y: selectPos.y - 1,
+      };
+      handlePositionChange(newPoint, 'queue_left');
+    }
+  }, []);
+  const attackRight = useCallback(() => {
+    if (selectRef.current) {
+      let selectPos = selectRef.current;
+
+      let newPoint = {
+        x: selectPos.x,
+        y: selectPos.y + 1,
+      };
+      handlePositionChange(newPoint, 'queue_right');
+    }
+  }, []);
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       handleZoomOption(event.key);
-
-      let newPoint = { x: -1, y: -1 };
-      let route: Route | undefined;
-
-      let selectPos = selectRef.current;
-
-      if (!selectPos) return;
       switch (event.key) {
         case 'z':
-          // Z to half
-          selectPos.half = !selectPos.half;
-          mapQueueDataDispatch({
-            type: 'change',
-            x: selectPos.x,
-            y: selectPos.y,
-            className: '',
-            half: !selectPos.half,
-          });
+          halfArmy();
           break;
         case 'e':
-          // E to pop_back
-          route = attackQueueRef.current.pop_back();
-          if (route) {
-            setSelectedMapTileInfo({
-              ...selectPos,
-              x: route.from.x,
-              y: route.from.y,
-              //  todo: fix half/unitsCount logic
-            });
-          }
+          popQueue();
           break;
         case 'q':
-          // Q to clear
-          route = attackQueueRef.current.front();
-          if (route) {
-            attackQueueRef.current.clear();
-            setSelectedMapTileInfo({
-              ...selectPos,
-              x: route.from.x,
-              y: route.from.y,
-            });
-          }
+          clearQueue();
           break;
         case 'g':
-          // G to select king
-          if (initGameInfo) {
-            setSelectedMapTileInfo({
-              ...selectPos,
-              x: initGameInfo.king.x,
-              y: initGameInfo.king.y,
-            });
-          }
+          selectCenterGeneral();
           break;
         case 'a':
         case 'ArrowLeft': // 37 Left
           event.preventDefault();
-          newPoint = {
-            x: selectPos.x,
-            y: selectPos.y - 1,
-          };
-          handlePositionChange(newPoint, 'queue_left');
+          attackLeft();
           break;
         case 'w':
         case 'ArrowUp': // 38 Up
           event.preventDefault();
-          newPoint = {
-            x: selectPos.x - 1,
-            y: selectPos.y,
-          };
-          handlePositionChange(newPoint, 'queue_up');
+          attackUp();
           break;
         case 'd':
         case 'ArrowRight': // 39 Right
           event.preventDefault();
-          newPoint = {
-            x: selectPos.x,
-            y: selectPos.y + 1,
-          };
-          handlePositionChange(newPoint, 'queue_right');
+          attackRight();
           break;
         case 's':
         case 'ArrowDown': // 40 Down
           event.preventDefault();
-          newPoint = {
-            x: selectPos.x + 1,
-            y: selectPos.y,
-          };
-          handlePositionChange(newPoint, 'queue_down');
+          attackDown();
           break;
       }
     },
-    [
-      handlePositionChange,
-      mapQueueDataDispatch,
-      selectRef,
-      attackQueueRef,
-      setSelectedMapTileInfo,
-      initGameInfo,
-      setZoom,
-    ]
+    [handleZoomOption]
   );
 
   const myPlayerIndex = useMemo(() => {
@@ -364,6 +422,7 @@ function GameMap() {
           ) {
             return;
           }
+          if (mapData.length === 0) return;
           const [tileType, color] = mapData[x][y];
           // check tileType
           if (
@@ -457,42 +516,137 @@ function GameMap() {
   }, [mapRef, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   return (
-    <div
-      ref={mapRef}
-      tabIndex={0}
-      onBlur={() => {
-        setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
-      }}
-      style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
-        width: mapPixelHeight, // game's width and height are swapped
-        height: mapPixelWidth,
-      }}
-    >
-      {/* map key (x,y) example */}
-      {/* 0,0 / 0, 1 */}
-      {/* 1,0 / 1, 1 */}
-      {displayMapData.map((tiles, x) => {
-        return tiles.map((tile, y) => {
-          return (
-            <MapTile
-              key={`${x}/${y}`}
-              zoom={zoom}
-              size={tileSize}
-              x={x}
-              y={y}
-              {...tile}
-              attackQueueRef={attackQueueRef}
-              setSelectedMapTileInfo={setSelectedMapTileInfo}
-              mapQueueDataDispatch={mapQueueDataDispatch}
-              warringStatesMode={room.warringStatesMode}
-            />
-          );
-        });
-      })}
+    <div>
+      <div
+        ref={mapRef}
+        tabIndex={0}
+        onBlur={() => {
+          setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
+        }}
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: `translate(-50%, -50%) translate(${position.x}px, ${position.y}px)`,
+          width: mapPixelHeight, // game's width and height are swapped
+          height: mapPixelWidth,
+        }}
+      >
+        {/* map key (x,y) example */}
+        {/* 0,0 / 0, 1 */}
+        {/* 1,0 / 1, 1 */}
+        {displayMapData.map((tiles, x) => {
+          return tiles.map((tile, y) => {
+            return (
+              <MapTile
+                key={`${x}/${y}`}
+                zoom={zoom}
+                size={tileSize}
+                x={x}
+                y={y}
+                {...tile}
+                attackQueueRef={attackQueueRef}
+                setSelectedMapTileInfo={setSelectedMapTileInfo}
+                mapQueueDataDispatch={mapQueueDataDispatch}
+                warringStatesMode={room.warringStatesMode}
+              />
+            );
+          });
+        })}
+      </div>
+      {isSmallScreen && (
+        <Box
+          className='menu-container'
+          sx={{
+            margin: 0,
+            padding: '5px',
+            position: 'absolute',
+            left: '5px',
+            bottom: { xs: '65px', md: '80px' },
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignContent: 'space-between',
+            alignItems: 'center',
+            flexDirection: 'column',
+            zIndex: 1000,
+            boxShadow: '2',
+          }}
+        >
+          <Tooltip title={t('howToPlay.selectCenterGeneral')} placement='top'>
+            <IconButton onClick={selectCenterGeneral}>
+              <HomeIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('howToPlay.undoMove')} placement='top'>
+            <IconButton onClick={popQueue}>
+              <UndoIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={t('howToPlay.clearQueuedMoves')} placement='top'>
+            <IconButton onClick={clearQueue}>
+              <ClearIcon />
+            </IconButton>
+          </Tooltip>
+          {/* <Tooltip title={t('howToPlay.toggle50')} placement='top'>
+            <IconButton onClick={halfArmy}>
+              <Typography>50%</Typography>
+            </IconButton>
+          </Tooltip> */}
+          <Tooltip title={t('expandWASD')} placement='top'>
+            <IconButton onClick={toggleDirections}>
+              {showDirections ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+            </IconButton>
+          </Tooltip>
+        </Box>
+      )}
+      {showDirections && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '5px',
+            position: 'absolute',
+            right: '10px',
+            bottom: { xs: '65px', md: '80px' },
+            zIndex: 1000,
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <IconButton onClick={attackUp} className='attack-button'>
+              <ArrowUpwardIcon />
+            </IconButton>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                width: {
+                  xs: '40vw',
+                  md: '20vw',
+                  lg: '20vw',
+                },
+                justifyContent: 'space-between',
+              }}
+            >
+              <IconButton onClick={attackLeft} className='attack-button'>
+                <ArrowBackIcon />
+              </IconButton>
+              <IconButton onClick={attackRight} className='attack-button'>
+                <ArrowForwardIcon />
+              </IconButton>
+            </Box>
+            <IconButton onClick={attackDown} className='attack-button'>
+              <ArrowDownwardIcon />
+            </IconButton>
+          </Box>
+        </Box>
+      )}
     </div>
   );
 }
