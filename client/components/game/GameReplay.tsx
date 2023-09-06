@@ -267,7 +267,7 @@ export default function GameReplay(props: any) {
               left: '50%',
               transform: 'translate(-50%, 0) translate(0, 0)',
               width: {
-                xs: '90dvw',
+                xs: '90vw',
                 md: 'max-content',
               },
               height: 'min-content',

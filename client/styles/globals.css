@@ -172,12 +172,19 @@ a {
   /* todo: if set 100% instead of 100vw, some brower will not display correctly */
   /* height: 100%; */
   /* width: 100%; */
-  height: 100dvh;
-  width: 100dvw;
+  height: 100vh;
+  width: 100vw;
   --tw-bg-opacity: 1;
   /* background-color: rgb(17 24 39 / var(--tw-bg-opacity)); */
   /* font-family: "Quicksand", sans-serif; */
   font-size: 16px;
+}
+
+@supports (height: 100dvh) {
+  .Game {
+    height: 100dvh;
+    width: 100dvw;
+  }
 }
 
 .TurnsCount {
