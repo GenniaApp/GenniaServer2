@@ -30,6 +30,7 @@ function TurnsCount(props: TurnsCountProps) {
         style={{
           display: 'flex',
           alignItems: 'center',
+          borderRadius: '0 10px 10px 0 !important'
         }}
       >
         <IconButton onClick={handleReturnClick} color='primary'>
