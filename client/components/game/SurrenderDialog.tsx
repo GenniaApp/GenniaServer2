@@ -85,17 +85,17 @@ export default function SurrenderDialog({
           : t('are-you-sure-to-surrender')}
       </DialogTitle>
       <DialogActions sx={{ width: '300px' }}>
+        <Button
+          onClick={() => {
+            setOpen(false);
+          }}
+        >
+          {t('cancel')}
+        </Button>
         {showExitTitle ? (
           <Button onClick={handleExit}>{t('exit')}</Button>
         ) : (
           <>
-            <Button
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              {t('cancel')}
-            </Button>
             <Button onClick={handleCloseSurrender}>{t('surrender')}</Button>
           </>
         )}

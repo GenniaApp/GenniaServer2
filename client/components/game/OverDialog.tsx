@@ -85,6 +85,13 @@ export default function OverDialog() {
           <Button onClick={handleWatchReplay}>{t('watch-replay')}</Button>
         )}
         <Button onClick={handleExit}>{t('exit')}</Button>
+        <Button
+          onClick={() => {
+            setOpenOverDialog(false);
+          }}
+        >
+          {t('cancel')}
+        </Button>
       </DialogActions>
     </Dialog>
   );
