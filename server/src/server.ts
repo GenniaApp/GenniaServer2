@@ -307,7 +307,7 @@ function handleNeutralized(room: Room, player: Player) {
 async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
   try {
     io.in(room.id).emit('room_message', player, 'quit.');
-    if (room.gameStarted) {
+    if (room.gameStarted && !player.spectating) {
       player.disconnected = true;
       handleNeutralized(room, player);
     } else {
@@ -337,7 +337,7 @@ async function checkForcedStart(room: Room, io: Server) {
     room.players.filter((player) => !player.spectating).length
   ]
 
-  if (room.forceStartNum >= forceStartNum) {
+  if (!room.gameStarted && room.forceStartNum >= forceStartNum) {
     await handleGame(room, io);
   }
 }
@@ -784,6 +784,7 @@ io.on('connection', async (socket) => {
   socket.on('disconnect', async () => {
     await handleDisconnectInRoom(room, player, io);
     socket.disconnect();
+    checkForcedStart(room, io); // check if game can start
   });
 
   socket.on('force_start', async () => {

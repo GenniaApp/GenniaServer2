@@ -163,17 +163,16 @@ function Lobby() {
               className='menu-container'
               component={Paper}
               sx={{
-                height: '50vh',
+                maxHeight: '50vh',
               }}
             >
               <Table
                 size='small'
                 sx={{
                   '& .MuiTableCell-root': {
-                    width: '1px',
                     padding: {
                       xs: '6px 6px',
-                      md: '6px 16px',
+                      md: '8px 16px',
                     },
                   },
                 }}

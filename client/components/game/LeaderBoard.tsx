@@ -75,10 +75,11 @@ export default function LeaderBoard(props: LeaderBoardProps) {
             position: 'absolute',
             right: '0px',
             top: '0px',
-            width: '2rem',
+            width: 'min-content',
             zIndex: '110',
             overflow: 'hidden',
             borderRadius: '10px 0 0 10px !important',
+            borderCollapse: 'unset', // remove border safari
             '& .MuiTableCell-root': {
               paddingY: {
                 xs: '0rem',
