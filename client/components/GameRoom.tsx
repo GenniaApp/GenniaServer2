@@ -173,8 +173,11 @@ function GamingRoom() {
     });
     socket.on('game_started', (initGameInfo: initGameInfo) => {
       console.log('Game started:', initGameInfo);
+      const audio = new Audio('/audio/fresh_snap.mp3');
+      audio.play();
       setInitGameInfo(initGameInfo);
       setIsSurrendered(false);
+      setDialogContent([null, '', null]);
 
       setSelectedMapTileInfo({
         x: initGameInfo.king.x,

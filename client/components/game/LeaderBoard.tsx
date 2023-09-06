@@ -75,7 +75,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
             position: 'absolute',
             right: '0px',
             top: '0px',
-            width: 'min-content',
+            width: '2rem',
             zIndex: '110',
             overflow: 'hidden',
             borderRadius: '10px 0 0 10px !important',

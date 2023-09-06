@@ -70,8 +70,10 @@ function Lobby() {
     }
   }, [setUsername, router]);
 
-  const handleRoomClick = (roomName: string) => {
-    router.push(`/rooms/${roomName}`);
+  const handleRoomClick = async (roomName: string) => {
+    setLoading(true);
+    await router.push(`/rooms/${roomName}`);
+    setLoading(false);
   };
 
   const handleCreateRoomClick = async () => {
@@ -157,16 +159,33 @@ function Lobby() {
                 </Box>
               </ListItem>
             </List>
-            <TableContainer className='menu-container' component={Paper}>
-              <Table size='small'>
+            <TableContainer
+              className='menu-container'
+              component={Paper}
+              sx={{
+                height: '50vh',
+              }}
+            >
+              <Table
+                size='small'
+                sx={{
+                  '& .MuiTableCell-root': {
+                    width: '1px',
+                    padding: {
+                      xs: '6px 6px',
+                      md: '6px 16px',
+                    },
+                  },
+                }}
+              >
                 <TableHead>
                   <TableRow>
-                    <TableCell></TableCell>
+                    {/* <TableCell></TableCell> */}
                     {/* <TableCell>{t('room-id')}</TableCell> */}
                     <TableCell>{t('room-name')}</TableCell>
-                    <TableCell>{t('game-speed')}</TableCell>
-                    <TableCell>{t('players')}</TableCell>
-                    <TableCell>{t('status')}</TableCell>
+                    <TableCell align='center'>{t('game-speed')}</TableCell>
+                    <TableCell align='center'>{t('players')}</TableCell>
+                    <TableCell align='center'>{t('status')}</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -184,23 +203,26 @@ function Lobby() {
                     </TableRow>
                   ) : (
                     Object.values(rooms).map((room: Room) => (
-                      <TableRow key={room.id}>
-                        <TableCell>
-                          <Button
-                            variant='contained'
-                            color='primary'
-                            onClick={() => handleRoomClick(room.id)}
-                          >
-                            {room.gameStarted ? t('spectate') : t('join')}
-                          </Button>
+                      <TableRow
+                        hover
+                        key={room.id}
+                        onClick={() => handleRoomClick(room.id)}
+                        sx={{
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <TableCell
+                          sx={{
+                            whiteSpace: 'nowrap',
+                            maxWidth: '20vw',
+                            overflowX: 'hidden',
+                          }}
+                        >
+                          {room.roomName}
                         </TableCell>
-                        {/* <TableCell component='th' scope='row'>
-                          {room.id}
-                        </TableCell> */}
-                        <TableCell>{room.roomName}</TableCell>
-                        <TableCell>{room.gameSpeed}</TableCell>
-                        <TableCell>{`${room.players.length}/${room.maxPlayers}`}</TableCell>
-                        <TableCell>
+                        <TableCell align='center'>{room.gameSpeed}</TableCell>
+                        <TableCell align='center'>{`${room.players.length}/${room.maxPlayers}`}</TableCell>
+                        <TableCell align='center'>
                           <Typography
                             variant='body2'
                             color={room.gameStarted ? 'yellow' : 'lime'}

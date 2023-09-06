@@ -152,7 +152,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           snackStateDispatch({ type: 'toggle' });
         }}
       >
-        <Alert severity='error' sx={{ width: '100%' }}>
+        <Alert severity={snackState.status} sx={{ width: '100%' }}>
           <AlertTitle>{snackState.title}</AlertTitle>
           {snackState.message}
         </Alert>
@@ -185,7 +185,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           title={
             !isNameFocused || disabled_ui ? (
               <Typography
-                sx={{ fontSize: '30px', color: '#FFFFFF' }}
+                sx={{ fontSize: '20px', color: '#FFFFFF' }}
                 onClick={() => {
                   !disabled_ui && setIsNamedFocused(true);
                 }}
@@ -196,7 +196,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
               <TextField
                 autoFocus
                 variant='standard'
-                inputProps={{ style: { fontSize: '30px' } }}
+                inputProps={{ style: { fontSize: '20px' } }}
                 value={room.roomName}
                 onChange={handleRoomNameChange}
                 onBlur={handleRoomNameBlur}
@@ -213,6 +213,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                   type: 'update',
                   title: '',
                   message: t('copied'),
+                  status: 'success',
                 });
               }}
             >
@@ -228,6 +229,19 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             '&:last-child': { pb: 0 },
           }}
         >
+          {disabled_ui && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography variant='caption' align='center'>
+                {t('not-host')}
+              </Typography>
+            </Box>
+          )}
           {room.mapName && (
             <Box
               sx={{
