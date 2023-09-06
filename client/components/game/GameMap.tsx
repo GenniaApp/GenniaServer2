@@ -141,13 +141,19 @@ function GameMap() {
     if (selectRef.current) {
       let selectPos = selectRef.current;
       if (selectPos.x === -1 || selectPos.y === -1) return;
-      selectPos.half = !selectPos.half;
+      touchHalf.current = !touchHalf.current; // todo: potential bug
+      setSelectedMapTileInfo({
+        x: selectPos.x,
+        y: selectPos.y,
+        half: touchHalf.current,
+        unitsCount: 0,
+      });
       mapQueueDataDispatch({
         type: 'change',
         x: selectPos.x,
         y: selectPos.y,
         className: '',
-        half: !selectPos.half,
+        half: touchHalf.current,
       });
     }
   }, [mapQueueDataDispatch]);
@@ -587,11 +593,11 @@ function GameMap() {
               <ClearIcon />
             </IconButton>
           </Tooltip>
-          {/* <Tooltip title={t('howToPlay.toggle50')} placement='top'>
+          <Tooltip title={t('howToPlay.toggle50')} placement='top'>
             <IconButton onClick={halfArmy}>
               <Typography>50%</Typography>
             </IconButton>
-          </Tooltip> */}
+          </Tooltip>
           <Tooltip title={t('expandWASD')} placement='top'>
             <IconButton onClick={toggleDirections}>
               {showDirections ? <ChevronLeftIcon /> : <ChevronRightIcon />}
