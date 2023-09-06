@@ -81,6 +81,36 @@ export class Room {
     public warringStatesMode: boolean = false, // warring states 战国 mode
   ) { }
 
+  static create(options: Partial<Room>): Room {
+    return new Room(
+      options.id!,
+      options.roomName,
+      options.gameStarted,
+      options.forceStartNum,
+      options.mapGenerated,
+      options.maxPlayers,
+      options.gameSpeed,
+      options.mapWidth,
+      options.mapHeight,
+      options.mountain,
+      options.city,
+      options.swamp,
+      options.fogOfWar,
+      options.deathSpectator,
+      options.globalMapDiff,
+      options.gameRecord,
+      options.map,
+      options.gameLoop,
+      options.players,
+      options.generals,
+      options.mapId,
+      options.mapName,
+      options.keepAlive,
+      options.revealKing,
+      options.warringStatesMode,
+    );
+  }
+
   toJSON() {
     const { gameLoop, generals, ...json } = this;
     return json;
