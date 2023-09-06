@@ -78,6 +78,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
             width: 'min-content',
             zIndex: '110',
             overflow: 'hidden',
+            borderRadius: '10px 0 0 10px !important',
             '& .MuiTableCell-root': {
               paddingY: {
                 xs: '0rem',
