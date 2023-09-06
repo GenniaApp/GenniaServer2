@@ -4,7 +4,6 @@ import { useGame, useGameDispatch } from '@/context/GameContext';
 import MapTile from './MapTile';
 import { TileType, Room, Route, Position } from '@/lib/types';
 import useMap from '@/hooks/useMap';
-import { debounce } from 'lodash';
 import { getPlayerIndex } from '@/lib/utils';
 
 function GameMap() {
@@ -335,7 +334,7 @@ function GameMap() {
   );
 
   const handleTouchMove = useCallback(
-    debounce((event: TouchEvent) => {
+    (event: TouchEvent) => {
       event.preventDefault();
 
       if (event.touches.length === 1) {
@@ -405,7 +404,7 @@ function GameMap() {
         const newZoom = Math.min(Math.max(zoom + delta * 0.0002, 0.2), 4.0);
         setZoom(newZoom);
       }
-    }, 10), // debounce in millisecond to avoid too many calls
+    },
     [
       tileSize,
       mapRef,

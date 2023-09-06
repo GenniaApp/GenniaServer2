@@ -20,7 +20,6 @@
     "@types/react-dom": "18.0.8",
     "classnames": "^2.3.2",
     "i18next": "^23.2.11",
-    "lodash": "^4.17.21",
     "next": "^13.4.10",
     "next-i18next": "^14.0.0",
     "react": "18.2.0",
