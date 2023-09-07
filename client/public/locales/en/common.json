@@ -23,6 +23,7 @@
   "players": "Players",
   "status": "Status",
   "join": "Join",
+  "joining-room": "Joining Room",
   "lobby": "Game Rooms",
   "create-room": "Create Room",
   "create-map": "Create Map(PC)",

@@ -23,6 +23,7 @@
   "players": "玩家列表",
   "status": "状态",
   "join": "加入",
+  "joining-room": "加入房间中...",
   "lobby": "游戏大厅",
   "create-room": "创建房间",
   "create-map": "创建地图PC",

@@ -27,6 +27,7 @@ import StorageIcon from '@mui/icons-material/Storage';
 function Lobby() {
   const [rooms, setRooms] = useState<RoomPool>({});
   const [loading, setLoading] = useState(true);
+  const [joinLoading, setJoinLoading] = useState(false);
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackMessage, setSnackMessage] = useState('');
   const [username, setUsername] = useState('');
@@ -71,9 +72,8 @@ function Lobby() {
   }, [setUsername, router]);
 
   const handleRoomClick = async (roomName: string) => {
-    setLoading(true);
+    setJoinLoading(true);
     await router.push(`/rooms/${roomName}`);
-    setLoading(false);
   };
 
   const handleCreateRoomClick = async () => {
@@ -188,6 +188,16 @@ function Lobby() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+                  {joinLoading && (
+                    <TableRow>
+                      <TableCell colSpan={6} align='center'>
+                        <Typography variant='h6'>
+                          {t('joining-room')}
+                        </Typography>
+                        <CircularProgress />
+                      </TableCell>
+                    </TableRow>
+                  )}
                   {loading ? (
                     <TableRow>
                       <TableCell colSpan={6} align='center'>
