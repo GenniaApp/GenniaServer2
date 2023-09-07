@@ -394,7 +394,7 @@ export default function GameReplay(props: any) {
             checkedPlayers={checkedPlayers}
             setCheckedPlayers={setCheckedPlayers}
           />
-          {/* <ChatBox socket={null} messages={messages} /> */}
+          <ChatBox socket={null} messages={messages} />
           <div
             ref={mapRef}
             tabIndex={0}

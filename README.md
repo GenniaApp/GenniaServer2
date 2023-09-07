@@ -9,7 +9,16 @@
 
 > [Gennia](https://gennia.io): Yet another generals.io clone server & client
 
-![**Gennia Game UI**](gennia.jpg)
+<h5 align="center">
+<img src="gennia-pc.png" width="400" >
+
+Gennia PC demo
+
+<img src="gennia-mobile.png" width="300" >
+
+Gennia Mobile demo
+
+</h5>
 
 What is GenniaServer 2?
 
@@ -26,34 +35,40 @@ Your goal is to capture other generals.
 - You can move twice per turn.
 - When you capture the enemy general, all his territory belongs to you and his army strength is halved and becomes yours.
 
-| function           | keyboard       |
-| ------------------ | -------------- |
-| Move Up            | w / ArrowUp    |
-| Move Down          | s / ArrowDown  |
-| Move Left          | a / ArrayLeft  |
-| Move Right         | d / ArrayRight |
-| Open Chat          | enter          |
-| Undo Move          | e              |
-| Clear Queued Moves | q              |
-| Select on general  | g              |
-| Toggle 50%         | z              |
-| Set Zoom to Preset | 1 / 2 / 3      |
-| Zoom in / out      | mouse wheel    |
-| Surrender          | escape         |
+| function           | keyboard     |
+| ------------------ | ------------ |
+| Move Around        | WSAD         |
+| Move On Mobile     | Touch & Drag |
+| Open Chat          | Enter        |
+| Undo Move          | e            |
+| Clear Queued Moves | q            |
+| Select on general  | g            |
+| Center on home     | h            |
+| Center Map         | c            |
+| Toggle 50%         | z            |
+| Set Zoom to Preset | 1 / 2 / 3    |
+| Zoom in / out      | mouse wheel  |
+| Surrender          | escape       |
 
 ## Supported Feature
 
-- [ ] Team
-- [x] Lobby
+### Basic
+
 - [x] Create Custom Map
 - [x] [Game Bot](https://github.com/GenniaApp/GenniaBot)
 - [x] Replays
-- [x] Mobile games
-- [ ] Game Mechanics
-  - [ ] Move All Armys
-  - [ ] Movable King
-  - [ ] Fog of War
-  - [x] Spectator
+- [x] Mobile Support (Drag to attack)
+- [x] Lobby & Custom Game
+- [x] Room Chat
+- [ ] Team
+
+### Game Modifier
+
+- [x] Fog of War
+- [x] Spectator
+- [x] Warring States (Reveal all King)
+- [ ] Move All Armys
+- [ ] Movable King
 
 ## Development
 
