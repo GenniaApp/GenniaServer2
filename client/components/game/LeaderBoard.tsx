@@ -40,12 +40,6 @@ export default function LeaderBoard(props: LeaderBoardProps) {
   const [gameDockExpand, setGameDockExpand] = useState(true);
   const { t } = useTranslation();
 
-  const isSmallScreen = useMediaQuery('(max-width:600px)');
-
-  useEffect(() => {
-    if (!checkedPlayers) setGameDockExpand(!isSmallScreen);
-  }, [isSmallScreen, checkedPlayers]);
-
   if (!leaderBoardTable) return null;
 
   const fetchUsernameByColor = function (color: number) {
@@ -65,7 +59,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
   return (
     <Box
       onClick={() => {
-        if (!checkedPlayers) setGameDockExpand(!gameDockExpand);
+        setGameDockExpand(!gameDockExpand);
       }}
     >
       <TableContainer>
@@ -112,7 +106,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
           </TableHead>
           <TableBody>
             {leaderBoardData.map((player, index) => (
-              <TableRow key={index} sx={{ backgroundColor: 'transparnet' }}>
+              <TableRow key={index}>
                 {warringStatesMode && (
                   <TableCell align='center'>
                     {WarringStates[player.color]}

@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Box, IconButton } from '@mui/material';
 import { useTranslation } from 'next-i18next';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import PingTest from '@/components/PingTest';
+
 interface TurnsCountProps {
   count: number;
   handleReturnClick: any;
@@ -10,8 +12,13 @@ interface TurnsCountProps {
 function TurnsCount(props: TurnsCountProps) {
   const { count, handleReturnClick } = props;
   const { t } = useTranslation();
+  const [showPingTest, setShowPingTest] = useState(false);
 
   const displayTurnsCount = Math.floor(count / 2);
+
+  const handleDoubleClick = () => {
+    setShowPingTest(!showPingTest);
+  };
 
   return (
     <Box
@@ -24,13 +31,14 @@ function TurnsCount(props: TurnsCountProps) {
         alignItems: 'center',
         flexDirection: 'column',
       }}
+      onDoubleClick={handleDoubleClick}
     >
       <Box
         className='menu-container'
         style={{
           display: 'flex',
           alignItems: 'center',
-          borderRadius: '0 10px 10px 0 !important'
+          borderRadius: '0 10px 10px 0 !important',
         }}
       >
         <IconButton onClick={handleReturnClick} color='primary'>
@@ -46,7 +54,7 @@ function TurnsCount(props: TurnsCountProps) {
           {t('turn')}: {displayTurnsCount}
         </div>
       </Box>
-      <PingTest />
+      {showPingTest && <PingTest />}
     </Box>
   );
 }

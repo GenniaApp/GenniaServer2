@@ -14,7 +14,7 @@
   "how-to-play": "游戏教程",
   "room-id": "房间号",
   "room-name": "房间名",
-  "game-speed": "游戏速度",
+  "game-speed": "速度",
   "jump-to-turn": "跳转到回合",
   "player": "玩家",
   "army": "兵力",
@@ -100,7 +100,7 @@
   "clear-all": "清除全部",
   "warring-states-mode": "战国模式",
   "country": "国家",
-  "expandWASD": "展开WASD",
+  "expandWSAD": "展开WSAD",
   "howToPlay": {
     "title": "如何玩",
     "shortcut": "快捷键",

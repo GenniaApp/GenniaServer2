@@ -16,14 +16,14 @@ import {
   TextField,
   FormGroup,
   FormControlLabel,
-  Radio,
-  RadioGroup,
   Switch,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Link,
+  ToggleButtonGroup,
+  ToggleButton,
 } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import ShareIcon from '@mui/icons-material/Share';
@@ -291,29 +291,36 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                 {t('select-a-custom-map')}
               </Button>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
-                <Typography sx={{ mr: 2, whiteSpace: 'nowrap' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  my: 1,
+                }}
+              >
+                <Typography
+                  sx={{
+                    mr: 2,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {t('game-speed')}
                 </Typography>
-
-                <RadioGroup
-                  aria-label='game-speed'
-                  name='game-speed'
+                <ToggleButtonGroup
+                  color='primary'
                   value={room.gameSpeed}
-                  row
+                  exclusive
                   // @ts-ignore
                   onChange={handleSettingChange('gameSpeed')}
+                  aria-label='game-speed'
+                  disabled={disabled_ui}
                 >
                   {SpeedOptions.map((value) => (
-                    <FormControlLabel
-                      key={value}
-                      value={value}
-                      control={<Radio size='small' />}
-                      label={`${value}x`}
-                      disabled={disabled_ui}
-                    />
+                    <ToggleButton key={value} value={value}>
+                      <Typography>{`${value}x`}</Typography>
+                    </ToggleButton>
                   ))}
-                </RadioGroup>
+                </ToggleButtonGroup>
               </Box>
             </Box>
           </TabPanel>
@@ -430,7 +437,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         sx={{
           mb: 2,
           '& .MuiCardHeader-root': {
-            padding: '0.6rem',
+            padding: '0rem',
           },
         }}
       >

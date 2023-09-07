@@ -585,7 +585,7 @@ function GameMap() {
           className='menu-container'
           sx={{
             margin: 0,
-            padding: '5px',
+            padding: '1px !important',
             position: 'absolute',
             left: '5px',
             bottom: { xs: '65px', md: '80px' },
@@ -615,7 +615,7 @@ function GameMap() {
           </Tooltip>
           <Tooltip title={t('howToPlay.toggle50')} placement='top'>
             <IconButton onClick={halfArmy}>
-              <Typography>50%</Typography>
+              <Typography variant='body2'>50%</Typography>
             </IconButton>
           </Tooltip>
           <IconButton
@@ -632,7 +632,7 @@ function GameMap() {
           >
             <ZoomOutMap />
           </IconButton>
-          <Tooltip title={t('expandWASD')} placement='top'>
+          <Tooltip title={t('expandWSAD')} placement='top'>
             <IconButton onClick={toggleDirections}>
               {showDirections ? <ChevronLeftIcon /> : <ChevronRightIcon />}
             </IconButton>

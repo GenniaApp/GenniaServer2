@@ -29,7 +29,7 @@ const PingTest = () => {
         marginRight: '0.5rem',
       }}
     >
-      {ping !== null ? `Ping: ${ping}ms` : 'error'}
+      {ping !== null ? `Ping: ${ping}ms` : 'null'}
     </div>
   );
 };
