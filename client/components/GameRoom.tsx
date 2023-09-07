@@ -178,6 +178,7 @@ function GamingRoom() {
       setInitGameInfo(initGameInfo);
       setIsSurrendered(false);
       setDialogContent([null, '', null]);
+      setOpenOverDialog(false);
 
       setSelectedMapTileInfo({
         x: initGameInfo.king.x,

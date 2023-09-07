@@ -149,7 +149,8 @@ export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
             margin='none'
             sx={{
               width: '100%',
-              padding: '0px 10px',
+              padding: '2px 10px',
+              boxShadow: '0px -1px 3px 0px rgba(0,0,0,0.35)',
             }}
             placeholder={t('type-a-message')}
             size='small'
