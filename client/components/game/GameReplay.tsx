@@ -267,7 +267,7 @@ export default function GameReplay(props: any) {
               left: '50%',
               transform: 'translate(-50%, 0) translate(0, 0)',
               width: {
-                xs: '90vw',
+                xs: '80vw',
                 md: 'max-content',
               },
               height: 'min-content',
@@ -277,7 +277,7 @@ export default function GameReplay(props: any) {
               justifyContent: 'center',
               alignItems: 'center',
               flexDirection: 'column',
-              zIndex: 1000,
+              zIndex: 1002,
               boxShadow: '2',
             }}
           >

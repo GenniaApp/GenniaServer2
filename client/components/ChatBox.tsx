@@ -15,7 +15,7 @@ const ChatBoxContainer = styled('div')`
   width: 300px;
   height: 40vh;
   overflow: auto;
-  z-index: 1001;
+  z-index: 1003;
   backdrop-filter: blur(3px);
   background-color: rgb(99 97 141 / 68%);
   border-radius: 8px;
@@ -23,6 +23,7 @@ const ChatBoxContainer = styled('div')`
   flex-direction: column;
   &.shrink {
     height: 11vh;
+    z-index: 1001; // hide behind the game replay dock
   }
   @media (max-width: 900px) {
     width: 60%;

@@ -57,11 +57,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
     };
   });
   return (
-    <Box
-      onClick={() => {
-        setGameDockExpand(!gameDockExpand);
-      }}
-    >
+    <Box>
       <TableContainer>
         <Table
           className='menu-container'
@@ -92,7 +88,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
               {warringStatesMode && (
                 <TableCell align='center'>{t('country')}</TableCell>
               )}
-              {checkedPlayers && setCheckedPlayers && (
+              {gameDockExpand && checkedPlayers && setCheckedPlayers && (
                 <TableCell align='center'>{t('view')}</TableCell>
               )}
               {gameDockExpand ? (
@@ -100,6 +96,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
               ) : (
                 <TableCell align='center' sx={{ padding: '1px' }}></TableCell>
               )}
+
               <TableCell align='center'>{t('army')}</TableCell>
               <TableCell align='center'>{t('land')}</TableCell>
             </TableRow>
@@ -112,7 +109,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                     {WarringStates[player.color]}
                   </TableCell>
                 )}
-                {checkedPlayers && setCheckedPlayers && (
+                {gameDockExpand && checkedPlayers && setCheckedPlayers && (
                   <TableCell>
                     <Checkbox
                       defaultChecked={false}
@@ -157,8 +154,22 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                     }}
                   ></TableCell>
                 )}
-                <TableCell align='center'>{player.armyCount}</TableCell>
-                <TableCell align='center'>{player.landsCount}</TableCell>
+                <TableCell
+                  align='center'
+                  onClick={() => {
+                    setGameDockExpand(!gameDockExpand);
+                  }}
+                >
+                  {player.armyCount}
+                </TableCell>
+                <TableCell
+                  align='center'
+                  onClick={() => {
+                    setGameDockExpand(!gameDockExpand);
+                  }}
+                >
+                  {player.landsCount}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

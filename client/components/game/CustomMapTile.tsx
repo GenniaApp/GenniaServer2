@@ -144,6 +144,7 @@ export default React.memo(function CustomMapTile(props: CustomMapTileProps) {
             overflow: 'visible',
             textShadow: '0 0 2px #000',
             userSelect: 'none',
+            WebkitUserSelect: 'none',
           }}
         >
           {unitsCount}
