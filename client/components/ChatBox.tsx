@@ -25,7 +25,7 @@ const ChatBoxContainer = styled('div')`
     height: 11vh;
     z-index: 1001; // hide behind the game replay dock
   }
-  @media (max-width: 900px) {
+  @media (max-width: 600px) {
     width: 60%;
   }
 `;

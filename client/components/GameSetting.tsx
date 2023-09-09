@@ -66,7 +66,8 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
     setIsNamedFocused(false);
     let name = room.roomName;
 
-    if (!name || name === '') {
+    const regex = /^[\s\u200B]+$/;
+    if (!name || name === '' || regex.test(name)) {
       name = 'Untitled';
       roomDispatch({
         type: 'update_property',

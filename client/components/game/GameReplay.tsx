@@ -266,10 +266,7 @@ export default function GameReplay(props: any) {
               position: 'absolute',
               left: '50%',
               transform: 'translate(-50%, 0) translate(0, 0)',
-              width: {
-                xs: '80vw',
-                md: 'max-content',
-              },
+              width: 'max-content',
               height: 'min-content',
               bottom: { xs: '5px', md: '20px' },
               borderRadius: '10px !important',
@@ -350,6 +347,10 @@ export default function GameReplay(props: any) {
             <RadioGroup
               sx={{
                 width: '100%',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
                 marginTop: {
                   xs: '-8px',
                   md: '10px',

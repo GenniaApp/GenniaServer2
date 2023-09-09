@@ -99,6 +99,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  overscroll-behavior-y: contain;
 }
 
 :focus {

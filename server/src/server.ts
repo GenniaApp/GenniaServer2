@@ -821,7 +821,12 @@ io.on('connection', async (socket) => {
       }
 
       if (to.x < 0 || to.x >= room.map.width || to.y < 0 || to.y >= room.map.height) {
-        socket.emit('attack_failure', from, to, 'Invalid ending point');
+        socket.emit('attack_failure', from, to, 'Invalid ending point, out of map');
+        return;
+      }
+
+      if (Math.abs(from.x - to.x) > 1 || Math.abs(from.y - to.y) > 1) {
+        socket.emit('attack_failure', from, to, 'Invalid ending point, not adjacent');
         return;
       }
 
