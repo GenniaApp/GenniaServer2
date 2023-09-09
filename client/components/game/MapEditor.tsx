@@ -201,20 +201,37 @@ function MapEditor({ editMode }: { editMode: boolean }) {
       setUnitCount(value);
     }
   };
-
-  const property2setVar: Record<string, any> = {
-    team: setTeam,
-    unitsCount: checkSetUnitCount,
-    priority: setPriority,
+  const checkSetTeam = (value: number) => {
+    if (value < property2min.team) {
+      setTeam(property2min.team);
+    } else if (value > property2max.team) {
+      setTeam(property2max.team);
+    } else {
+      setTeam(value);
+    }
   };
 
-  useEffect(() => {
-    // Load map data from server
-    // ...
-  }, []);
+  const checkSetPriority = (value: number) => {
+    if (value < property2min.priority) {
+      setPriority(property2min.priority);
+    } else if (value > property2max.priority) {
+      setPriority(property2max.priority);
+    } else {
+      setPriority(value);
+    }
+  };
+
+  const property2setVar: Record<string, any> = {
+    team: checkSetTeam,
+    unitsCount: checkSetUnitCount,
+    priority: checkSetPriority,
+  };
 
   const handleMapWidthChange = (event: any) => {
     let value = Number(event.target.value);
+
+    if (value < 2) value = 2;
+    if (value > 50) value = 50;
 
     setMapWidth(value);
     const newMapData = [...mapData];
@@ -238,6 +255,10 @@ function MapEditor({ editMode }: { editMode: boolean }) {
 
   const handleMapHeightChange = (event: any) => {
     let value = Number(event.target.value);
+
+    if (value < 2) value = 2;
+    if (value > 50) value = 50;
+
     setMapHeight(value);
     const newMapData = [...mapData];
     if (value > mapHeight) {

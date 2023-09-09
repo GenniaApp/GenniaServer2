@@ -417,7 +417,6 @@ export default function GameReplay(props: any) {
                     x={x}
                     y={y}
                     tile={[...tile, false, 0]}
-                    handleClick={() => {}}
                   />
                 );
               });

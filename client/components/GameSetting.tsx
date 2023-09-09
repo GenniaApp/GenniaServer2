@@ -64,7 +64,19 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
 
   const handleRoomNameBlur = (event: any) => {
     setIsNamedFocused(false);
-    socketRef.current.emit('change_room_setting', 'roomName', room.roomName);
+    let name = room.roomName;
+
+    if (!name || name === '') {
+      name = 'Untitled';
+      roomDispatch({
+        type: 'update_property',
+        payload: {
+          property: 'roomName',
+          value: name,
+        },
+      });
+    }
+    socketRef.current.emit('change_room_setting', 'roomName', name);
   };
 
   const handleOpenMapExplorer = () => {
@@ -184,14 +196,20 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           }
           title={
             !isNameFocused || disabled_ui ? (
-              <Typography
-                sx={{ fontSize: '20px', color: '#FFFFFF' }}
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  zIndex: 100,
+                }}
                 onClick={() => {
                   !disabled_ui && setIsNamedFocused(true);
                 }}
               >
-                {room.roomName}
-              </Typography>
+                <Typography sx={{ fontSize: '20px', color: '#FFFFFF' }}>
+                  {room.roomName}
+                </Typography>
+              </div>
             ) : (
               <TextField
                 autoFocus

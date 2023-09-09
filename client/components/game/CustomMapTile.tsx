@@ -22,7 +22,7 @@ interface CustomMapTileProps {
   tile: DisplayCustomMapTileData;
   x: number;
   y: number;
-  handleClick: any;
+  handleClick?: any;
   imageZoom?: number;
   fontSize?: number;
 }
