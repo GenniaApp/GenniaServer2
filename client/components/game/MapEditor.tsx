@@ -505,32 +505,48 @@ function MapEditor({ editMode }: { editMode: boolean }) {
       </Snackbar>
       {!editMode && <Loading open={loading} title={t('loading-map')} />}
       {!editMode && (
-        <Box
-          className='menu-container'
-          sx={{
-            position: 'absolute',
-            top: '60px',
-            left: '50%',
-            width: {
-              xs: '90vw',
-              md: '55vw',
-              lg: '45vw',
-            },
-            transform: `translate(-50%, 0)`,
-            height: '30vh',
-            overflowY: 'auto',
-            borderRadius: '10px 10px 10px 10px !important',
-            zIndex: 101,
-          }}
-        >
-          <Typography variant='h5'>{mapName}</Typography>
-          <ReactMarkdown className='react_markdown'>
-            {mapDescription}
-          </ReactMarkdown>
-          <Button variant='contained' color='info' onClick={handleDownloadMap}>
+        <>
+          <Box
+            className='menu-container'
+            sx={{
+              position: 'absolute',
+              bottom: '0',
+              left: '50%',
+              width: {
+                xs: '90vw',
+                md: '55vw',
+                lg: '45vw',
+              },
+              transform: `translate(-50%, 0)`,
+              height: '30vh',
+              borderRadius: '10px 10px 0px 0px !important',
+              zIndex: 101,
+            }}
+          >
+            <Box sx={{ width: '100%', overflowY: 'auto', height: '100%' }}>
+              <Typography variant='h5'>{mapName}</Typography>
+              <ReactMarkdown className='react_markdown'>
+                {mapDescription}
+              </ReactMarkdown>
+            </Box>
+          </Box>
+          <Button
+            size='large'
+            sx={{
+              zIndex: 1001,
+              position: 'absolute',
+              bottom: '5px',
+              left: '50%',
+              transform: `translate(-50%, 0)`,
+              boxShadow: 3,
+            }}
+            variant='contained'
+            color='info'
+            onClick={handleDownloadMap}
+          >
             {t('download')}
           </Button>
-        </Box>
+        </>
       )}
       <PublishMapDialog
         open={openPublishDialog}

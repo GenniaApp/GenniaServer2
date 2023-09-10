@@ -14,6 +14,10 @@ let theme = createTheme({
   typography: {
     fontFamily: `"Nunito", "Noto Sans FC"`,
   },
+
+  shape: {
+    borderRadius: 10
+  }
 });
 
 theme = responsiveFontSizes(theme);
