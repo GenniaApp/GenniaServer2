@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles';
 import React, { useState, useEffect, useRef } from 'react';
-import { InputBase } from '@mui/material';
+import { InputBase, Divider } from '@mui/material';
 import { useTranslation } from 'next-i18next';
 import { Socket } from 'socket.io-client';
 import { Message } from '@/lib/types';
@@ -18,7 +18,11 @@ const ChatBoxContainer = styled('div')`
   z-index: 1003;
   backdrop-filter: blur(3px);
   background-color: rgb(99 97 141 / 68%);
-  border-radius: 8px;
+  border-radius: 10px 0 0 0;
+  box-shadow:
+    0px 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0px 4px 5px 0px rgba(0, 0, 0, 0.14),
+    0px 1px 10px 0px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   &.shrink {
@@ -33,7 +37,8 @@ const ChatBoxContainer = styled('div')`
 const ChatBoxMessages = styled('div')`
   flex: 1;
   overflow-y: auto;
-  padding: 5px;
+  padding: 10px;
+  line-height: 1.5em;
   color: white;
   &.shrink {
     height: 10vh;
@@ -145,22 +150,24 @@ export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
         <div ref={messagesEndRef} />
       </ChatBoxMessages>
       {socket && (
-        <ChatBoxInput>
-          <InputBase
-            margin='none'
-            sx={{
-              width: '100%',
-              padding: '2px 10px',
-              boxShadow: '0px -1px 3px 0px rgba(0,0,0,0.35)',
-            }}
-            placeholder={t('type-a-message')}
-            size='small'
-            value={inputValue}
-            onChange={handleInputChange}
-            inputRef={textFieldRef}
-            onKeyDown={handleInputKeyDown}
-          />
-        </ChatBoxInput>
+        <>
+          <Divider />
+          <ChatBoxInput>
+            <InputBase
+              margin='none'
+              sx={{
+                width: '100%',
+                padding: '5px 10px',
+              }}
+              placeholder={t('type-a-message')}
+              size='medium'
+              value={inputValue}
+              onChange={handleInputChange}
+              inputRef={textFieldRef}
+              onKeyDown={handleInputKeyDown}
+            />
+          </ChatBoxInput>
+        </>
       )}
     </ChatBoxContainer>
   );
