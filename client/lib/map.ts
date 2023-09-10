@@ -374,7 +374,12 @@ class GameMap {
           case TileType.Swamp:
             if (this.map[i][j].player && this.turn % 2 === 0)
               --this.map[i][j].unit;
-            if (this.map[i][j].unit === 0) this.map[i][j].player = null;
+            if (this.map[i][j].unit === 0) {
+              if (this.map[i][j].player) {
+                this.map[i][j].player.loseLand(this.map[i][j]);
+              }
+              this.map[i][j].player = null;
+            }
             break;
           default:
             break;

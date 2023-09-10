@@ -22,7 +22,7 @@ interface CustomMapTileProps {
   tile: DisplayCustomMapTileData;
   x: number;
   y: number;
-  handleClick: any;
+  handleClick?: any;
   imageZoom?: number;
   fontSize?: number;
 }
@@ -144,6 +144,7 @@ export default React.memo(function CustomMapTile(props: CustomMapTileProps) {
             overflow: 'visible',
             textShadow: '0 0 2px #000',
             userSelect: 'none',
+            WebkitUserSelect: 'none',
           }}
         >
           {unitsCount}

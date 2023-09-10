@@ -30,6 +30,9 @@ class Block extends Point {
 
   beDominated(player: any, unit: number): void {
     this.unit = unit - this.unit;
+    if (this.player) {
+      this.player.loseLand(this);
+    }
     this.player = player;
     this.player.winLand(this);
   }

@@ -99,6 +99,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  overscroll-behavior-y: contain;
 }
 
 :focus {
@@ -169,7 +170,7 @@ a {
 .Game {
   --primary-color: #d7afff;
   position: relative;
-  /* todo: if set 100% instead of 100vw, some brower will not display correctly */
+  /* todo: if set 100% instead of 100vw, some browser will not display correctly */
   /* height: 100%; */
   /* width: 100%; */
   height: 100vh;

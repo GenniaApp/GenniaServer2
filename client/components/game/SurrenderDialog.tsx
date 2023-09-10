@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -84,22 +85,29 @@ export default function SurrenderDialog({
           ? t('are-you-sure-to-exit')
           : t('are-you-sure-to-surrender')}
       </DialogTitle>
-      <DialogActions sx={{ width: '300px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         {showExitTitle ? (
           <Button onClick={handleExit}>{t('exit')}</Button>
         ) : (
           <>
-            <Button
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              {t('cancel')}
-            </Button>
             <Button onClick={handleCloseSurrender}>{t('surrender')}</Button>
           </>
         )}
-      </DialogActions>
+        <Button
+          onClick={() => {
+            setOpen(false);
+          }}
+        >
+          {t('cancel')}
+        </Button>
+      </Box>
     </Dialog>
   );
 }

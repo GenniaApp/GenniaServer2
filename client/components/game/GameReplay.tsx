@@ -266,10 +266,7 @@ export default function GameReplay(props: any) {
               position: 'absolute',
               left: '50%',
               transform: 'translate(-50%, 0) translate(0, 0)',
-              width: {
-                xs: '90vw',
-                md: 'max-content',
-              },
+              width: 'max-content',
               height: 'min-content',
               bottom: { xs: '5px', md: '20px' },
               borderRadius: '10px !important',
@@ -277,7 +274,7 @@ export default function GameReplay(props: any) {
               justifyContent: 'center',
               alignItems: 'center',
               flexDirection: 'column',
-              zIndex: 1000,
+              zIndex: 1002,
               boxShadow: '2',
             }}
           >
@@ -350,6 +347,10 @@ export default function GameReplay(props: any) {
             <RadioGroup
               sx={{
                 width: '100%',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
                 marginTop: {
                   xs: '-8px',
                   md: '10px',
@@ -394,7 +395,7 @@ export default function GameReplay(props: any) {
             checkedPlayers={checkedPlayers}
             setCheckedPlayers={setCheckedPlayers}
           />
-          {/* <ChatBox socket={null} messages={messages} /> */}
+          <ChatBox socket={null} messages={messages} />
           <div
             ref={mapRef}
             tabIndex={0}
@@ -417,7 +418,6 @@ export default function GameReplay(props: any) {
                     x={x}
                     y={y}
                     tile={[...tile, false, 0]}
-                    handleClick={() => {}}
                   />
                 );
               });

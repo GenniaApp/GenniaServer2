@@ -1,47 +1,33 @@
 import { styled } from '@mui/material/styles';
 import React, { useState, useEffect, useRef } from 'react';
-import { TextField, Button, IconButton, Typography } from '@mui/material';
-import ChatIcon from '@mui/icons-material/Chat';
+import { InputBase } from '@mui/material';
 import { useTranslation } from 'next-i18next';
 import { Socket } from 'socket.io-client';
 import { Message } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
 
 import useMediaQuery from '@mui/material/useMediaQuery';
-import UnfoldMoreRoundedIcon from '@mui/icons-material/UnfoldMoreRounded';
-import UnfoldLessRoundedIcon from '@mui/icons-material/UnfoldLessRounded';
 
 const ChatBoxContainer = styled('div')`
   position: fixed;
   bottom: 0;
   right: 0;
   width: 300px;
-  height: 50vh;
+  height: 40vh;
   overflow: auto;
-  z-index: 1001;
+  z-index: 1003;
   backdrop-filter: blur(3px);
   background-color: rgb(99 97 141 / 68%);
-  /* border: 1px solid black; */
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  &.hidden {
-    height: min-content;
+  &.shrink {
+    height: 11vh;
+    z-index: 1001; // hide behind the game replay dock
   }
-  @media (max-width: 900px) {
-    width: 100%;
-    height: 200px;
+  @media (max-width: 600px) {
+    width: 60%;
   }
-`;
-
-const ChatBoxHeader = styled('div')`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: white;
-  padding: 10px;
-  font-size: 20px;
-  font-weight: bold;
 `;
 
 const ChatBoxMessages = styled('div')`
@@ -49,26 +35,14 @@ const ChatBoxMessages = styled('div')`
   overflow-y: auto;
   padding: 5px;
   color: white;
-  &.hidden {
-    display: none;
+  &.shrink {
+    height: 10vh;
   }
 `;
 
 const ChatBoxInput = styled('div')`
   display: flex;
   align-items: center;
-  padding: 10px;
-  &.hidden {
-    display: none;
-  }
-`;
-
-const ChatBoxTextField = styled(TextField)`
-  flex: 1;
-`;
-
-const ChatBoxButton = styled(Button)`
-  margin-left: 10px;
 `;
 
 const ChatBoxMessage = ({ message }: { message: Message }) => {
@@ -118,8 +92,8 @@ export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
   const isSmallScreen = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
-    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    messagesEndRef.current.scrollIntoView({});
+  }, [messages, isExpand]);
 
   useEffect(() => {
     setIsExpand(!isSmallScreen);
@@ -159,35 +133,33 @@ export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
   };
 
   return (
-    <ChatBoxContainer className={isExpand ? '' : 'hidden'}>
-      <ChatBoxHeader>
-        <ChatIcon color='primary' />
-        <Typography>{t('message-center')}</Typography>
-        <IconButton onClick={() => setIsExpand(!isExpand)}>
-          {isExpand ? <UnfoldLessRoundedIcon /> : <UnfoldMoreRoundedIcon />}
-        </IconButton>
-      </ChatBoxHeader>
-      <ChatBoxMessages className={isExpand ? '' : 'hidden'}>
+    <ChatBoxContainer className={isExpand ? '' : 'shrink'}>
+      <ChatBoxMessages
+        onClick={() => {
+          setIsExpand((x) => !x);
+        }}
+      >
         {messages.map((message, index) => (
           <ChatBoxMessage key={index} message={message} />
         ))}
         <div ref={messagesEndRef} />
       </ChatBoxMessages>
       {socket && (
-        <ChatBoxInput className={isExpand ? '' : 'hidden'}>
-          <ChatBoxTextField
-            hiddenLabel
-            label={t('type-a-message')}
-            variant='outlined'
+        <ChatBoxInput>
+          <InputBase
+            margin='none'
+            sx={{
+              width: '100%',
+              padding: '2px 10px',
+              boxShadow: '0px -1px 3px 0px rgba(0,0,0,0.35)',
+            }}
+            placeholder={t('type-a-message')}
             size='small'
             value={inputValue}
             onChange={handleInputChange}
             inputRef={textFieldRef}
             onKeyDown={handleInputKeyDown}
           />
-          {/* <ChatBoxButton variant='contained' onClick={handleSendMessage}>
-          {t('send')}
-        </ChatBoxButton> */}
         </ChatBoxInput>
       )}
     </ChatBoxContainer>

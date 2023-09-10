@@ -16,6 +16,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import UndoIcon from '@mui/icons-material/Undo';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { ZoomInMap, ZoomOutMap } from '@mui/icons-material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 function GameMap() {
@@ -158,13 +159,19 @@ function GameMap() {
     }
   }, [mapQueueDataDispatch]);
 
-  const selectCenterGeneral = useCallback(() => {
+  const selectGeneral = useCallback(() => {
     if (initGameInfo && selectRef.current) {
+      const { king } = initGameInfo;
+      setSelectedMapTileInfo({ ...selectRef.current, x: king.x, y: king.y });
+    }
+  }, [initGameInfo, setPosition]);
+
+  const centerGeneral = useCallback(() => {
+    if (initGameInfo) {
       const { king } = initGameInfo;
       const pixel_x = Math.floor(mapPixelWidth / 2 - king.x * zoom * tileSize);
       const pixel_y = Math.floor(mapPixelHeight / 2 - king.y * zoom * tileSize);
       setPosition({ x: pixel_y, y: pixel_x });
-      setSelectedMapTileInfo({ ...selectRef.current, x: king.x, y: king.y });
     }
   }, [
     initGameInfo,
@@ -174,6 +181,12 @@ function GameMap() {
     tileSize,
     setPosition,
   ]);
+
+  // useEffect(() => {
+  //   if (isSmallScreen) {
+  //     centerGeneral();
+  //   }
+  // }, [isSmallScreen, centerGeneral]);
 
   const popQueue = useCallback(() => {
     if (selectRef.current) {
@@ -258,7 +271,13 @@ function GameMap() {
           clearQueue();
           break;
         case 'g':
-          selectCenterGeneral();
+          selectGeneral();
+          break;
+        case 'c':
+          setPosition({ x: 0, y: 0 });
+          break;
+        case 'h': // home
+          centerGeneral();
           break;
         case 'a':
         case 'ArrowLeft': // 37 Left
@@ -428,6 +447,7 @@ function GameMap() {
           ) {
             return;
           }
+          if (!mapData) return;
           if (mapData.length === 0) return;
           const [tileType, color] = mapData[x][y];
           // check tileType
@@ -565,7 +585,7 @@ function GameMap() {
           className='menu-container'
           sx={{
             margin: 0,
-            padding: '5px',
+            padding: '1px !important',
             position: 'absolute',
             left: '5px',
             bottom: { xs: '65px', md: '80px' },
@@ -578,8 +598,8 @@ function GameMap() {
             boxShadow: '2',
           }}
         >
-          <Tooltip title={t('howToPlay.selectCenterGeneral')} placement='top'>
-            <IconButton onClick={selectCenterGeneral}>
+          <Tooltip title={t('howToPlay.centerGeneral')} placement='top'>
+            <IconButton onClick={centerGeneral}>
               <HomeIcon />
             </IconButton>
           </Tooltip>
@@ -595,10 +615,24 @@ function GameMap() {
           </Tooltip>
           <Tooltip title={t('howToPlay.toggle50')} placement='top'>
             <IconButton onClick={halfArmy}>
-              <Typography>50%</Typography>
+              <Typography variant='body2'>50%</Typography>
             </IconButton>
           </Tooltip>
-          <Tooltip title={t('expandWASD')} placement='top'>
+          <IconButton
+            onClick={() => {
+              setZoom((z) => z - 0.2);
+            }}
+          >
+            <ZoomInMap />
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              setZoom((z) => z + 0.2);
+            }}
+          >
+            <ZoomOutMap />
+          </IconButton>
+          <Tooltip title={t('expandWSAD')} placement='top'>
             <IconButton onClick={toggleDirections}>
               {showDirections ? <ChevronLeftIcon /> : <ChevronRightIcon />}
             </IconButton>

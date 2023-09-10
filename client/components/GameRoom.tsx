@@ -173,8 +173,12 @@ function GamingRoom() {
     });
     socket.on('game_started', (initGameInfo: initGameInfo) => {
       console.log('Game started:', initGameInfo);
+      const audio = new Audio('/audio/fresh_snap.mp3');
+      audio.play(); // todo: fix safari NotAllowedError... the user denied permission.
       setInitGameInfo(initGameInfo);
       setIsSurrendered(false);
+      setDialogContent([null, '', null]);
+      setOpenOverDialog(false);
 
       setSelectedMapTileInfo({
         x: initGameInfo.king.x,

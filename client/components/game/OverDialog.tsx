@@ -4,6 +4,7 @@ import { useTranslation } from 'next-i18next';
 import { UserData, RoomUiStatus } from '@/lib/types';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 import {
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -77,7 +78,14 @@ export default function OverDialog() {
     >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>{subtitle}</DialogContent>
-      <DialogActions sx={{ width: '300px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <Button onClick={handleBackRoom}>
           {room.gameStarted ? t('spectate') : t('play-again')}
         </Button>
@@ -85,7 +93,14 @@ export default function OverDialog() {
           <Button onClick={handleWatchReplay}>{t('watch-replay')}</Button>
         )}
         <Button onClick={handleExit}>{t('exit')}</Button>
-      </DialogActions>
+        <Button
+          onClick={() => {
+            setOpenOverDialog(false);
+          }}
+        >
+          {t('cancel')}
+        </Button>
+      </Box>
     </Dialog>
   );
 }

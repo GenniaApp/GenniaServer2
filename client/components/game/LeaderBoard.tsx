@@ -40,12 +40,6 @@ export default function LeaderBoard(props: LeaderBoardProps) {
   const [gameDockExpand, setGameDockExpand] = useState(true);
   const { t } = useTranslation();
 
-  const isSmallScreen = useMediaQuery('(max-width:600px)');
-
-  useEffect(() => {
-    if (!checkedPlayers) setGameDockExpand(!isSmallScreen);
-  }, [isSmallScreen, checkedPlayers]);
-
   if (!leaderBoardTable) return null;
 
   const fetchUsernameByColor = function (color: number) {
@@ -63,11 +57,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
     };
   });
   return (
-    <Box
-      onClick={() => {
-        if (!checkedPlayers) setGameDockExpand(!gameDockExpand);
-      }}
-    >
+    <Box>
       <TableContainer>
         <Table
           className='menu-container'
@@ -79,6 +69,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
             zIndex: '110',
             overflow: 'hidden',
             borderRadius: '10px 0 0 10px !important',
+            borderCollapse: 'unset', // remove border safari
             '& .MuiTableCell-root': {
               paddingY: {
                 xs: '0rem',
@@ -97,7 +88,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
               {warringStatesMode && (
                 <TableCell align='center'>{t('country')}</TableCell>
               )}
-              {checkedPlayers && setCheckedPlayers && (
+              {gameDockExpand && checkedPlayers && setCheckedPlayers && (
                 <TableCell align='center'>{t('view')}</TableCell>
               )}
               {gameDockExpand ? (
@@ -105,19 +96,20 @@ export default function LeaderBoard(props: LeaderBoardProps) {
               ) : (
                 <TableCell align='center' sx={{ padding: '1px' }}></TableCell>
               )}
+
               <TableCell align='center'>{t('army')}</TableCell>
               <TableCell align='center'>{t('land')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {leaderBoardData.map((player, index) => (
-              <TableRow key={index} sx={{ backgroundColor: 'transparnet' }}>
+              <TableRow key={index}>
                 {warringStatesMode && (
                   <TableCell align='center'>
                     {WarringStates[player.color]}
                   </TableCell>
                 )}
-                {checkedPlayers && setCheckedPlayers && (
+                {gameDockExpand && checkedPlayers && setCheckedPlayers && (
                   <TableCell>
                     <Checkbox
                       defaultChecked={false}
@@ -162,8 +154,22 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                     }}
                   ></TableCell>
                 )}
-                <TableCell align='center'>{player.armyCount}</TableCell>
-                <TableCell align='center'>{player.landsCount}</TableCell>
+                <TableCell
+                  align='center'
+                  onClick={() => {
+                    setGameDockExpand(!gameDockExpand);
+                  }}
+                >
+                  {player.armyCount}
+                </TableCell>
+                <TableCell
+                  align='center'
+                  onClick={() => {
+                    setGameDockExpand(!gameDockExpand);
+                  }}
+                >
+                  {player.landsCount}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

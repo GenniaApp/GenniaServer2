@@ -16,14 +16,14 @@ import {
   TextField,
   FormGroup,
   FormControlLabel,
-  Radio,
-  RadioGroup,
   Switch,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   Link,
+  ToggleButtonGroup,
+  ToggleButton,
 } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import ShareIcon from '@mui/icons-material/Share';
@@ -64,7 +64,20 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
 
   const handleRoomNameBlur = (event: any) => {
     setIsNamedFocused(false);
-    socketRef.current.emit('change_room_setting', 'roomName', room.roomName);
+    let name = room.roomName;
+
+    const regex = /^[\s\u200B]+$/;
+    if (!name || name === '' || regex.test(name)) {
+      name = 'Untitled';
+      roomDispatch({
+        type: 'update_property',
+        payload: {
+          property: 'roomName',
+          value: name,
+        },
+      });
+    }
+    socketRef.current.emit('change_room_setting', 'roomName', name);
   };
 
   const handleOpenMapExplorer = () => {
@@ -152,7 +165,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           snackStateDispatch({ type: 'toggle' });
         }}
       >
-        <Alert severity='error' sx={{ width: '100%' }}>
+        <Alert severity={snackState.status} sx={{ width: '100%' }}>
           <AlertTitle>{snackState.title}</AlertTitle>
           {snackState.message}
         </Alert>
@@ -184,19 +197,25 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           }
           title={
             !isNameFocused || disabled_ui ? (
-              <Typography
-                sx={{ fontSize: '30px', color: '#FFFFFF' }}
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  zIndex: 100,
+                }}
                 onClick={() => {
                   !disabled_ui && setIsNamedFocused(true);
                 }}
               >
-                {room.roomName}
-              </Typography>
+                <Typography sx={{ fontSize: '20px', color: '#FFFFFF' }}>
+                  {room.roomName}
+                </Typography>
+              </div>
             ) : (
               <TextField
                 autoFocus
                 variant='standard'
-                inputProps={{ style: { fontSize: '30px' } }}
+                inputProps={{ style: { fontSize: '20px' } }}
                 value={room.roomName}
                 onChange={handleRoomNameChange}
                 onBlur={handleRoomNameBlur}
@@ -213,6 +232,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                   type: 'update',
                   title: '',
                   message: t('copied'),
+                  status: 'success',
                 });
               }}
             >
@@ -228,6 +248,19 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             '&:last-child': { pb: 0 },
           }}
         >
+          {disabled_ui && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Typography variant='caption' align='center'>
+                {t('not-host')}
+              </Typography>
+            </Box>
+          )}
           {room.mapName && (
             <Box
               sx={{
@@ -277,29 +310,36 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                 {t('select-a-custom-map')}
               </Button>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', my: 1 }}>
-                <Typography sx={{ mr: 2, whiteSpace: 'nowrap' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  my: 1,
+                }}
+              >
+                <Typography
+                  sx={{
+                    mr: 2,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {t('game-speed')}
                 </Typography>
-
-                <RadioGroup
-                  aria-label='game-speed'
-                  name='game-speed'
+                <ToggleButtonGroup
+                  color='primary'
                   value={room.gameSpeed}
-                  row
+                  exclusive
                   // @ts-ignore
                   onChange={handleSettingChange('gameSpeed')}
+                  aria-label='game-speed'
+                  disabled={disabled_ui}
                 >
                   {SpeedOptions.map((value) => (
-                    <FormControlLabel
-                      key={value}
-                      value={value}
-                      control={<Radio size='small' />}
-                      label={`${value}x`}
-                      disabled={disabled_ui}
-                    />
+                    <ToggleButton key={value} value={value}>
+                      <Typography>{`${value}x`}</Typography>
+                    </ToggleButton>
                   ))}
-                </RadioGroup>
+                </ToggleButtonGroup>
               </Box>
             </Box>
           </TabPanel>
@@ -416,7 +456,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         sx={{
           mb: 2,
           '& .MuiCardHeader-root': {
-            padding: '0.6rem',
+            padding: '0rem',
           },
         }}
       >

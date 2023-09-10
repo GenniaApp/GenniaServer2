@@ -282,6 +282,7 @@ export default React.memo(function MapTile(props: MapTileProps) {
             overflow: 'visible',
             textShadow: '0 0 2px #000',
             userSelect: 'none',
+            WebkitUserSelect: 'none',
           }}
         >
           {/* 50% */}

@@ -22,6 +22,7 @@
     "i18next": "^23.2.11",
     "next": "^13.4.10",
     "next-i18next": "^14.0.0",
+    "nextjs-google-analytics": "^2.3.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-i18next": "^13.0.2",
