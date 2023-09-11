@@ -29,7 +29,7 @@ interface ListItemProps {
   starred: boolean;
 }
 
-const ListItem = memo<ListItemProps>((props) => {
+const ListItem = memo<ListItemProps>(function MemoItems(props) {
   const { endpoint, map, handleStarClick, onSelect, starred } = props;
   const { t } = useTranslation();
   const router = useRouter();
@@ -225,13 +225,13 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
       {tabIndex === 3 && (
         <TextField
           sx={{ width: '100%', mt: 2 }}
-          size="small"
+          size='small'
           label='Search'
           value={searchTerm}
           onChange={handleSearchChange}
           inputProps={
             <InputAdornment position='start'>
-              <SearchRounded color="primary" />
+              <SearchRounded color='primary' />
             </InputAdornment>
           }
         />
@@ -242,6 +242,7 @@ export default function MapExplorer({ userId, onSelect }: MapExplorerProps) {
           maps.map((map) => (
             // <Card className='menu-container' key={map.id} sx={{ my: 2 }}>
             <ListItem
+              key={map.id}
               endpoint={['new', 'hot', 'best', 'search'][tabIndex]}
               map={map}
               handleStarClick={handleStarClick}
