@@ -833,7 +833,7 @@ io.on('connection', async (socket) => {
       let playerIndex = getPlayerIndexBySocket(room, socket.id);
       if (playerIndex !== -1) {
         let player = room.players[playerIndex];
-        if (room.map && player.operatedTurn <= room.map.turn && room.map.commendable(player, from, to)) {
+        if (room.map && player.operatedTurn < room.map.turn && room.map.commendable(player, from, to)) {
           if (isHalf) {
             room.map.moveHalfMovableUnit(player, from, to);
           } else {
