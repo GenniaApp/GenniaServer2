@@ -45,6 +45,7 @@ import Loading from '@/components/Loading';
 import PublishMapDialog from '@/components/PublishMapDialog';
 import ReactMarkdown from 'react-markdown';
 import { v4 as uuidv4 } from 'uuid';
+import styled from '@emotion/styled';
 
 const name2TileType: Record<string, TileType> = {
   king: TileType.King,
@@ -53,6 +54,18 @@ const name2TileType: Record<string, TileType> = {
   mountain: TileType.Mountain,
   swamp: TileType.Swamp,
 };
+
+const IconBox = styled.div(
+  (props: any) => `
+  cursor: pointer;
+  background-color: ${props.bgcolor};
+  &:hover {
+    background-color: ${
+      props.bgcolor ? props.bgcolor : 'rgba(255, 85, 85, 0.1)'
+    }
+  }
+`
+);
 
 function getNewMapData(): CustomMapTileData[][] {
   return Array.from({ length: 10 }, () =>
@@ -348,7 +361,8 @@ function MapEditor({ editMode }: { editMode: boolean }) {
     // Save draft to local storage
     setDraftSaved(true);
     const customMapData = generateCustomMapData();
-    localStorage.setItem('mapDraft', JSON.stringify(customMapData));
+    if (customMapData)
+      localStorage.setItem('mapDraft', JSON.stringify(customMapData));
   };
 
   const handlePublish = async () => {
@@ -603,7 +617,11 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             overflow: 'auto',
           }}
         >
-          <Button variant='contained' onClick={handleOpenMapExplorer}>
+          <Button
+            sx={{ width: '100%' }}
+            variant='contained'
+            onClick={handleOpenMapExplorer}
+          >
             {t('select-a-custom-map')}
           </Button>
 
@@ -613,13 +631,18 @@ function MapEditor({ editMode }: { editMode: boolean }) {
               width: '100%',
             }}
           >
-            <CardHeader avatar={<InfoRounded />} title={t('basic-info')} />
+            <CardHeader
+              avatar={<InfoRounded />}
+              title={t('basic-info')}
+              sx={{ paddingBottom: 0 }}
+            />
             <CardContent
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                paddingTop: 0,
               }}
             >
               <TextField
@@ -678,27 +701,40 @@ function MapEditor({ editMode }: { editMode: boolean }) {
               />
             </CardContent>
           </Card>
-          <ButtonGroup size='large'>
+          <ButtonGroup size='large' sx={{ width: '100%' }}>
             <Button
+              sx={{ width: '100%' }}
               variant='contained'
               color='info'
               onClick={handleDownloadMap}
             >
               {t('download')}
             </Button>
-            <Button variant='contained' onClick={handleUploadMap}>
+            <Button
+              sx={{ width: '100%' }}
+              variant='contained'
+              onClick={handleUploadMap}
+            >
               {t('upload')}
             </Button>
           </ButtonGroup>
-          <ButtonGroup size='large'>
-            <Button variant='contained' color='info' onClick={handleSaveDraft}>
+          <ButtonGroup size='large' sx={{ width: '100%' }}>
+            <Button
+              sx={{ width: '100%' }}
+              variant='contained'
+              color='info'
+              onClick={handleSaveDraft}
+            >
               {t('save-draft')}
             </Button>
-            <Button variant='contained' onClick={handlePublish}>
+            <Button
+              sx={{ width: '100%' }}
+              variant='contained'
+              onClick={handlePublish}
+            >
               {t('publish')}
             </Button>
           </ButtonGroup>
-          {draftSaved && <span>Draft saved.</span>}
         </Box>
       )}
 
@@ -713,17 +749,11 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             width: '90px',
             height: 'calc(100dvh - 60px - 60px)',
             borderRadius: '0 10px 10px 0 !important',
-            overflow: 'auto',
           }}
         >
-          <Box
-            display='flex'
-            flexDirection='column'
-            justifyContent='space-between'
-            height='100%'
-          >
+          <Box sx={{ width: '100%', overflowY: 'auto', height: '100%' }}>
             {Object.keys(name2TileType).map((tileName) => (
-              <Box
+              <IconBox
                 key={tileName}
                 className='icon-box'
                 bgcolor={
@@ -753,12 +783,14 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                     draggable={false}
                   />
                 )}
-                <Typography align='center'>{t(tileName)}</Typography>
-              </Box>
+                <Typography align='center' fontSize='5px'>
+                  {t(tileName)}
+                </Typography>
+              </IconBox>
             ))}
 
             {Object.keys(property2var).map((property) => (
-              <Box
+              <IconBox
                 key={property}
                 className='icon-box'
                 bgcolor={selectedProperty === property ? '#c54a95' : ''}
@@ -770,8 +802,8 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                 {property === 'revealed' ? (
                   <LightbulbOutlinedIcon
                     sx={{
-                      width: 40,
-                      height: 40,
+                      width: 30,
+                      height: 30,
                       color: '#fff !important',
                     }}
                   />
@@ -792,11 +824,13 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                     }
                   />
                 )}
-                <Typography align='center'>{t(property)}</Typography>
-              </Box>
+                <Typography align='center' fontSize='5px'>
+                  {t(property)}
+                </Typography>
+              </IconBox>
             ))}
 
-            <Box
+            <IconBox
               key='clear-all'
               className='icon-box'
               onClick={() => {
@@ -805,13 +839,16 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             >
               <ClearIcon
                 sx={{
-                  width: 40,
-                  height: 40,
-                  color: '#fff !important',
+                  width: 30,
+                  height: 30,
+                  color: 'red !important',
+                  cursor: 'pointer',
                 }}
               />
-              <Typography align='center'>{t('clear-all')}</Typography>
-            </Box>
+              <Typography align='center' fontSize='5px'>
+                {t('clear-all')}
+              </Typography>
+            </IconBox>
           </Box>
         </Box>
       )}
