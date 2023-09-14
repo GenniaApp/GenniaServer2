@@ -9,6 +9,7 @@ import Login from '../components/Login';
 
 import Lobby from '../components/Lobby';
 import theme from '../components/theme';
+import Head from 'next/head';
 
 export default function Home() {
   const [username, setUsername] = useState('');
@@ -30,6 +31,9 @@ export default function Home() {
 
   return (
     <ThemeProvider theme={theme}>
+      <Head>
+        <title>Home | Gennia</title>
+      </Head>
       <Navbar />
       {!username && (
         <Login username={username} handlePlayClick={handlePlayClick} />

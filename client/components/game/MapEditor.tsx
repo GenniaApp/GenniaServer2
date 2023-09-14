@@ -524,7 +524,10 @@ function MapEditor({ editMode }: { editMode: boolean }) {
   }, [mapRef, editMode, handleKeyDown]);
 
   return (
-    <div className='app-container' style={{ position: 'relative' }}>
+    <div
+      className='app-container'
+      style={{ position: 'relative', overflow: 'hidden' }}
+    >
       <Snackbar
         open={snackState.open}
         autoHideDuration={snackState.duration}

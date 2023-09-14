@@ -1,6 +1,6 @@
 import { Html, Head, Main, NextScript } from 'next/document';
 import { Router } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Document() {
   useEffect(() => {
@@ -29,12 +29,11 @@ export default function Document() {
         <script dangerouslySetInnerHTML={getAnalyticsTag()} />
       </Head>
 
-      <title>Gennia</title>
       <link rel='shortcut icon' href='/img/favicon.png' />
 
       <meta
         name='description'
-        content='A real-time multiplayer game with Nextjs Socket.IO'
+        content='A real-time multiplayer game built with Nextjs Socket.IO'
       />
       <meta name='keywords' content='Gennia, multiplayer-game'></meta>
       <body>
