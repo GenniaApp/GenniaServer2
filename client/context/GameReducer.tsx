@@ -131,7 +131,7 @@ interface SnackAction {
   title?: string;
   message?: string;
   status?: 'success' | 'error' | 'warning' | 'info';
-  duration?: number; // auto hide duration
+  duration: number | null; // auto hide duration
 }
 
 export const snackStateReducer = (
@@ -145,7 +145,7 @@ export const snackStateReducer = (
         title: action.title ?? '',
         status: action.status ?? 'error',
         message: action.message ?? '',
-        duration: action.duration ?? 3000,
+        duration: action.duration,
       };
     case 'toggle':
       return { ...state, open: !state.open };

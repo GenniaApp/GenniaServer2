@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import {
-  Snackbar,
   Box,
   Card,
-  Alert,
-  AlertTitle,
   CardHeader,
   CardContent,
   Button,
@@ -41,7 +38,7 @@ import MapExplorer from './game/MapExplorer';
 import { forceStartOK, SpeedOptions } from '@/lib/constants';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 
-interface GameSettingProps {}
+interface GameSettingProps { }
 
 const GameSetting: React.FC<GameSettingProps> = (props) => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -50,7 +47,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
   const [forceStart, setForceStart] = useState(false);
   const [openMapExplorer, setOpenMapExplorer] = useState(false);
 
-  const { room, socketRef, myPlayerId, myUserName, snackState, spectating } =
+  const { room, socketRef, myPlayerId, myUserName, spectating } =
     useGame();
   const { roomDispatch, snackStateDispatch, setSpectating } = useGameDispatch();
 
@@ -158,18 +155,6 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         },
       }}
     >
-      <Snackbar
-        open={snackState.open}
-        autoHideDuration={1000}
-        onClose={() => {
-          snackStateDispatch({ type: 'toggle' });
-        }}
-      >
-        <Alert severity={snackState.status} sx={{ width: '100%' }}>
-          <AlertTitle>{snackState.title}</AlertTitle>
-          {snackState.message}
-        </Alert>
-      </Snackbar>
       <Dialog open={openMapExplorer} onClose={handleCloseMapExplorer}>
         <DialogTitle>Choose a Map</DialogTitle>
         <DialogContent>
@@ -233,6 +218,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                   title: '',
                   message: t('copied'),
                   status: 'success',
+                  duration: 3000,
                 });
               }}
             >
@@ -520,7 +506,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         {t('ready')}({room.forceStartNum}/
         {
           forceStartOK[
-            room.players.filter((player) => !player.spectating).length
+          room.players.filter((player) => !player.spectating).length
           ]
         }
         )

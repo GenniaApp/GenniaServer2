@@ -13,10 +13,10 @@ export interface initGameInfo {
 }
 
 export interface SelectedMapTileInfo {
-  x: number,
-  y: number,
-  half: boolean,
-  unitsCount: number | null,
+  x: number;
+  y: number;
+  half: boolean;
+  unitsCount: number | null;
 }
 
 export interface Position {
@@ -32,7 +32,7 @@ export interface Route {
 export type LeaderBoardRow = [
   number, // color
   number, // armyCount
-  number // landCount
+  number, // landCount
 ];
 
 export type LeaderBoardTable = LeaderBoardRow[];
@@ -78,7 +78,7 @@ export class Room {
     public mapName: string = '', // custom map name
     public keepAlive: boolean = false, // keep alive after game over
     public revealKing: boolean = false, // reveal all king
-    public warringStatesMode: boolean = false, // warring states 战国 mode
+    public warringStatesMode: boolean = false // warring states 战国 mode
   ) { }
 
   static create(options: Partial<Room>): Room {
@@ -107,7 +107,7 @@ export class Room {
       options.mapName,
       options.keepAlive,
       options.revealKing,
-      options.warringStatesMode,
+      options.warringStatesMode
     );
   }
 
@@ -134,6 +134,7 @@ export enum RoomUiStatus {
   gameRealStarted, // loading over, gameStarted
   gameSetting,
   gameOverConfirm,
+  disconnect,
 }
 
 // when DisplayUnitsCount === null, means it's not revealed by user! set to number to always reveal
@@ -142,10 +143,7 @@ export type DisplayUnitsCount = number | null;
 // color, when color == null, means no player own this tile
 export type ColorIndex = number | null;
 
-export type TileProp = [TileType,
-  ColorIndex,
-  DisplayUnitsCount,
-];
+export type TileProp = [TileType, ColorIndex, DisplayUnitsCount];
 
 export type TilesProp = TileProp[];
 
@@ -153,15 +151,16 @@ export type MapData = TilesProp[];
 
 export type MapDiffData = (number | TileProp)[]; // number: same count, TileProp: diff
 
-
-export type CustomMapTileData = [TileType,
+export type CustomMapTileData = [
+  TileType,
   ColorIndex,
   number, // unitsCount which is not allow set to null
   boolean, // isAlwaysRevealed
   number, // King Priority
 ];
 
-export type DisplayCustomMapTileData = [TileType,
+export type DisplayCustomMapTileData = [
+  TileType,
   ColorIndex,
   DisplayUnitsCount,
   boolean, // isAlwaysRevealed : is Always Revealed
@@ -191,7 +190,7 @@ export interface SnackState {
   status?: 'success' | 'error' | 'warning' | 'info';
   title: string;
   message: string;
-  duration: number; // auto hide duration
+  duration: number | null; // auto hide duration
 }
 
 export interface GameRecordPerTurn {
