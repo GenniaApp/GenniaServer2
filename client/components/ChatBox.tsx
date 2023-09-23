@@ -95,7 +95,7 @@ interface ChatBoxProp {
 
 export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
   const [inputValue, setInputValue] = useState('');
-  const [isExpand, setIsExpand] = useState(true);
+  const [isExpand, setIsExpand] = useState(false);
   const textFieldRef = useRef<any>(null);
   const messagesEndRef = useRef<any>(null);
 
