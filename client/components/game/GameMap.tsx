@@ -109,18 +109,21 @@ function GameMap() {
           y: selectPos.y,
           className: className,
         });
-        if (attackQueueRef.current.allowAttackThisTurn) {
-          let item = attackQueueRef.current.pop();
-          socketRef.current.emit('attack', item.from, item.to, item.half);
-          attackQueueRef.current.allowAttackThisTurn = false;
-          console.log(
-            `emit attack: `,
-            item.from,
-            item.to,
-            item.half,
-            turnsCount
-          );
-        }
+        // todo: Higher latency can result in attacks from one turn not being responded to by the server until the next turn,
+        // resulting in two attack requests in one turn, causing the 2nd attack to fail
+        //
+        // if (attackQueueRef.current.allowAttackThisTurn) {
+        //   let item = attackQueueRef.current.pop();
+        //   socketRef.current.emit('attack', item.from, item.to, item.half);
+        //   attackQueueRef.current.allowAttackThisTurn = false;
+        //   console.log(
+        //     `emit attack: `,
+        //     item.from,
+        //     item.to,
+        //     item.half,
+        //     turnsCount
+        //   );
+        // }
       }
     },
     [
@@ -408,7 +411,7 @@ function GameMap() {
         const touch2 = event.touches[1];
         const distance = Math.sqrt(
           Math.pow(touch1.clientX - touch2.clientX, 2) +
-            Math.pow(touch1.clientY - touch2.clientY, 2)
+          Math.pow(touch1.clientY - touch2.clientY, 2)
         );
         initialDistance.current = distance;
       }
@@ -483,7 +486,7 @@ function GameMap() {
         const touch2 = event.touches[1];
         const distance = Math.sqrt(
           Math.pow(touch1.clientX - touch2.clientX, 2) +
-            Math.pow(touch1.clientY - touch2.clientY, 2)
+          Math.pow(touch1.clientY - touch2.clientY, 2)
         );
         const delta = distance - initialDistance.current;
         const newZoom = Math.min(Math.max(zoom + delta * 0.0002, 0.2), 4.0);
@@ -519,7 +522,7 @@ function GameMap() {
         mapNode.removeEventListener('keydown', handleKeyDown);
       };
     }
-    return () => {};
+    return () => { };
   }, [mapRef]);
 
   useEffect(() => {
@@ -538,7 +541,7 @@ function GameMap() {
         mapNode.removeEventListener('touchend', handleTouchEnd);
       };
     }
-    return () => {};
+    return () => { };
   }, [mapRef, handleTouchStart, handleTouchMove, handleTouchEnd]);
 
   return (

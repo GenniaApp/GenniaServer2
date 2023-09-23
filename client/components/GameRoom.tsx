@@ -6,6 +6,12 @@ import ChatBox from '@/components/ChatBox';
 import Navbar from '@/components/Navbar';
 
 import {
+  Snackbar,
+  Alert,
+  AlertTitle,
+} from '@mui/material';
+
+import {
   Room,
   Message,
   UserData,
@@ -37,6 +43,7 @@ function GamingRoom() {
     myPlayerId,
     attackQueueRef,
     myUserName,
+    snackState,
   } = useGame();
   const {
     roomDispatch,
@@ -221,6 +228,7 @@ function GamingRoom() {
         type: 'update',
         title: title,
         message: message,
+        duration: 3000,
       });
     });
 
@@ -296,7 +304,7 @@ function GamingRoom() {
     socket.on(
       'attack_failure',
       (from: Position, to: Position, message: string) => {
-        // console.log('attack_failure: ', from, to, message);
+        console.log('attack_failure: ', from, to, message);
         attackQueueRef.current.clearLastItem();
         while (!attackQueueRef.current.isEmpty()) {
           let route = attackQueueRef.current.front();
@@ -316,6 +324,7 @@ function GamingRoom() {
         title: t('reject-join'),
         status: 'error',
         message: 'Please choose another room.',
+        duration: null,
       });
       // router.push(`/`);
     });
@@ -329,6 +338,7 @@ function GamingRoom() {
         title: 'Connect Error',
         status: 'error',
         message: 'Please refresh the App.',
+        duration: null,
       });
     });
 
@@ -340,6 +350,7 @@ function GamingRoom() {
         title: 'Reconnecting...',
         status: 'error',
         message: 'Disconnected from the server',
+        duration: null,
       });
     });
 
@@ -365,6 +376,19 @@ function GamingRoom() {
 
   return (
     <div className='app-container'>
+
+      <Snackbar
+        open={snackState.open}
+        autoHideDuration={snackState.duration}
+        onClose={() => {
+          snackStateDispatch({ type: 'toggle' });
+        }}
+      >
+        <Alert severity={snackState.status} sx={{ width: '100%' }}>
+          <AlertTitle>{snackState.title}</AlertTitle>
+          {snackState.message}
+        </Alert>
+      </Snackbar>
       {roomUiStatus === RoomUiStatus.gameSetting && (
         <div>
           <Navbar />

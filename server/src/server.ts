@@ -431,7 +431,7 @@ async function handleGame(room: Room, io: Server) {
                 });
                 room.map.getBlock(player.king).kingBeDominated();
                 player.land.length = 0;
-              } else if (player.operatedTurn + 160 <= room.map.turn) {
+              } else if (player.operatedTurn === 0 && player.operatedTurn + 160 <= room.map.turn) {
                 // if player is not operated for 160/2 turns, it will be neutralized
                 handleNeutralized(room, player);
                 io.in(room.id).emit('room_message', player.minify(), 'surrendered');

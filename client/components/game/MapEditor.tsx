@@ -60,8 +60,7 @@ const IconBox = styled.div(
   cursor: pointer;
   background-color: ${props.bgcolor};
   &:hover {
-    background-color: ${
-      props.bgcolor ? props.bgcolor : 'rgba(255, 85, 85, 0.1)'
+    background-color: ${props.bgcolor ? props.bgcolor : 'rgba(255, 85, 85, 0.1)'
     }
   }
 `
@@ -341,6 +340,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         type: 'update',
         title: 'Error',
         message: t('Map name cannot be empty'),
+        duration: null,
       });
       return;
     }
@@ -405,6 +405,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         type: 'update',
         title: 'Error',
         message: 'Failed to publish map',
+        duration: 5000,
       });
     }
   };
@@ -436,6 +437,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             type: 'update',
             title: 'Error',
             message: t('Error parsing JSON file'),
+            duration: 5000,
           });
         }
       };
@@ -520,7 +522,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         mapNode.removeEventListener('keydown', handleKeyDown);
       };
     }
-    return () => {};
+    return () => { };
   }, [mapRef, editMode, handleKeyDown]);
 
   return (
@@ -533,7 +535,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         autoHideDuration={snackState.duration}
         onClose={() => {
           console.log(snackState);
-          snackStateDispatch({ type: 'toggle' });
+          snackStateDispatch({ type: 'toggle', duration: null });
         }}
       >
         <Alert severity={snackState.status} sx={{ width: '100%' }}>
@@ -882,7 +884,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                 x={x}
                 y={y}
                 tile={tile}
-                handleClick={editMode ? () => handleTileClick(x, y) : () => {}}
+                handleClick={editMode ? () => handleTileClick(x, y) : () => { }}
               />
             );
           });

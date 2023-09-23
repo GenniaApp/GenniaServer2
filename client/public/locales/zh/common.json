@@ -103,6 +103,7 @@
   "warring-states-mode": "战国模式",
   "country": "国家",
   "expandWSAD": "展开WSAD",
+  "disconnect-from-server": "与服务器断开连接",
   "howToPlay": {
     "title": "如何玩",
     "shortcut": "快捷键",

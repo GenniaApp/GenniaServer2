@@ -102,6 +102,7 @@
   "warring-states-mode": "Warring States Mode",
   "country": "Country",
   "expandWSAD": "Expand WSAD",
+  "disconnect-from-server": "Disconnected from server.",
   "howToPlay": {
     "title": "How to Play",
     "shortcut": "Shortcut",
