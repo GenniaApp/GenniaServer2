@@ -56,9 +56,10 @@ const Login: React.FC<LoginProps> = (props) => {
             width: { xs: '80dvw', md: '40dvw' },
             marginTop: '-40px !important',
             zIndex: '10 !important',
+            boxShadow: 1
           }}
         >
-          <Typography variant='h4' color='white' sx={{ padding: 4 }}>
+          <Typography variant='h4' color='primary' sx={{ padding: 4 }}>
             {t('welcome')}
           </Typography>
           <TextField
