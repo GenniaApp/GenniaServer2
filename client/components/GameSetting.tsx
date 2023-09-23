@@ -159,6 +159,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
       }}
     >
       <Snackbar
+        sx={{ position: 'absolute !important' }}
         open={snackState.open}
         autoHideDuration={1000}
         onClose={() => {
@@ -207,7 +208,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                   !disabled_ui && setIsNamedFocused(true);
                 }}
               >
-                <Typography sx={{ fontSize: '20px', color: '#FFFFFF' }}>
+                <Typography fontWeight='bold' color='primary' fontSize='20px'>
                   {room.roomName}
                 </Typography>
               </div>
@@ -456,7 +457,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         sx={{
           mb: 2,
           '& .MuiCardHeader-root': {
-            padding: '0rem',
+            paddingTop: '0rem',
           },
         }}
       >
@@ -470,7 +471,9 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                 justifyContent: 'space-between',
               }}
             >
-              <Typography sx={{ color: 'white' }}>{t('players')}</Typography>
+              <Typography color='primary' fontWeight='bold'>
+                {t('players')}
+              </Typography>
               <FormControlLabel
                 control={
                   <Switch

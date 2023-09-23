@@ -20,14 +20,31 @@ import HowToPlay from './HowToPlay';
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Link from 'next/link';
+import {
+  BookRounded,
+  FeedbackRounded,
+  GitHub,
+  HomeRounded,
+  SmartToyRounded,
+} from '@mui/icons-material';
 
 const navItems = [
-  { href: 'https://github.com/GenniaApp/GenniaServer2', label: 'github' },
-  { href: 'https://docs.gennia.io/', label: 'wiki' },
-  { href: 'https://github.com/GenniaApp/GenniaBot', label: 'bot-api' },
+  { href: '/', label: 'home', icon: <HomeRounded /> },
+  { href: 'https://docs.gennia.io/', label: 'wiki', icon: <BookRounded /> },
+  {
+    href: 'https://github.com/GenniaApp/GenniaServer2',
+    label: 'github',
+    icon: <GitHub />,
+  },
+  {
+    href: 'https://github.com/GenniaApp/GenniaBot',
+    label: 'bot-api',
+    icon: <SmartToyRounded />,
+  },
   {
     href: 'https://github.com/GenniaApp/GenniaServer2/issues',
     label: 'feedback',
+    icon: <FeedbackRounded />,
   },
 ];
 
@@ -58,7 +75,7 @@ function Navbar() {
 
   return (
     <AppBar position='fixed' className='navbar'>
-      <Container className='dock'>
+      <Container className='dock' sx={{ boxShadow: 3 }}>
         <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
           <IconButton
             size='large'
@@ -71,25 +88,17 @@ function Navbar() {
             <MenuIcon />
           </IconButton>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Link href='/'>
+            <Link
+              href='/'
+              style={{ display: 'flex', alignItems: 'center', flexGrow: 0 }}
+            >
               <Image
-                src='/img/favicon.png'
-                width={32}
-                height={32}
-                alt='favicon'
+                src='/img/gennia-logo.png'
+                width={100}
+                height={17.3}
+                alt='Gennia logo'
               />
             </Link>
-            <Link href='/'>
-              <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
-                Gennia
-              </Typography>
-            </Link>
-            <Chip
-              label='beta'
-              variant='outlined'
-              color='warning'
-              size='small'
-            />
           </Box>
           <Menu
             id='menu-appbar'
@@ -122,74 +131,82 @@ function Navbar() {
         <Box
           sx={{
             flexGrow: 1,
+            justifyContent: 'space-between',
             display: { xs: 'none', md: 'flex' },
             alignItems: 'center',
           }}
         >
-          <Link href='/'>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Image src='/img/favicon.png' width={32} height={32} alt='logo' />
-              <Typography variant='h5' sx={{ marginLeft: 1, marginRight: 1 }}>
-                Gennia
-              </Typography>
-              <Chip
-                label='beta'
-                variant='outlined'
-                color='warning'
-                size='small'
-              />
-            </Box>
-          </Link>
-          {navItems.map((item) => (
-            <Link href={item.href} key={item.href}>
-              <Button
-                id='navbar-link'
-                onClick={handleCloseNavMenu}
-                sx={{
-                  color: 'white',
-                  textTransform: 'none',
-                  fontSize: '1rem',
-                }}
-              >
-                {t(item.label)}
-              </Button>
-            </Link>
-          ))}
-        </Box>
-        <Box
-          id='lng-selector'
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            flexDirection: 'row',
-          }}
-        >
-          <Button
-            variant='contained'
-            size='small'
-            onClick={toggleShow}
-            sx={{ margin: 2, height: '40px', fontSize: '15px' }}
-          >
-            <Typography variant='body2' sx={{ whiteSpace: 'nowrap' }}>
-              {t('how-to-play')}
-            </Typography>
-          </Button>
-          <HowToPlay show={show} toggleShow={toggleShow} />
-          <FormControl>
-            <Select
-              color='secondary'
-              className='navbar-language-switch'
-              defaultValue={router.locale ?? 'en'}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Link
+              href='/'
+              style={{ display: 'flex', alignItems: 'center', flexGrow: 0 }}
             >
-              {router.locales &&
-                router.locales.map((lang) => (
-                  <MenuItem key={lang} value={lang} onClick={handleClick(lang)}>
-                    <Typography>{lang}</Typography>
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
+              <Image
+                src='/img/gennia-logo.png'
+                width={100}
+                height={17.3}
+                alt='Gennia logo'
+              />
+            </Link>
+          </Box>
+          <Box>
+            {navItems.map((item) => (
+              <Link href={item.href} key={item.href}>
+                <Button
+                  id='navbar-link'
+                  onClick={handleCloseNavMenu}
+                  sx={{
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    marginX: '10px',
+                  }}
+                  startIcon={item.icon}
+                >
+                  {t(item.label)}
+                </Button>
+              </Link>
+            ))}
+          </Box>
+          <Box
+            id='lng-selector'
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'row',
+            }}
+          >
+            <Button
+              variant='contained'
+              size='small'
+              onClick={toggleShow}
+              sx={{ margin: 2, height: '40px', fontSize: '15px' }}
+            >
+              <Typography variant='body2' sx={{ whiteSpace: 'nowrap' }}>
+                {t('how-to-play')}
+              </Typography>
+            </Button>
+            <HowToPlay show={show} toggleShow={toggleShow} />
+            <FormControl>
+              <Select
+                color='primary'
+                className='navbar-language-switch'
+                defaultValue={router.locale ?? 'en'}
+              >
+                {router.locales &&
+                  router.locales.map((lang) => (
+                    <MenuItem
+                      key={lang}
+                      value={lang}
+                      onClick={handleClick(lang)}
+                    >
+                      <Typography>{lang}</Typography>
+                    </MenuItem>
+                  ))}
+              </Select>
+            </FormControl>
+          </Box>
         </Box>
+
         {/* 用户界面 todo */}
         {/* <Box sx={{ flexGrow: 0 }}>
             <Button

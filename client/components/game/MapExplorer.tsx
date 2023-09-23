@@ -34,7 +34,7 @@ const ListItem = memo<ListItemProps>(function MemoItems(props) {
   const { t } = useTranslation();
   const router = useRouter();
   return (
-    <Card key={endpoint + map.id} sx={{ my: 2 }}>
+    <Card key={endpoint + map.id} sx={{ my: 2 }} variant='outlined'>
       <CardHeader
         sx={{ paddingBottom: 0 }}
         title={map.name}

@@ -23,6 +23,7 @@ import {
 import { Room, RoomPool } from '@/lib/types';
 import { useTranslation } from 'next-i18next';
 import StorageIcon from '@mui/icons-material/Storage';
+import { AddHomeOutlined, MapOutlined } from '@mui/icons-material';
 
 function Lobby() {
   const [rooms, setRooms] = useState<RoomPool>({});
@@ -126,12 +127,14 @@ function Lobby() {
             <Typography
               variant='h4'
               component='h1'
-              sx={{ color: 'white' }}
+              color='primary'
+              fontWeight='bold'
               gutterBottom
+              sx={{ padding: '20px' }}
             >
               {t('greet') + username}
             </Typography>
-            <List className='menu-container' sx={{ width: '100%' }}>
+            <List className='menu-container' sx={{ width: '100%', boxShadow: 1 }}>
               <ListItem>
                 <ListItemIcon>
                   <StorageIcon />
@@ -145,7 +148,7 @@ function Lobby() {
                   <Box
                     component='span'
                     sx={{
-                      bgcolor: serverStatus ? 'lime' : 'red',
+                      bgcolor: serverStatus ? 'green' : 'red',
                       width: '0.7em',
                       height: '0.7em',
                       borderRadius: '50%',
@@ -163,17 +166,14 @@ function Lobby() {
               className='menu-container'
               component={Paper}
               sx={{
-                maxHeight: '50vh',
+                maxHeight: '50vh'
               }}
             >
               <Table
-                size='small'
+                size='medium'
                 sx={{
                   '& .MuiTableCell-root': {
-                    padding: {
-                      xs: '6px 6px',
-                      md: '8px 16px',
-                    },
+                    fontSize: '1rem',
                   },
                 }}
               >
@@ -234,7 +234,7 @@ function Lobby() {
                         <TableCell align='center'>
                           <Typography
                             variant='body2'
-                            color={room.gameStarted ? 'yellow' : 'lime'}
+                            color={room.gameStarted ? 'yellow' : 'green'}
                           >
                             {room.gameStarted ? t('started') : t('waiting')}
                           </Typography>
@@ -245,38 +245,38 @@ function Lobby() {
                 </TableBody>
               </Table>
             </TableContainer>
-            <Box marginTop={2}>
-              <ButtonGroup sx={{ width: '100%' }}>
-                <Button
-                  variant='contained'
-                  color='primary'
-                  sx={{
-                    width: '100%',
-                    height: '60px',
-                    fontSize: '20px',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onClick={handleCreateRoomClick}
-                >
-                  {t('create-room')}
-                </Button>
-                <Button
-                  variant='contained'
-                  color='secondary'
-                  sx={{
-                    width: '100%',
-                    height: '60px',
-                    fontSize: '20px',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onClick={() => {
-                    router.push('/mapcreator');
-                  }}
-                >
-                  {t('create-map')}
-                </Button>
-              </ButtonGroup>
-            </Box>
+            <Button
+              variant='contained'
+              color='primary'
+              startIcon={<AddHomeOutlined />}
+              sx={{
+                marginTop: 2,
+                width: '100%',
+                height: '60px',
+                fontSize: '20px',
+                whiteSpace: 'nowrap',
+              }}
+              onClick={handleCreateRoomClick}
+            >
+              {t('create-room')}
+            </Button>
+            <Button
+              variant='contained'
+              color='secondary'
+              startIcon={<MapOutlined />}
+              sx={{
+                marginTop: 2,
+                width: '100%',
+                height: '60px',
+                fontSize: '20px',
+                whiteSpace: 'nowrap',
+              }}
+              onClick={() => {
+                router.push('/mapcreator');
+              }}
+            >
+              {t('create-map')}
+            </Button>
           </Box>
         </div>
       </div>

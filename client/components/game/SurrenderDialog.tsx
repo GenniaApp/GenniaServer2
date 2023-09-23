@@ -73,12 +73,6 @@ export default function SurrenderDialog({
       maxWidth='md'
       aria-labelledby='Surrender Dialog'
       aria-describedby='Ensure user wants to surrender'
-      sx={{
-        '& .MuiDialog-paper': {
-          backdropFilter: 'blur(3px)',
-          backgroundColor: 'rgb(18 18 18 / 78%) !important',
-        },
-      }}
     >
       <DialogTitle>
         {showExitTitle
@@ -91,16 +85,22 @@ export default function SurrenderDialog({
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
+          width: '100%',
         }}
       >
         {showExitTitle ? (
-          <Button onClick={handleExit}>{t('exit')}</Button>
+          <Button sx={{ width: '100%' }} onClick={handleExit}>
+            {t('exit')}
+          </Button>
         ) : (
           <>
-            <Button onClick={handleCloseSurrender}>{t('surrender')}</Button>
+            <Button sx={{ width: '100%' }} onClick={handleCloseSurrender}>
+              {t('surrender')}
+            </Button>
           </>
         )}
         <Button
+          sx={{ width: '100%' }}
           onClick={() => {
             setOpen(false);
           }}

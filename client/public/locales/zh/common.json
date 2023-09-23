@@ -1,9 +1,10 @@
 {
   "about-us": "关于我们",
+  "home": "首页",
   "wiki": "文档",
   "bot-api": "开发机器人",
   "feedback": "反馈",
-  "github": "Github",
+  "github": "GitHub",
   "welcome": "登录 Gennia",
   "username-placeholder": "输入用户名，不超过 15 个字符",
   "greet": "欢迎你，",

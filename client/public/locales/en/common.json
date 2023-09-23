@@ -1,9 +1,10 @@
 {
   "about-us": "About Us",
+  "home": "Home",
   "wiki": "Wiki",
   "bot-api": "Bot API",
   "feedback": "FeedBack",
-  "github": "Github",
+  "github": "GitHub",
   "welcome": "Login to Gennia",
   "username-placeholder": "Enter UserName, Within 15 characters",
   "greet": "Welcome, ",

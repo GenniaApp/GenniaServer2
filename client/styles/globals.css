@@ -88,10 +88,11 @@ body {
     sans-serif;
   /* Quicksand,serif */
   overflow: auto;
-  background-image: url('/img/galaxy.jpg');
+  background-color: #EADDFF;
+  /* background-image: url('/img/galaxy.jpg');
   background-position: center center;
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: cover; */
   height: 100dvh;
   width: 100dvw;
   overflow-x: hidden;
@@ -226,7 +227,8 @@ a {
   }
 
   .dock {
-    width: 100dvw
+    width: 100dvw;
+    border-radius: 0 0 10px 10px !important;
   }
 }
 
@@ -240,9 +242,9 @@ a {
 }
 
 .dock {
-  height: 100%;
-  background: rgb(99 97 141 / 68%) !important;
-  border-radius: 0 0 10px 10px;
+  backdrop-filter: blur(3px);
+  background-color: #D0BCFF !important;
+  border-radius: 0 0 24px 24px;
   display: flex !important;
   align-items: center;
   justify-content: space-evenly;
@@ -266,25 +268,25 @@ a {
 }
 
 #navbar-link {
-  font-weight: 300 !important;
+  font-weight: bold !important;
 }
 
 
 .menu-container {
   backdrop-filter: blur(3px);
-  background-color: rgb(99 97 141 / 68%) !important;
-  border-radius: 10px;
+  background-color: #D0BCFF !important;
+  color: black;
+  border-radius: 24px;
   padding: 8px;
   margin-top: 10px;
-  color: white;
 }
 
 .attack-button {
   backdrop-filter: blur(3px);
-  background-color: rgb(99 97 141 / 68%) !important;
+  background-color: #D0BCFF !important;
   border-radius: 10px !important;
   padding: 8px;
-  color: white;
+  color: black;
   box-shadow: 2;
 }
 
@@ -344,4 +346,35 @@ a {
   .react_markdown {
     font-size: medium;
   }
+}
+
+/* 滚动条整体样式 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  /* 滚动条宽度 */
+}
+
+/* 滚动条轨道样式 */
+::-webkit-scrollbar-track {
+  background-color: transparent;
+  /* 轨道背景色 */
+}
+
+/* 滚动条滑块样式 */
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: #625B71;
+  /* 滑块背景色 */
+}
+
+/* 滚动条滑块在鼠标悬停时的样式 */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #6750A4;
+  /* 悬停时滑块背景色 */
+}
+
+.MuiButton-root {
+  text-transform: none;
+  border-radius: 24px;
 }

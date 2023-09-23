@@ -17,7 +17,7 @@ const ChatBoxContainer = styled('div')`
   overflow: auto;
   z-index: 1003;
   backdrop-filter: blur(3px);
-  background-color: rgb(99 97 141 / 68%);
+  background-color: #D0BCFF !important;
   border-radius: 10px 0 0 0;
   box-shadow:
     0px 2px 4px -1px rgba(0, 0, 0, 0.2),
@@ -39,7 +39,6 @@ const ChatBoxMessages = styled('div')`
   overflow-y: auto;
   padding: 10px;
   line-height: 1.5em;
-  color: white;
   &.shrink {
     height: 10vh;
   }

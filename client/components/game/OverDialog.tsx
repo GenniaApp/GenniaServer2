@@ -69,12 +69,6 @@ export default function OverDialog() {
         if (reason === 'backdropClick') return;
         setOpenOverDialog(false);
       }}
-      sx={{
-        '& .MuiDialog-paper': {
-          backdropFilter: 'blur(3px)',
-          backgroundColor: 'rgb(18 18 18 / 78%) !important',
-        },
-      }}
     >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>{subtitle}</DialogContent>
@@ -84,16 +78,22 @@ export default function OverDialog() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          width: '100%',
         }}
       >
-        <Button onClick={handleBackRoom}>
+        <Button sx={{ width: '100%' }} onClick={handleBackRoom}>
           {room.gameStarted ? t('spectate') : t('play-again')}
         </Button>
         {replayLink && (
-          <Button onClick={handleWatchReplay}>{t('watch-replay')}</Button>
+          <Button sx={{ width: '100%' }} onClick={handleWatchReplay}>
+            {t('watch-replay')}
+          </Button>
         )}
-        <Button onClick={handleExit}>{t('exit')}</Button>
+        <Button sx={{ width: '100%' }} onClick={handleExit}>
+          {t('exit')}
+        </Button>
         <Button
+          sx={{ width: '100%' }}
           onClick={() => {
             setOpenOverDialog(false);
           }}

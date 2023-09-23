@@ -79,6 +79,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                 ? { xs: '0.6rem', md: '0.8rem' }
                 : { xs: '0.4rem', md: '0.6rem' },
             },
+            boxShadow: 1
           }}
         >
           <TableHead>

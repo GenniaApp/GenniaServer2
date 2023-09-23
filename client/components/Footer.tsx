@@ -8,11 +8,12 @@ const FooterContainer = styled('div')`
   justify-content: center;
   flex-direction: column;
   width: 100vw;
-  height: 50px;
-  bottom: -50px;
+  height: max-content;
+  bottom: 0;
   left: 0;
   z-index: 80;
-  background-color: rgb(89, 105, 117, 80%);
+  backdrop-filter: blur(3px);
+  background-color: #6750A4 !important;
 `;
 
 function Footer() {

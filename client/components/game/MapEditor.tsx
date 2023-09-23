@@ -556,17 +556,18 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                 lg: '45vw',
               },
               transform: `translate(-50%, 0)`,
-              height: '30vh',
-              borderRadius: '10px 10px 0px 0px !important',
+              minHeight: '10%',
+              maxHeight: '30%',
+              overflowY: 'auto',
+              borderRadius: '24px 24px 0px 0px !important',
               zIndex: 101,
+              padding: '13px !important',
             }}
           >
-            <Box sx={{ width: '100%', overflowY: 'auto', height: '100%' }}>
-              <Typography variant='h5'>{mapName}</Typography>
-              <ReactMarkdown className='react_markdown'>
-                {mapDescription}
-              </ReactMarkdown>
-            </Box>
+            <Typography variant='h5'>{mapName}</Typography>
+            <ReactMarkdown className='react_markdown'>
+              {mapDescription}
+            </ReactMarkdown>
           </Box>
           <Button
             size='large'
@@ -579,7 +580,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
               boxShadow: 3,
             }}
             variant='contained'
-            color='info'
+            color='primary'
             onClick={handleDownloadMap}
           >
             {t('download')}
@@ -609,8 +610,8 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             borderRadius: '10px 0 0 10px !important',
             padding: '10px !important',
             position: 'absolute',
-            top: '60px',
-            bottom: '60px',
+            top: '70px',
+            bottom: '70px',
             right: 0,
             height: 'calc(100dvh - 60px - 60px)',
             display: 'flex',
@@ -618,6 +619,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             justifyContent: 'space-between',
             alignItems: 'center',
             overflow: 'auto',
+            boxShadow: 3,
           }}
         >
           <Button
@@ -629,6 +631,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
           </Button>
 
           <Card
+            variant='outlined'
             className='menu-container'
             sx={{
               width: '100%',
@@ -671,6 +674,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             </CardContent>
           </Card>
           <Card
+            variant='outlined'
             className='menu-container'
             sx={{
               width: '100%',
@@ -707,15 +711,14 @@ function MapEditor({ editMode }: { editMode: boolean }) {
           <ButtonGroup size='large' sx={{ width: '100%' }}>
             <Button
               sx={{ width: '100%' }}
-              variant='contained'
-              color='info'
+              variant='outlined'
               onClick={handleDownloadMap}
             >
               {t('download')}
             </Button>
             <Button
               sx={{ width: '100%' }}
-              variant='contained'
+              variant='outlined'
               onClick={handleUploadMap}
             >
               {t('upload')}
@@ -724,8 +727,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
           <ButtonGroup size='large' sx={{ width: '100%' }}>
             <Button
               sx={{ width: '100%' }}
-              variant='contained'
-              color='info'
+              variant='outlined'
               onClick={handleSaveDraft}
             >
               {t('save-draft')}
@@ -746,12 +748,13 @@ function MapEditor({ editMode }: { editMode: boolean }) {
           className='menu-container'
           sx={{
             position: 'absolute',
-            top: '60px',
-            bottom: '60px',
+            top: '70px',
+            bottom: '70px',
             left: 0,
             width: '90px',
             height: 'calc(100dvh - 60px - 60px)',
             borderRadius: '0 10px 10px 0 !important',
+            boxShadow: 3,
           }}
         >
           <Box sx={{ width: '100%', overflowY: 'auto', height: '100%' }}>
@@ -760,7 +763,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                 key={tileName}
                 className='icon-box'
                 bgcolor={
-                  selectedTileType === name2TileType[tileName] ? '#c54a95' : ''
+                  selectedTileType === name2TileType[tileName] ? '#6750A4' : ''
                 }
                 onClick={() => {
                   setSelectedTileType(name2TileType[tileName]);
@@ -796,7 +799,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
               <IconBox
                 key={property}
                 className='icon-box'
-                bgcolor={selectedProperty === property ? '#c54a95' : ''}
+                bgcolor={selectedProperty === property ? '#6750A4' : ''}
                 onClick={() => {
                   setSelectedProperty(property);
                   setSelectedTileType(null);
