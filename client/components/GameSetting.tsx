@@ -168,6 +168,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
       <Card
         className='menu-container'
         sx={{
+          boxShadow: 'unset',
           mb: 1,
           '& .MuiCardHeader-root': {
             padding: '0.6rem',
@@ -257,7 +258,8 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             >
               <Typography
                 variant='h6'
-                sx={{ mr: 2, whiteSpace: 'nowrap', color: 'white' }}
+                color='primary'
+                sx={{ mr: 2, whiteSpace: 'nowrap' }}
                 align='center'
                 component={Link}
                 href={`/maps/${room.mapId}`}
@@ -440,6 +442,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
       <Card
         className='menu-container'
         sx={{
+          boxShadow: 'unset',
           mb: 2,
           '& .MuiCardHeader-root': {
             paddingTop: '0rem',

@@ -12,12 +12,12 @@ const ChatBoxContainer = styled('div')`
   position: fixed;
   bottom: 0;
   right: 0;
-  width: 300px;
+  width: 350px;
   height: 40vh;
   overflow: auto;
   z-index: 1003;
   backdrop-filter: blur(3px);
-  background-color: #D0BCFF !important;
+  background-color: #d0bcff !important;
   border-radius: 10px 0 0 0;
   box-shadow:
     0px 2px 4px -1px rgba(0, 0, 0, 0.2),
@@ -25,7 +25,10 @@ const ChatBoxContainer = styled('div')`
     0px 1px 10px 0px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
+  transition: all .2s ease-in-out;
   &.shrink {
+    opacity: 0.5;
+    width: 300px;
     height: 11vh;
     z-index: 1001; // hide behind the game replay dock
   }
@@ -41,6 +44,9 @@ const ChatBoxMessages = styled('div')`
   line-height: 1.5em;
   &.shrink {
     height: 10vh;
+  }
+  &:hover {
+    cursor: pointer;
   }
 `;
 
@@ -137,10 +143,15 @@ export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
   };
 
   return (
-    <ChatBoxContainer className={isExpand ? '' : 'shrink'}>
+    <ChatBoxContainer
+      className={isExpand ? '' : 'shrink'}
+      onClick={() => {
+        if (!isExpand) setIsExpand(true);
+      }}
+    >
       <ChatBoxMessages
         onClick={() => {
-          setIsExpand((x) => !x);
+          if (isExpand) setIsExpand(false);
         }}
       >
         {messages.map((message, index) => (

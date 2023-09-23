@@ -16,7 +16,7 @@ let theme = createTheme({
   },
 
   shape: {
-    borderRadius: 10,
+    borderRadius: 24,
   },
 });
 

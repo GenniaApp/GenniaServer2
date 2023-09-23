@@ -134,7 +134,7 @@ function Lobby() {
             >
               {t('greet') + username}
             </Typography>
-            <List className='menu-container' sx={{ width: '100%', boxShadow: 1 }}>
+            <List className='menu-container' sx={{ width: '100%' }}>
               <ListItem>
                 <ListItemIcon>
                   <StorageIcon />
@@ -166,7 +166,8 @@ function Lobby() {
               className='menu-container'
               component={Paper}
               sx={{
-                maxHeight: '50vh'
+                maxHeight: '50vh',
+                boxShadow: 'unset',
               }}
             >
               <Table
