@@ -609,7 +609,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
         <Box
           className='menu-container'
           sx={{
-            borderRadius: '10px 0 0 10px !important',
+            borderRadius: '24px 0 0 24px !important',
             padding: '10px !important',
             position: 'absolute',
             top: '70px',
@@ -755,7 +755,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             left: 0,
             width: '90px',
             height: 'calc(100dvh - 60px - 60px)',
-            borderRadius: '0 10px 10px 0 !important',
+            borderRadius: '0 24px 24px 0 !important',
             boxShadow: 3,
           }}
         >

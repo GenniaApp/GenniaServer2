@@ -35,10 +35,12 @@ function TurnsCount(props: TurnsCountProps) {
     >
       <Box
         className='menu-container'
-        style={{
+        sx={{
           display: 'flex',
           alignItems: 'center',
-          borderRadius: '0 10px 10px 0 !important',
+          borderRadius: '0 24px 24px 0 !important',
+          boxShadow: 1,
+          padding: { xs: '0.4rem !important', md: '0.6rem !important' },
         }}
       >
         <IconButton onClick={handleReturnClick} color='primary'>

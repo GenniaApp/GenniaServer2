@@ -269,7 +269,6 @@ export default function GameReplay(props: any) {
               width: 'max-content',
               height: 'min-content',
               bottom: { xs: '5px', md: '20px' },
-              borderRadius: '10px !important',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',

@@ -38,7 +38,7 @@ import MapExplorer from './game/MapExplorer';
 import { forceStartOK, SpeedOptions } from '@/lib/constants';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 
-interface GameSettingProps { }
+interface GameSettingProps {}
 
 const GameSetting: React.FC<GameSettingProps> = (props) => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -47,8 +47,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
   const [forceStart, setForceStart] = useState(false);
   const [openMapExplorer, setOpenMapExplorer] = useState(false);
 
-  const { room, socketRef, myPlayerId, myUserName, spectating } =
-    useGame();
+  const { room, socketRef, myPlayerId, myUserName, spectating } = useGame();
   const { roomDispatch, snackStateDispatch, setSpectating } = useGameDispatch();
 
   const { t } = useTranslation();
@@ -503,7 +502,6 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           width: '100%',
           height: '60px',
           fontSize: '20px',
-          borderRadius: '10px',
         }}
         onClick={handleClickForceStart}
       >
@@ -511,7 +509,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         {t('ready')}({room.forceStartNum}/
         {
           forceStartOK[
-          room.players.filter((player) => !player.spectating).length
+            room.players.filter((player) => !player.spectating).length
           ]
         }
         )

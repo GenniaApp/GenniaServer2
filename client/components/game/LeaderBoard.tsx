@@ -68,9 +68,12 @@ export default function LeaderBoard(props: LeaderBoardProps) {
             width: 'min-content',
             zIndex: '110',
             overflow: 'hidden',
-            borderRadius: '10px 0 0 10px !important',
+            borderRadius: '24px 0 0 24px !important',
             borderCollapse: 'unset', // remove border safari
             '& .MuiTableCell-root': {
+              transition: 'all .2s ease-in-out',
+              borderRadius: '24px !important',
+              border: 'unset !important',
               paddingY: {
                 xs: '0rem',
                 md: '0.5rem',
@@ -80,6 +83,9 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                 : { xs: '0.4rem', md: '0.6rem' },
             },
             boxShadow: 1
+          }}
+          onClick={() => {
+            setGameDockExpand(!gameDockExpand);
           }}
         >
           <TableHead>
@@ -157,17 +163,11 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                 )}
                 <TableCell
                   align='center'
-                  onClick={() => {
-                    setGameDockExpand(!gameDockExpand);
-                  }}
                 >
                   {player.armyCount}
                 </TableCell>
                 <TableCell
                   align='center'
-                  onClick={() => {
-                    setGameDockExpand(!gameDockExpand);
-                  }}
                 >
                   {player.landsCount}
                 </TableCell>
