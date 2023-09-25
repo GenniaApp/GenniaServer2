@@ -92,18 +92,33 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                 setGameDockExpand(!gameDockExpand);
               }}
             >
-              {warringStatesMode && (
-                <TableCell align='center'>{t('country')}</TableCell>
-              )}
-              {gameDockExpand && checkedPlayers && setCheckedPlayers && (
-                <TableCell align='center'>{t('view')}</TableCell>
-              )}
-              {gameDockExpand ? (
-                <TableCell align='center'>{t('player')}</TableCell>
-              ) : (
-                <TableCell align='center' sx={{ padding: '1px' }}></TableCell>
-              )}
-
+              <TableCell
+                align='center'
+                sx={{ display: warringStatesMode ? '' : 'none' }}
+              >
+                {t('country')}
+              </TableCell>
+              <TableCell
+                align='center'
+                sx={{
+                  display:
+                    gameDockExpand && checkedPlayers && setCheckedPlayers
+                      ? ''
+                      : 'none',
+                }}
+              >
+                {t('view')}
+              </TableCell>
+              <TableCell
+                align='center'
+                sx={{ display: gameDockExpand ? '' : 'none' }}
+              >
+                {t('player')}
+              </TableCell>
+              <TableCell
+                align='center'
+                sx={{ display: gameDockExpand ? 'none' : '', padding: '1px' }}
+              ></TableCell>
               <TableCell align='center'>{t('army')}</TableCell>
               <TableCell align='center'>{t('land')}</TableCell>
             </TableRow>
@@ -116,57 +131,60 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                     {WarringStates[player.color]}
                   </TableCell>
                 )}
-                {gameDockExpand && checkedPlayers && setCheckedPlayers && (
-                  <TableCell>
-                    <Checkbox
-                      defaultChecked={false}
-                      sx={{
-                        width: '1.5rem',
-                        height: '1.5rem',
-                      }}
-                      onChange={(event: any) => {
-                        if (event.target.checked) {
-                          let newCheckedPlayers = [
-                            ...checkedPlayers,
-                            {
-                              username: player.username,
-                              color: player.color,
-                            } as UserData,
-                          ];
-                          setCheckedPlayers(newCheckedPlayers);
-                        } else {
-                          setCheckedPlayers(
-                            checkedPlayers.filter(
-                              (p) => p.color !== player.color
-                            )
-                          );
-                        }
-                      }}
-                    />
-                  </TableCell>
-                )}
-                {gameDockExpand ? (
-                  <TableCell
+                <TableCell
+                  sx={{
+                    display:
+                      gameDockExpand && checkedPlayers && setCheckedPlayers
+                        ? ''
+                        : 'none',
+                  }}
+                >
+                  <Checkbox
+                    defaultChecked={false}
                     sx={{
-                      backgroundColor: ColorArr[player.color],
+                      width: '1.5rem',
+                      height: '1.5rem',
                     }}
-                    onClick={() => {
-                      setGameDockExpand(!gameDockExpand);
+                    onChange={(event: any) => {
+                      if (!checkedPlayers || !setCheckedPlayers) return;
+                      if (event.target.checked) {
+                        let newCheckedPlayers = [
+                          ...(checkedPlayers as UserData[]),
+                          {
+                            username: player.username,
+                            color: player.color,
+                          } as UserData,
+                        ];
+                        setCheckedPlayers(newCheckedPlayers);
+                      } else {
+                        setCheckedPlayers(
+                          checkedPlayers.filter((p) => p.color !== player.color)
+                        );
+                      }
                     }}
-                  >
-                    {player.username}
-                  </TableCell>
-                ) : (
-                  <TableCell
-                    sx={{
-                      padding: '3px',
-                      backgroundColor: ColorArr[player.color],
-                    }}
-                    onClick={() => {
-                      setGameDockExpand(!gameDockExpand);
-                    }}
-                  ></TableCell>
-                )}
+                  />
+                </TableCell>
+                <TableCell
+                  sx={{
+                    display: gameDockExpand ? '' : 'none',
+                    backgroundColor: ColorArr[player.color],
+                  }}
+                  onClick={() => {
+                    setGameDockExpand(!gameDockExpand);
+                  }}
+                >
+                  {player.username}
+                </TableCell>
+                <TableCell
+                  sx={{
+                    display: gameDockExpand ? 'none' : '',
+                    padding: '3px',
+                    backgroundColor: ColorArr[player.color],
+                  }}
+                  onClick={() => {
+                    setGameDockExpand(!gameDockExpand);
+                  }}
+                ></TableCell>
                 <TableCell
                   align='center'
                   onClick={() => {
