@@ -82,15 +82,15 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                 ? { xs: '0.6rem', md: '0.8rem' }
                 : { xs: '0.4rem', md: '0.6rem' },
             },
-            boxShadow: 1
-          }}
-          onClick={() => {
-            setGameDockExpand(!gameDockExpand);
+            boxShadow: 1,
           }}
         >
           <TableHead>
             <TableRow
               sx={{ backgroundColor: 'transparent', whiteSpace: 'nowrap' }}
+              onClick={() => {
+                setGameDockExpand(!gameDockExpand);
+              }}
             >
               {warringStatesMode && (
                 <TableCell align='center'>{t('country')}</TableCell>
@@ -150,6 +150,9 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                     sx={{
                       backgroundColor: ColorArr[player.color],
                     }}
+                    onClick={() => {
+                      setGameDockExpand(!gameDockExpand);
+                    }}
                   >
                     {player.username}
                   </TableCell>
@@ -159,15 +162,24 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                       padding: '3px',
                       backgroundColor: ColorArr[player.color],
                     }}
+                    onClick={() => {
+                      setGameDockExpand(!gameDockExpand);
+                    }}
                   ></TableCell>
                 )}
                 <TableCell
                   align='center'
+                  onClick={() => {
+                    setGameDockExpand(!gameDockExpand);
+                  }}
                 >
                   {player.armyCount}
                 </TableCell>
                 <TableCell
                   align='center'
+                  onClick={() => {
+                    setGameDockExpand(!gameDockExpand);
+                  }}
                 >
                   {player.landsCount}
                 </TableCell>
