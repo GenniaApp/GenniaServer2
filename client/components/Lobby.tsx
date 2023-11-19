@@ -141,14 +141,16 @@ function Lobby() {
                 </ListItemIcon>
                 <ListItemText
                   id='gennia-server'
-                  primary={t('gserver')}
+                  primary={
+                    <Typography color='primary'>{t('gserver')}</Typography>
+                  }
                   secondary={process.env.NEXT_PUBLIC_SERVER_API}
                 />
                 <Box sx={{ position: 'relative', right: 0 }}>
                   <Box
                     component='span'
                     sx={{
-                      bgcolor: serverStatus ? 'green' : 'red',
+                      bgcolor: serverStatus ? 'lightgreen' : 'red',
                       width: '0.7em',
                       height: '0.7em',
                       borderRadius: '50%',
@@ -156,7 +158,7 @@ function Lobby() {
                       marginRight: 1,
                     }}
                   />
-                  <Typography fontSize='0.9rem' sx={{ display: 'inline' }}>
+                  <Typography fontSize='0.9rem' color='white' sx={{ display: 'inline' }}>
                     {serverStatus ? t('online') : t('offline')}
                   </Typography>
                 </Box>
@@ -235,7 +237,7 @@ function Lobby() {
                         <TableCell align='center'>
                           <Typography
                             variant='body2'
-                            color={room.gameStarted ? 'yellow' : 'green'}
+                            color={room.gameStarted ? 'yellow' : 'lightgreen'}
                           >
                             {room.gameStarted ? t('started') : t('waiting')}
                           </Typography>

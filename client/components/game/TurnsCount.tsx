@@ -3,6 +3,7 @@ import { Box, IconButton } from '@mui/material';
 import { useTranslation } from 'next-i18next';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import PingTest from '@/components/PingTest';
+import { Typography } from '@mui/material';
 
 interface TurnsCountProps {
   count: number;
@@ -53,7 +54,9 @@ function TurnsCount(props: TurnsCountProps) {
             marginRight: '0.5em',
           }}
         >
-          {t('turn')}: {displayTurnsCount}
+          <Typography color='white' >
+            {t('turn')}: {displayTurnsCount}
+          </Typography>
         </div>
       </Box>
       {showPingTest && <PingTest />}

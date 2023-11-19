@@ -88,7 +88,7 @@ body {
     sans-serif;
   /* Quicksand,serif */
   overflow: auto;
-  background-color: #EADDFF;
+  background-color: #121826;
   /* background-image: url('/img/galaxy.jpg');
   background-position: center center;
   background-repeat: no-repeat;
@@ -169,7 +169,7 @@ a {
 }
 
 .Game {
-  --primary-color: #d7afff;
+  /* --primary-color: #d7afff; */
   position: relative;
   /* todo: if set 100% instead of 100vw, some browser will not display correctly */
   /* height: 100%; */
@@ -243,7 +243,7 @@ a {
 
 .dock {
   backdrop-filter: blur(3px);
-  background-color: #D0BCFF !important;
+  background-color: #212936 !important;
   border-radius: 0 0 24px 24px;
   display: flex !important;
   align-items: center;
@@ -274,8 +274,7 @@ a {
 
 .menu-container {
   backdrop-filter: blur(3px);
-  background-color: #D0BCFF !important;
-  color: black;
+  background-color: #212936 !important;
   border-radius: 24px;
   padding: 8px;
   margin-top: 10px;
@@ -284,7 +283,7 @@ a {
 
 .attack-button {
   backdrop-filter: blur(3px);
-  background-color: #D0BCFF !important;
+  background-color: #212936 !important;
   border-radius: 10px !important;
   padding: 8px;
   color: black;
@@ -341,6 +340,7 @@ a {
 
 .react_markdown {
   font-size: small;
+  color: white;
 }
 
 @media (min-width: 600px) {
@@ -365,13 +365,13 @@ a {
 /* 滚动条滑块样式 */
 ::-webkit-scrollbar-thumb {
   border-radius: 5px;
-  background-color: #625B71;
+  background-color: #212936;
   /* 滑块背景色 */
 }
 
 /* 滚动条滑块在鼠标悬停时的样式 */
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #6750A4;
+  background-color: #394150;
   /* 悬停时滑块背景色 */
 }
 

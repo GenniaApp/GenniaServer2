@@ -5,7 +5,7 @@ import { useTranslation } from 'next-i18next';
 import { Socket } from 'socket.io-client';
 import { Message } from '@/lib/types';
 import { ColorArr } from '@/lib/constants';
-
+import { Typography } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const ChatBoxContainer = styled('div')`
@@ -17,7 +17,7 @@ const ChatBoxContainer = styled('div')`
   overflow: auto;
   z-index: 1003;
   backdrop-filter: blur(3px);
-  background-color: #d0bcff !important;
+  background-color: #212936 !important;
   border-radius: 24px 0 0 0;
   box-shadow:
     0px 2px 4px -1px rgba(0, 0, 0, 0.2),
@@ -68,7 +68,7 @@ const ChatBoxMessage = ({ message }: { message: Message }) => {
         {message.player.username}
       </span>
       &nbsp;
-      <p style={{ display: 'inline' }}>{message.content}</p>
+      <Typography color='white' style={{ display: 'inline' }}>{message.content}</Typography>
       &nbsp;
       {message.target && (
         <>

@@ -375,7 +375,7 @@ export default function GameReplay(props: any) {
                   key={value}
                   value={value}
                   control={<Radio size='small' />}
-                  label={`${value}x`}
+                  label={<Typography color='white'>{`${value}x`}</Typography>}
                 />
               ))}
             </RadioGroup>

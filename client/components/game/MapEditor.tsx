@@ -566,7 +566,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
               padding: '13px !important',
             }}
           >
-            <Typography variant='h5'>{mapName}</Typography>
+            <Typography variant='h5' color='white'>{mapName}</Typography>
             <ReactMarkdown className='react_markdown'>
               {mapDescription}
             </ReactMarkdown>
@@ -622,6 +622,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             alignItems: 'center',
             overflow: 'auto',
             boxShadow: 3,
+            bgcolor: '#394150 !important',
           }}
         >
           <Button
@@ -757,6 +758,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
             height: 'calc(100dvh - 60px - 60px)',
             borderRadius: '0 24px 24px 0 !important',
             boxShadow: 3,
+            bgcolor: '#394150 !important',
           }}
         >
           <Box sx={{ width: '100%', overflowY: 'auto', height: '100%' }}>
@@ -765,7 +767,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                 key={tileName}
                 className='icon-box'
                 bgcolor={
-                  selectedTileType === name2TileType[tileName] ? '#6750A4' : ''
+                  selectedTileType === name2TileType[tileName] ? '#4e80f0' : '#394150'
                 }
                 onClick={() => {
                   setSelectedTileType(name2TileType[tileName]);
@@ -791,7 +793,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                     draggable={false}
                   />
                 )}
-                <Typography align='center' fontSize='5px'>
+                <Typography align='center' color='white' fontSize='8rm'>
                   {t(tileName)}
                 </Typography>
               </IconBox>
@@ -801,7 +803,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
               <IconBox
                 key={property}
                 className='icon-box'
-                bgcolor={selectedProperty === property ? '#6750A4' : ''}
+                bgcolor={selectedProperty === property ? '#4e80f0' : '#394150'}
                 onClick={() => {
                   setSelectedProperty(property);
                   setSelectedTileType(null);
@@ -832,7 +834,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                     }
                   />
                 )}
-                <Typography align='center' fontSize='5px'>
+                <Typography align='center' color='white' fontSize='8rm'>
                   {t(property)}
                 </Typography>
               </IconBox>
@@ -853,13 +855,14 @@ function MapEditor({ editMode }: { editMode: boolean }) {
                   cursor: 'pointer',
                 }}
               />
-              <Typography align='center' fontSize='5px'>
+              <Typography align='center' color='white' fontSize='8rm'>
                 {t('clear-all')}
               </Typography>
             </IconBox>
           </Box>
         </Box>
-      )}
+      )
+      }
 
       <div
         ref={mapRef}
@@ -890,7 +893,7 @@ function MapEditor({ editMode }: { editMode: boolean }) {
           });
         })}
       </div>
-    </div>
+    </div >
   );
 }
 

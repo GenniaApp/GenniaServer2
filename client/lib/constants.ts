@@ -38,7 +38,7 @@ export const SpeedOptions = [0.5, 1, 2, 3, 4];
 export const ReplaySpeedOptions = [1, 2, 4, 8];
 
 export const defaultBgcolor = '#495468';
-export const notRevealedFill = '#5d6779';
+export const notRevealedFill = '#3b414f';
 export const notOwnedArmyFill = '#808080';
 export const notOwnedCityFill = '#757575';
 export const MountainFill = '#bbbbbb';
