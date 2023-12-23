@@ -38,7 +38,7 @@ interface GameContext {
   myPlayerId: string;
   myUserName: string;
   isSurrendered: boolean;
-  spectating: boolean;
+  team: number;
   turnsCount: number;
   leaderBoardData: LeaderBoardTable | null;
   dialogContent: DialogContentData;
@@ -57,7 +57,7 @@ interface GameDispatch {
   setMyPlayerId: React.Dispatch<React.SetStateAction<string>>;
   setMyUserName: React.Dispatch<React.SetStateAction<string>>;
   setIsSurrendered: React.Dispatch<React.SetStateAction<boolean>>;
-  setSpectating: React.Dispatch<React.SetStateAction<boolean>>;
+  setTeam: React.Dispatch<React.SetStateAction<number>>;
   setTurnsCount: React.Dispatch<React.SetStateAction<number>>;
   setLeaderBoardData: React.Dispatch<any>;
   setDialogContent: React.Dispatch<React.SetStateAction<DialogContentData>>;
@@ -96,7 +96,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
   const [myPlayerId, setMyPlayerId] = useState('');
   const [myUserName, setMyUserName] = useState('');
   const [isSurrendered, setIsSurrendered] = useState<boolean>(false);
-  const [spectating, setSpectating] = useState<boolean>(false);
+  const [team, setTeam] = useState<number>(0);
   const [initGameInfo, setInitGameInfo] = useState<initGameInfo | null>(null);
   const [turnsCount, setTurnsCount] = useState(0);
   const [leaderBoardData, setLeaderBoardData] = useState(null);
@@ -125,7 +125,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
         myPlayerId,
         myUserName,
         isSurrendered,
-        spectating,
+        team,
         turnsCount,
         leaderBoardData,
         dialogContent,
@@ -145,7 +145,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
           setMyPlayerId,
           setMyUserName,
           setIsSurrendered,
-          setSpectating,
+          setTeam,
           setTurnsCount,
           setLeaderBoardData,
           setDialogContent,

@@ -44,7 +44,7 @@ class Block extends Point {
   }
 
   enterUnit(player: any, unit: number): void {
-    if (this.player === player) {
+    if (this.player.team === player.team) {
       this.unit += unit;
     } else {
       if (this.unit >= unit) {

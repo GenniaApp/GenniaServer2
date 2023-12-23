@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import { Prisma, PrismaClient } from '@prisma/client'
 
-import { ColorArr, forceStartOK } from './lib/constants';
+import { ColorArr, MaxTeamNum, forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
 import { Room, initGameInfo, CustomMapData, MapDiffData, LeaderBoardTable, LeaderBoardRow } from './lib/types';
 import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
@@ -307,7 +307,7 @@ function handleNeutralized(room: Room, player: Player) {
 async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
   try {
     io.in(room.id).emit('room_message', player, 'quit.');
-    if (room.gameStarted && !player.spectating) {
+    if (room.gameStarted && !player.spectating()) {
       player.disconnected = true;
       handleNeutralized(room, player);
     } else {
@@ -334,7 +334,7 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
 
 async function checkForcedStart(room: Room, io: Server) {
   let forceStartNum = forceStartOK[
-    room.players.filter((player) => !player.spectating).length
+    room.players.filter((player) => !player.spectating()).length
   ]
 
   if (!room.gameStarted && room.forceStartNum >= forceStartNum) {
@@ -410,27 +410,31 @@ async function handleGame(room: Room, io: Server) {
       try {
         room.players.forEach((player) => {
           if (!room.map) throw new Error('king is null');
-          if (!player.isDead && !player.spectating && !player.disconnected) {
+          if (!player.isDead && !player.spectating() && !player.disconnected) {
             let block = room.map.getBlock(player.king);
             let blockPlayerIndex = getPlayerIndex(room, block.player?.id);
             if (blockPlayerIndex !== -1) {
               if (block.player !== player && player.isDead === false) {
-                console.log(block.player.username, 'captured', player.username);
-                lastAlivePlayer = block.player;
-                io.in(room.id).emit('captured', block.player.minify(), player.minify());
-                let player_socket = io.sockets.sockets.get(player.socket_id);
-                if (player_socket) {
-                  player_socket.emit('game_over', block.player.minify()); // captured by block.player
+                if (block.player.team === player.team) {
+                  block.player = player;
                 } else {
-                  throw new Error('socket is null');
+                  console.log(block.player.username, 'captured', player.username);
+                  lastAlivePlayer = block.player;
+                  io.in(room.id).emit('captured', block.player.minify(), player.minify());
+                  let player_socket = io.sockets.sockets.get(player.socket_id);
+                  if (player_socket) {
+                    player_socket.emit('game_over', block.player.minify()); // captured by block.player
+                  } else {
+                    throw new Error('socket is null');
+                  }
+                  player.isDead = true;
+                  player.land.forEach((block) => {
+                    room.map.transferBlock(block, room.players[blockPlayerIndex]);
+                    room.players[blockPlayerIndex].winLand(block);
+                  });
+                  room.map.getBlock(player.king).kingBeDominated();
+                  player.land.length = 0;
                 }
-                player.isDead = true;
-                player.land.forEach((block) => {
-                  room.map.transferBlock(block, room.players[blockPlayerIndex]);
-                  room.players[blockPlayerIndex].winLand(block);
-                });
-                room.map.getBlock(player.king).kingBeDominated();
-                player.land.length = 0;
               } else if (player.operatedTurn === 0 && player.operatedTurn + 160 <= room.map.turn) {
                 // if player is not operated for 160/2 turns, it will be neutralized
                 handleNeutralized(room, player);
@@ -441,10 +445,10 @@ async function handleGame(room: Room, io: Server) {
         });
 
         let leaderBoardData: LeaderBoardTable = room.players
-          .filter((player) => !player.spectating)
+          .filter((player) => !player.spectating())
           .map((player) => {
             let data = room.map.getTotal(player);
-            return [player.color, data.army, data.land] as LeaderBoardRow;
+            return [player.color, player.team, data.army, data.land] as LeaderBoardRow;
           })
           .sort((a, b) => {
             return b[1] - a[1] || b[2] - a[2];
@@ -455,7 +459,7 @@ async function handleGame(room: Room, io: Server) {
         for (let socket of room_sockets) {
           let playerIndex = getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1 && room.players[playerIndex].patchView && !room.players[playerIndex].disconnected) {
-            if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar || room.players[playerIndex].spectating) {
+            if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar || room.players[playerIndex].spectating()) {
               await room.players[playerIndex].patchView.patch(room.map.map);
             } else {
               await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
@@ -471,7 +475,7 @@ async function handleGame(room: Room, io: Server) {
 
         let countAlive = 0;
         for (let player of room.players) {
-          if (!player.isDead && !player.spectating) {
+          if (!player.isDead && !player.spectating()) {
             lastAlivePlayer = player;
             ++countAlive;
           }
@@ -596,7 +600,14 @@ io.on('connection', async (socket) => {
     });
     let playerColor = availableColor[0];
 
-    player = new Player(playerId, socket.id, username, playerColor);
+    let allTeam = Array.from({ length: MaxTeamNum }, (_, i) => i + 1);
+    let occupiedTeam = room.players.map((player) => player.team);
+    let availableTeam = allTeam.filter((team) => {
+      return !occupiedTeam.includes(team);
+    })
+    let playerTeam = availableTeam[0];
+
+    player = new Player(playerId, socket.id, username, playerColor, playerTeam);
     console.log(`Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId} color ${playerColor}`);
 
     if (room.players.length === 0) {
@@ -608,7 +619,7 @@ io.on('connection', async (socket) => {
     let message = 'joined the room.';
 
     if (room.gameStarted) {
-      player.spectating = true;
+      player.setSpectate();
       let initGameInfo: initGameInfo = {
         king: { x: 0, y: 0 }, // spectator's king is null
         mapWidth: room.map.width,
@@ -640,17 +651,23 @@ io.on('connection', async (socket) => {
     socket.emit('update_room', room);
   });
 
-  socket.on('set_spectating', async (spectating: boolean) => {
-    player.spectating = spectating;
+  socket.on('set_team', async (team: number) => {
+    if (team <= 0 || team > 13) {
+      socket.emit('error', 'Unable to change team', 'Team must be between 1 and 12 or spectators');
+      return;
+    }
+    player.team = team;
 
-    // set spectate will cancel force start
-    let playerIndex = getPlayerIndex(room, player.id);
-    if (room.players[playerIndex].forceStart === true) {
-      room.players[playerIndex].forceStart = false;
-      --room.forceStartNum;
+    if (player.spectating()) {
+      // set spectate will cancel force start
+      let playerIndex = getPlayerIndex(room, player.id);
+      if (room.players[playerIndex].forceStart === true) {
+        room.players[playerIndex].forceStart = false;
+        --room.forceStartNum;
+      }
     }
     io.in(room.id).emit('update_room', room);
-    io.in(room.id).emit('room_message', player.minify(), `set spectate to ${spectating}`);
+    io.in(room.id).emit('room_message', player.minify(), player.spectating() ? 'became a spectator.' : `change to team ${team}`);
     checkForcedStart(room, io);
   });
 
@@ -790,7 +807,7 @@ io.on('connection', async (socket) => {
   socket.on('force_start', async () => {
     try {
       let playerIndex = getPlayerIndex(room, player.id);
-      if (!room.players[playerIndex].spectating) {
+      if (!room.players[playerIndex].spectating()) {
         if (room.players[playerIndex].forceStart === true) {
           room.players[playerIndex].forceStart = false;
           --room.forceStartNum;

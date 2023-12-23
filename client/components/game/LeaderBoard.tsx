@@ -52,8 +52,8 @@ export default function LeaderBoard(props: LeaderBoardProps) {
     return {
       color: row[0],
       username: fetchUsernameByColor(row[0]),
-      armyCount: row[1],
-      landsCount: row[2],
+      armyCount: row[2],
+      landsCount: row[3],
     };
   });
   return (

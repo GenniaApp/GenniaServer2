@@ -59,7 +59,7 @@ function GamingRoom() {
     setSelectedMapTileInfo,
     setInitGameInfo,
     setIsSurrendered,
-    setSpectating,
+    setTeam,
     setMyUserName,
   } = useGameDispatch();
 
@@ -216,7 +216,7 @@ function GamingRoom() {
           (player) => player.id === myPlayerIdRef.current
         );
         if (player) {
-          setSpectating(player.spectating);
+          setTeam(player.team);
           console.log('set spectating');
         }
       }

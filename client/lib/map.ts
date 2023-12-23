@@ -147,7 +147,7 @@ class GameMap {
     for (let i = 0; i < this.players.length; ++i) {
       let pos = null;
       if (this.players[i].king) continue;
-      if (this.players[i].spectating) continue;
+      if (this.players[i].spectating()) continue;
       let attempts = 0;
       const maxAttempts = 15;
       while (true) {
@@ -221,7 +221,7 @@ class GameMap {
     // Assign kings to players who is not spectating
     for (let i = 0; i < players.length; i++) {
       if (i < kings.length) {
-        if (players[i].spectating) continue;
+        if (players[i].spectating()) continue;
         kings[i].initKing(players[i]);
         if (map.revealKing) kings[i].isAlwaysRevealed = true;
         players[i].initKing(kings[i]);
@@ -453,7 +453,7 @@ class GameMap {
       for (let j = 0; j < this.height; j++) {
         const point = new Point(i, j);
         const origin = this.getBlock(point);
-        if (origin.player === player) {
+        if (origin.player.team === player.team) {
           const block = new Block(
             origin.x,
             origin.y,

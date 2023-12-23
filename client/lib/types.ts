@@ -31,6 +31,7 @@ export interface Route {
 
 export type LeaderBoardRow = [
   number, // color
+  number, // team
   number, // armyCount
   number, // landCount
 ];
