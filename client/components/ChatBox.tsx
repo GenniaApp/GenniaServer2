@@ -80,7 +80,7 @@ const ChatBoxMessage = ({ message }: { message: Message }) => {
           >
             {message.target.username}
           </span>
-          <p style={{ display: 'inline' }}>.</p>
+          <Typography color='white' style={{ display: 'inline' }}>.</Typography>
         </>
       )}
       <br />
