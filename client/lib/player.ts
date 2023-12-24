@@ -1,6 +1,7 @@
 import Block from './block';
 import MapDiff from './map-diff';
 import { UserData, TileType } from './types';
+import { MaxTeamNum } from './constants';
 
 class Player {
   constructor(
@@ -8,6 +9,7 @@ class Player {
     public socket_id: string,
     public username: string,
     public color: number, // see lib/colors
+    public team: number,
     public isRoomHost: boolean = false,
     public forceStart: boolean = false, // if ready
     public isDead: boolean = false,
@@ -15,11 +17,13 @@ class Player {
     public land: Block[] = [],
     public king: Block | null = null,
     public patchView: MapDiff | null = null,
-    public spectating: boolean = false,
     // when player disconnect, don't delete to keep game data
     // clear disconnect player when game ended
     public disconnected: boolean = false,
   ) { }
+
+  setSpectate(): void { this.team = MaxTeamNum + 1; }
+  spectating(): boolean { return this.team === MaxTeamNum + 1; }
 
   minify(withId?: boolean): UserData {
     return withId

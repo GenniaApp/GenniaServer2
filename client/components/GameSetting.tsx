@@ -22,6 +22,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import ClearIcon from '@mui/icons-material/Clear';
 import ShareIcon from '@mui/icons-material/Share';
 import TerrainIcon from '@mui/icons-material/Terrain';
@@ -35,10 +36,26 @@ import SliderBox from './SliderBox';
 import PlayerTable from './PlayerTable';
 import MapExplorer from './game/MapExplorer';
 
-import { forceStartOK, SpeedOptions } from '@/lib/constants';
+import { forceStartOK, MaxTeamNum, SpeedOptions } from '@/lib/constants';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 
 interface GameSettingProps {}
+
+const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
+  '& .MuiToggleButtonGroup-grouped': {
+    margin: theme.spacing(0.5),
+    border: 0,
+    '&.Mui-disabled': {
+      border: 0,
+    },
+    '&:not(:first-of-type)': {
+      borderRadius: theme.shape.borderRadius,
+    },
+    '&:first-of-type': {
+      borderRadius: theme.shape.borderRadius,
+    },
+  },
+}));
 
 const GameSetting: React.FC<GameSettingProps> = (props) => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -47,8 +64,8 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
   const [forceStart, setForceStart] = useState(false);
   const [openMapExplorer, setOpenMapExplorer] = useState(false);
 
-  const { room, socketRef, myPlayerId, myUserName, spectating } = useGame();
-  const { roomDispatch, snackStateDispatch, setSpectating } = useGameDispatch();
+  const { room, socketRef, myPlayerId, myUserName, team } = useGame();
+  const { roomDispatch, snackStateDispatch } = useGameDispatch();
 
   const { t } = useTranslation();
 
@@ -74,6 +91,10 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
       });
     }
     socketRef.current.emit('change_room_setting', 'roomName', name);
+  };
+
+  const handleTeamChange = (_: Event, newTeam: any) => {
+    socketRef.current.emit('set_team', newTeam);
   };
 
   const handleOpenMapExplorer = () => {
@@ -282,12 +303,45 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             textColor='inherit'
             aria-label='game settings tabs'
           >
+            <Tab label={t('team') + '(beta)'} />
             <Tab label={t('game')} />
             <Tab label={t('map')} />
             <Tab label={t('terrain')} />
             <Tab label={t('modifiers')} />
           </Tabs>
           <TabPanel value={tabIndex} index={0}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+              <Typography
+                sx={{
+                  mr: 2,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {t('select-your-team')}
+              </Typography>
+              <StyledToggleButtonGroup
+                color='primary'
+                value={team}
+                exclusive
+                // @ts-ignore
+                onChange={handleTeamChange}
+                aria-label='select-team'
+                sx={{ maxWidth: '100%', overflowX: 'auto' }}
+              >
+                {Array.from({ length: MaxTeamNum }, (_, i) => i + 1).map(
+                  (value) => (
+                    <ToggleButton key={value} value={value}>
+                      <Typography>{value}</Typography>
+                    </ToggleButton>
+                  )
+                )}
+                <ToggleButton key={MaxTeamNum + 1} value={MaxTeamNum + 1}>
+                  <Typography>spectators</Typography>
+                </ToggleButton>
+              </StyledToggleButtonGroup>
+            </Box>
+          </TabPanel>
+          <TabPanel value={tabIndex} index={1}>
             <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
               <Button
                 variant='contained'
@@ -330,7 +384,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
               </Box>
             </Box>
           </TabPanel>
-          <TabPanel value={tabIndex} index={1}>
+          <TabPanel value={tabIndex} index={2}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <SliderBox
                 label={t('height')} // game's width and height is reversed
@@ -346,7 +400,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
               />
             </Box>
           </TabPanel>
-          <TabPanel value={tabIndex} index={2}>
+          <TabPanel value={tabIndex} index={3}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <SliderBox
                 label={t('mountain')}
@@ -371,7 +425,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
               />
             </Box>
           </TabPanel>
-          <TabPanel value={tabIndex} index={3}>
+          <TabPanel value={tabIndex} index={4}>
             <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
               <SliderBox
                 label={t('max-player-num')}
@@ -461,19 +515,6 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
               <Typography color='primary' fontWeight='bold'>
                 {t('players')}
               </Typography>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={spectating}
-                    // @ts-ignore
-                    onChange={() => {
-                      setSpectating(!spectating);
-                      socketRef.current.emit('set_spectating', !spectating);
-                    }}
-                  />
-                }
-                label={t('spectate')}
-              />
             </Box>
           }
           sx={{ padding: 'sm' }}
@@ -496,7 +537,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
       <Button
         variant='contained'
         color={forceStart ? 'primary' : 'secondary'}
-        disabled={spectating}
+        disabled={team === MaxTeamNum + 1}
         size='large'
         sx={{
           width: '100%',

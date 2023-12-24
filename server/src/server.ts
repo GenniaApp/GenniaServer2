@@ -7,9 +7,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client';
 
-import { ColorArr, forceStartOK } from './lib/constants';
+import { ColorArr, MaxTeamNum, forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
 import { Room, initGameInfo, CustomMapData, MapDiffData, LeaderBoardTable, LeaderBoardRow } from './lib/types';
 import { getPlayerIndex, getPlayerIndexBySocket } from './lib/utils';
@@ -50,7 +50,6 @@ app.get('/create_room', async (req: Request, res: Response) => {
   }
 });
 
-
 app.get('/get_replay/:replayId', async (req: Request, res: Response) => {
   const replayId = req.params.replayId;
   const replayFilePath = path.join(process.cwd(), 'records', `${replayId}.json`);
@@ -85,7 +84,7 @@ app.get('/maps', async (req, res) => {
       starCount: true,
     },
   });
-  res.json(maps)
+  res.json(maps);
 });
 
 app.post('/maps', async (req, res) => {
@@ -112,8 +111,8 @@ app.get('/maps/:id', async (req, res) => {
     where: { id: req.params.id },
     data: {
       views: {
-        increment: 1
-      }
+        increment: 1,
+      },
     },
   });
   map.mapTilesData = JSON.parse(map.mapTilesData);
@@ -205,10 +204,7 @@ app.get('/search', async (req: Request, res: Response) => {
 
   const searchedMaps = await prisma.customMapData.findMany({
     where: {
-      OR: [
-        { name: { contains: searchTerm } },
-        { id: { equals: searchTerm } },
-      ],
+      OR: [{ name: { contains: searchTerm } }, { id: { equals: searchTerm } }],
     },
     select: {
       id: true,
@@ -275,7 +271,7 @@ app.get('/starredMaps', async (req, res) => {
     select: { mapId: true },
   });
 
-  res.json(starredMaps.map(starUsers => starUsers.mapId));
+  res.json(starredMaps.map((starUsers) => starUsers.mapId));
 });
 
 const server = app.listen(process.env.PORT, () => {
@@ -301,13 +297,12 @@ function handleNeutralized(room: Room, player: Player) {
   player.land.length = 0;
   player.king = null;
   player.isDead = true;
-
 }
 
 async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
   try {
     io.in(room.id).emit('room_message', player, 'quit.');
-    if (room.gameStarted && !player.spectating) {
+    if (room.gameStarted && !player.spectating()) {
       player.disconnected = true;
       handleNeutralized(room, player);
     } else {
@@ -333,9 +328,7 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
 }
 
 async function checkForcedStart(room: Room, io: Server) {
-  let forceStartNum = forceStartOK[
-    room.players.filter((player) => !player.spectating).length
-  ]
+  let forceStartNum = forceStartOK[room.players.filter((player) => !player.spectating()).length];
 
   if (!room.gameStarted && room.forceStartNum >= forceStartNum) {
     await handleGame(room, io);
@@ -359,13 +352,12 @@ async function handleGame(room: Room, io: Server) {
 
       const customMapData = {
         ...data,
-        mapTilesData: JSON.parse(data.mapTilesData)
-      }
+        mapTilesData: JSON.parse(data.mapTilesData),
+      };
       room.map = GameMap.from_custom_map(customMapData, room.players, room.revealKing);
-
     } else {
-      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 12 * room.mapWidth)
-      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 12 * room.mapHeight)
+      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 12 * room.mapWidth);
+      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 12 * room.mapHeight);
       room.map = new GameMap(
         'random_map_id',
         'random_map_name',
@@ -410,27 +402,31 @@ async function handleGame(room: Room, io: Server) {
       try {
         room.players.forEach((player) => {
           if (!room.map) throw new Error('king is null');
-          if (!player.isDead && !player.spectating && !player.disconnected) {
+          if (!player.isDead && !player.spectating() && !player.disconnected) {
             let block = room.map.getBlock(player.king);
             let blockPlayerIndex = getPlayerIndex(room, block.player?.id);
             if (blockPlayerIndex !== -1) {
               if (block.player !== player && player.isDead === false) {
-                console.log(block.player.username, 'captured', player.username);
-                lastAlivePlayer = block.player;
-                io.in(room.id).emit('captured', block.player.minify(), player.minify());
-                let player_socket = io.sockets.sockets.get(player.socket_id);
-                if (player_socket) {
-                  player_socket.emit('game_over', block.player.minify()); // captured by block.player
+                if (block.player.team === player.team) {
+                  block.player = player;
                 } else {
-                  throw new Error('socket is null');
+                  console.log(block.player.username, 'captured', player.username);
+                  lastAlivePlayer = block.player;
+                  io.in(room.id).emit('captured', block.player.minify(), player.minify());
+                  let player_socket = io.sockets.sockets.get(player.socket_id);
+                  if (player_socket) {
+                    player_socket.emit('game_over', block.player.minify()); // captured by block.player
+                  } else {
+                    throw new Error('socket is null');
+                  }
+                  player.isDead = true;
+                  player.land.forEach((block) => {
+                    room.map.transferBlock(block, room.players[blockPlayerIndex]);
+                    room.players[blockPlayerIndex].winLand(block);
+                  });
+                  room.map.getBlock(player.king).kingBeDominated();
+                  player.land.length = 0;
                 }
-                player.isDead = true;
-                player.land.forEach((block) => {
-                  room.map.transferBlock(block, room.players[blockPlayerIndex]);
-                  room.players[blockPlayerIndex].winLand(block);
-                });
-                room.map.getBlock(player.king).kingBeDominated();
-                player.land.length = 0;
               } else if (player.operatedTurn === 0 && player.operatedTurn + 160 <= room.map.turn) {
                 // if player is not operated for 160/2 turns, it will be neutralized
                 handleNeutralized(room, player);
@@ -441,10 +437,10 @@ async function handleGame(room: Room, io: Server) {
         });
 
         let leaderBoardData: LeaderBoardTable = room.players
-          .filter((player) => !player.spectating)
+          .filter((player) => !player.spectating())
           .map((player) => {
             let data = room.map.getTotal(player);
-            return [player.color, data.army, data.land] as LeaderBoardRow;
+            return [player.color, player.team, data.army, data.land] as LeaderBoardRow;
           })
           .sort((a, b) => {
             return b[1] - a[1] || b[2] - a[2];
@@ -455,7 +451,11 @@ async function handleGame(room: Room, io: Server) {
         for (let socket of room_sockets) {
           let playerIndex = getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1 && room.players[playerIndex].patchView && !room.players[playerIndex].disconnected) {
-            if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar || room.players[playerIndex].spectating) {
+            if (
+              (room.deathSpectator && room.players[playerIndex].isDead) ||
+              !room.fogOfWar ||
+              room.players[playerIndex].spectating()
+            ) {
               await room.players[playerIndex].patchView.patch(room.map.map);
             } else {
               await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
@@ -469,18 +469,21 @@ async function handleGame(room: Room, io: Server) {
         room.map.updateTurn();
         room.map.updateUnit();
 
-        let countAlive = 0;
+        let aliveTeams = [];
         for (let player of room.players) {
-          if (!player.isDead && !player.spectating) {
-            lastAlivePlayer = player;
-            ++countAlive;
+          if (!player.isDead && !player.spectating() && !aliveTeams.includes(player.team)) {
+            aliveTeams.push(player.team);
           }
         }
         // Game over, Find Winner
-        if (countAlive <= 1) {
-          if (!lastAlivePlayer) throw new Error('lastAlivePlayer is null');
+        if (aliveTeams.length <= 1) {
+          if (!aliveTeams.length) return;
           let link = room.gameRecord.outPutToJSON(process.cwd());
-          io.in(room.id).emit('game_ended', lastAlivePlayer.minify(true), link); // winner
+          io.in(room.id).emit(
+            'game_ended',
+            room.players.filter((x) => x.team === aliveTeams[0]).map((x) => x.minify(true)),
+            link
+          ); // winner
           console.log('Game ended, replay link: ', link);
 
           room.gameStarted = false;
@@ -596,7 +599,14 @@ io.on('connection', async (socket) => {
     });
     let playerColor = availableColor[0];
 
-    player = new Player(playerId, socket.id, username, playerColor);
+    let allTeam = Array.from({ length: MaxTeamNum }, (_, i) => i + 1);
+    let occupiedTeam = room.players.map((player) => player.team);
+    let availableTeam = allTeam.filter((team) => {
+      return !occupiedTeam.includes(team);
+    });
+    let playerTeam = availableTeam[0];
+
+    player = new Player(playerId, socket.id, username, playerColor, playerTeam);
     console.log(`Connect! Socket ${socket.id}, room ${roomId} name ${username} playerId ${playerId} color ${playerColor}`);
 
     if (room.players.length === 0) {
@@ -608,7 +618,7 @@ io.on('connection', async (socket) => {
     let message = 'joined the room.';
 
     if (room.gameStarted) {
-      player.spectating = true;
+      player.setSpectate();
       let initGameInfo: initGameInfo = {
         king: { x: 0, y: 0 }, // spectator's king is null
         mapWidth: room.map.width,
@@ -631,7 +641,6 @@ io.on('connection', async (socket) => {
     // }
   }
 
-
   // ====================================
   // set up socket event listeners
   // ====================================
@@ -640,17 +649,23 @@ io.on('connection', async (socket) => {
     socket.emit('update_room', room);
   });
 
-  socket.on('set_spectating', async (spectating: boolean) => {
-    player.spectating = spectating;
+  socket.on('set_team', async (team) => {
+    if ((team as number) <= 0 || (team as number) > MaxTeamNum + 1) {
+      socket.emit('error', 'Unable to change team', `Team must be between 1 and ${MaxTeamNum} or spectators`);
+      return;
+    }
+    player.team = team as number;
 
-    // set spectate will cancel force start
-    let playerIndex = getPlayerIndex(room, player.id);
-    if (room.players[playerIndex].forceStart === true) {
-      room.players[playerIndex].forceStart = false;
-      --room.forceStartNum;
+    if (player.spectating()) {
+      // set spectate will cancel force start
+      let playerIndex = getPlayerIndex(room, player.id);
+      if (room.players[playerIndex].forceStart === true) {
+        room.players[playerIndex].forceStart = false;
+        --room.forceStartNum;
+      }
     }
     io.in(room.id).emit('update_room', room);
-    io.in(room.id).emit('room_message', player.minify(), `set spectate to ${spectating}`);
+    io.in(room.id).emit('room_message', player.minify(), player.spectating() ? 'became a spectator.' : `change to team ${team}.`);
     checkForcedStart(room, io);
   });
 
@@ -673,7 +688,6 @@ io.on('connection', async (socket) => {
     await handleNeutralized(room, player);
 
     io.in(room.id).emit('room_message', player.minify(), 'surrendered');
-
   });
 
   socket.on('change_host', async (playerId) => {
@@ -759,8 +773,7 @@ io.on('connection', async (socket) => {
           io.in(room.id).emit('update_room', room);
           if (property === 'mapId') {
             io.in(room.id).emit('room_message', player.minify(), `changed mapName to ${room.mapName}.`);
-          }
-          else {
+          } else {
             io.in(room.id).emit('room_message', player.minify(), `changed ${property} to ${value}.`);
           }
         } else {
@@ -790,7 +803,7 @@ io.on('connection', async (socket) => {
   socket.on('force_start', async () => {
     try {
       let playerIndex = getPlayerIndex(room, player.id);
-      if (!room.players[playerIndex].spectating) {
+      if (!room.players[playerIndex].spectating()) {
         if (room.players[playerIndex].forceStart === true) {
           room.players[playerIndex].forceStart = false;
           --room.forceStartNum;
@@ -802,7 +815,6 @@ io.on('connection', async (socket) => {
       }
 
       checkForcedStart(room, io);
-
     } catch (e: any) {
       console.log(e.stack);
       console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
@@ -843,13 +855,17 @@ io.on('connection', async (socket) => {
           room.players[playerIndex].operatedTurn = room.map.turn;
           socket.emit('attack_success', from, to, room.map.turn);
         } else {
-          socket.emit('attack_failure', from, to, `Invalid operation: ${player.operatedTurn} ${room.map.turn} ${room.map.commendable(player, from, to)}`);
+          socket.emit(
+            'attack_failure',
+            from,
+            to,
+            `Invalid operation: ${player.operatedTurn} ${room.map.turn} ${room.map.commendable(player, from, to)}`
+          );
         }
       }
     } catch (e: any) {
       console.log(e.stack);
       console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
     }
-
   });
 });

@@ -5,11 +5,7 @@ import { useTranslation } from 'next-i18next';
 import ChatBox from '@/components/ChatBox';
 import Navbar from '@/components/Navbar';
 
-import {
-  Snackbar,
-  Alert,
-  AlertTitle,
-} from '@mui/material';
+import { Snackbar, Alert, AlertTitle } from '@mui/material';
 
 import {
   Room,
@@ -59,7 +55,7 @@ function GamingRoom() {
     setSelectedMapTileInfo,
     setInitGameInfo,
     setIsSurrendered,
-    setSpectating,
+    setTeam,
     setMyUserName,
   } = useGameDispatch();
 
@@ -184,7 +180,7 @@ function GamingRoom() {
       audio.play(); // todo: fix safari NotAllowedError... the user denied permission.
       setInitGameInfo(initGameInfo);
       setIsSurrendered(false);
-      setDialogContent([null, '', null]);
+      setDialogContent([[null], '', null]);
       setOpenOverDialog(false);
 
       setSelectedMapTileInfo({
@@ -216,8 +212,8 @@ function GamingRoom() {
           (player) => player.id === myPlayerIdRef.current
         );
         if (player) {
-          setSpectating(player.spectating);
-          console.log('set spectating');
+          setTeam(player.team);
+          console.log('set team', player.team);
         }
       }
       roomDispatch({ type: 'update', payload: room });
@@ -252,10 +248,10 @@ function GamingRoom() {
       console.log(`game_over: ${capturedBy.username}`);
       setOpenOverDialog(true);
       setRoomUiStatus(RoomUiStatus.gameOverConfirm);
-      setDialogContent([capturedBy, 'game_over', null]);
+      setDialogContent([[capturedBy], 'game_over', null]);
     });
-    socket.on('game_ended', (winner: UserData, replayLink: string) => {
-      console.log(`game_ended: ${winner.username} ${replayLink}`);
+    socket.on('game_ended', (winner: [UserData], replayLink: string) => {
+      console.log(`game_ended: ${winner.map((x) => x.username)} ${replayLink}`);
       setDialogContent([winner, 'game_ended', replayLink]);
       setOpenOverDialog(true);
       setRoomUiStatus(RoomUiStatus.gameOverConfirm);
@@ -376,7 +372,6 @@ function GamingRoom() {
 
   return (
     <div className='app-container'>
-
       <Snackbar
         open={snackState.open}
         autoHideDuration={snackState.duration}
