@@ -104,8 +104,8 @@ export const mapData: MapData = [
 
 // playersState Object<[id, name, color]>
 export const players = [
-  new Player('id1', 'socket_id1', 'name1', 0),
-  new Player('id2', 'socket_id2', 'name2', 0),
+  new Player('id1', 'socket_id1', 'name1', 0, 1),
+  new Player('id2', 'socket_id2', 'name2', 0, 2),
 ];
 
 export const leaderBoardData = [

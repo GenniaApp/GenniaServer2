@@ -12,6 +12,7 @@ import { useTranslation } from 'next-i18next';
 import { useGame } from '@/context/GameContext';
 import { useRouter } from 'next/router';
 import { RoomUiStatus } from '@/lib/types';
+import { MaxTeamNum } from '@/lib/constants';
 
 export default function SurrenderDialog({
   isOpen,
@@ -22,7 +23,7 @@ export default function SurrenderDialog({
   setOpen: any;
   handleSurrender: () => void;
 }) {
-  const { openOverDialog, isSurrendered, spectating, roomUiStatus } = useGame();
+  const { openOverDialog, isSurrendered, team, roomUiStatus } = useGame();
   const { t } = useTranslation();
   const router = useRouter();
 
@@ -45,7 +46,7 @@ export default function SurrenderDialog({
 
   const showExitTitle =
     isSurrendered ||
-    spectating ||
+    team === MaxTeamNum + 1 ||
     roomUiStatus === RoomUiStatus.gameOverConfirm;
 
   const handleCloseSurrender = useCallback(() => {
