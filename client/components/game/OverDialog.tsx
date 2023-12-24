@@ -32,11 +32,16 @@ export default function OverDialog() {
   if (userData) {
     if (game_status === 'game_over') {
       title = t('game-over');
-      subtitle = `${t('captured-by')}: ${userData.username}`;
+      subtitle = `${t('captured-by')}: ${userData[0]?.username}`;
     }
     if (game_status === 'game_ended') {
-      title = userData.id === myPlayerId ? t('you-win') : t('game-over');
-      subtitle = `${t('winner')}: ${userData.username}!`;
+      title =
+        userData.filter((x) => x?.id === myPlayerId).length > 0
+          ? t('you-win')
+          : t('game-over');
+      subtitle = `${t('winner')}: ${userData
+        .map((x) => x?.username)
+        .join(', ')}!`;
     }
   }
 

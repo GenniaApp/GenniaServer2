@@ -22,6 +22,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import ClearIcon from '@mui/icons-material/Clear';
 import ShareIcon from '@mui/icons-material/Share';
 import TerrainIcon from '@mui/icons-material/Terrain';
@@ -39,6 +40,22 @@ import { forceStartOK, MaxTeamNum, SpeedOptions } from '@/lib/constants';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 
 interface GameSettingProps {}
+
+const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
+  '& .MuiToggleButtonGroup-grouped': {
+    margin: theme.spacing(0.5),
+    border: 0,
+    '&.Mui-disabled': {
+      border: 0,
+    },
+    '&:not(:first-of-type)': {
+      borderRadius: theme.shape.borderRadius,
+    },
+    '&:first-of-type': {
+      borderRadius: theme.shape.borderRadius,
+    },
+  },
+}));
 
 const GameSetting: React.FC<GameSettingProps> = (props) => {
   const [tabIndex, setTabIndex] = useState(0);
@@ -286,7 +303,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             textColor='inherit'
             aria-label='game settings tabs'
           >
-            <Tab label={t('team')} />
+            <Tab label={t('team') + '(beta)'} />
             <Tab label={t('game')} />
             <Tab label={t('map')} />
             <Tab label={t('terrain')} />
@@ -302,7 +319,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
               >
                 {t('select-your-team')}
               </Typography>
-              <ToggleButtonGroup
+              <StyledToggleButtonGroup
                 color='primary'
                 value={team}
                 exclusive
@@ -319,9 +336,9 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                   )
                 )}
                 <ToggleButton key={MaxTeamNum + 1} value={MaxTeamNum + 1}>
-                  <Typography>{t('spectator')}</Typography>
+                  <Typography>spectators</Typography>
                 </ToggleButton>
-              </ToggleButtonGroup>
+              </StyledToggleButtonGroup>
             </Box>
           </TabPanel>
           <TabPanel value={tabIndex} index={1}>

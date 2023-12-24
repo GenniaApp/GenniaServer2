@@ -27,7 +27,7 @@ import {
 } from './GameReducer';
 
 // userData, game_status, replay_link
-type DialogContentData = [UserData | null, string, string | null];
+type DialogContentData = [[UserData | null], string, string | null];
 
 interface GameContext {
   room: Room;
@@ -101,7 +101,7 @@ const GameProvider: React.FC<GameProviderProp> = ({ children }) => {
   const [turnsCount, setTurnsCount] = useState(0);
   const [leaderBoardData, setLeaderBoardData] = useState(null);
   const [dialogContent, setDialogContent] = useState<DialogContentData>([
-    null,
+    [null],
     '',
     null,
   ]);
