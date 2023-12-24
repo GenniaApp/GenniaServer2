@@ -40,6 +40,7 @@ export type LeaderBoardTable = LeaderBoardRow[];
 
 export interface UserData {
   id?: string;
+  team?: string;
   username: string;
   color: number;
 }
