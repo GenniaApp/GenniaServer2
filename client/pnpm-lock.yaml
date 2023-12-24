@@ -41,6 +41,9 @@ dependencies:
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
+  magic-snowflakes:
+    specifier: ^6.3.0
+    version: 6.3.0
   next:
     specifier: ^13.4.10
     version: 13.4.10(react-dom@18.2.0)(react@18.2.0)
@@ -2180,6 +2183,11 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       yallist: 4.0.0
+
+  /magic-snowflakes@6.3.0:
+    resolution: {integrity: sha512-sTENq0CmS7r70BA5XyRuA9a0dYbF6ENyTzAHUDd5yjPacUTXNAd/NyTF6E3iEt2SuX/aonyW7dtTm3ILN74AXQ==}
+    engines: {node: '>=10'}
+    dev: false
 
   /mdast-util-definitions@5.1.2:
     resolution: {integrity: sha512-8SVPMuHqlPME/z3gqVwWY4zVXn8lqKv/pAhC57FuJ40ImXyBpmO5ukh98zB2v7Blql2FiHjHv9LVztSIqjY+MA==}
