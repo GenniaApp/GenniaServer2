@@ -76,10 +76,9 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
     socketRef.current.emit('change_room_setting', 'roomName', name);
   };
 
-  const handleTeamChange = (event: any) =>{
-    let team = event.target.value;
-    socketRef.current.emit('set_team', team);
-  }
+  const handleTeamChange = (_: Event, newTeam: any) => {
+    socketRef.current.emit('set_team', newTeam);
+  };
 
   const handleOpenMapExplorer = () => {
     setOpenMapExplorer(true);
@@ -310,6 +309,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
                 // @ts-ignore
                 onChange={handleTeamChange}
                 aria-label='select-team'
+                sx={{ maxWidth: '100%', overflowX: 'auto' }}
               >
                 {Array.from({ length: MaxTeamNum }, (_, i) => i + 1).map(
                   (value) => (

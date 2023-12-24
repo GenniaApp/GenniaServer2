@@ -651,12 +651,12 @@ io.on('connection', async (socket) => {
     socket.emit('update_room', room);
   });
 
-  socket.on('set_team', async (team: number) => {
-    if (team <= 0 || team > 13) {
-      socket.emit('error', 'Unable to change team', 'Team must be between 1 and 12 or spectators');
+  socket.on('set_team', async (team) => {
+    if (team as number <= 0 || team as number > MaxTeamNum + 1) {
+      socket.emit('error', 'Unable to change team', `Team must be between 1 and ${MaxTeamNum} or spectators`);
       return;
     }
-    player.team = team;
+    player.team = team as number;
 
     if (player.spectating()) {
       // set spectate will cancel force start

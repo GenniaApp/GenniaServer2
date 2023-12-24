@@ -217,7 +217,7 @@ function GamingRoom() {
         );
         if (player) {
           setTeam(player.team);
-          console.log('set spectating');
+          console.log('set team', player.team);
         }
       }
       roomDispatch({ type: 'update', payload: room });
