@@ -38,6 +38,7 @@ function PlayerTable(props: PlayerTableProps) {
     <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
       {teams.map((players, index) => (
         <Paper
+          key={index}
           variant='outlined'
           sx={{
             display: 'flex',
