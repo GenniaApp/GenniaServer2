@@ -434,9 +434,6 @@ async function handleGame(room: Room, io: Server) {
           .map((player) => {
             let data = room.map.getTotal(player);
             return [player.color, player.team, data.army, data.land] as LeaderBoardRow;
-          })
-          .sort((a, b) => {
-            return b[1] - a[1] || b[2] - a[2];
           });
 
         let room_sockets = await io.in(room.id).fetchSockets();
