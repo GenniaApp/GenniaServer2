@@ -7,7 +7,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client';
 
 import { ColorArr, MaxTeamNum, forceStartOK } from './lib/constants';
 import { roomPool, createRoom } from './lib/room-pool';
@@ -50,7 +50,6 @@ app.get('/create_room', async (req: Request, res: Response) => {
   }
 });
 
-
 app.get('/get_replay/:replayId', async (req: Request, res: Response) => {
   const replayId = req.params.replayId;
   const replayFilePath = path.join(process.cwd(), 'records', `${replayId}.json`);
@@ -85,7 +84,7 @@ app.get('/maps', async (req, res) => {
       starCount: true,
     },
   });
-  res.json(maps)
+  res.json(maps);
 });
 
 app.post('/maps', async (req, res) => {
@@ -112,8 +111,8 @@ app.get('/maps/:id', async (req, res) => {
     where: { id: req.params.id },
     data: {
       views: {
-        increment: 1
-      }
+        increment: 1,
+      },
     },
   });
   map.mapTilesData = JSON.parse(map.mapTilesData);
@@ -205,10 +204,7 @@ app.get('/search', async (req: Request, res: Response) => {
 
   const searchedMaps = await prisma.customMapData.findMany({
     where: {
-      OR: [
-        { name: { contains: searchTerm } },
-        { id: { equals: searchTerm } },
-      ],
+      OR: [{ name: { contains: searchTerm } }, { id: { equals: searchTerm } }],
     },
     select: {
       id: true,
@@ -275,7 +271,7 @@ app.get('/starredMaps', async (req, res) => {
     select: { mapId: true },
   });
 
-  res.json(starredMaps.map(starUsers => starUsers.mapId));
+  res.json(starredMaps.map((starUsers) => starUsers.mapId));
 });
 
 const server = app.listen(process.env.PORT, () => {
@@ -301,7 +297,6 @@ function handleNeutralized(room: Room, player: Player) {
   player.land.length = 0;
   player.king = null;
   player.isDead = true;
-
 }
 
 async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
@@ -333,9 +328,7 @@ async function handleDisconnectInRoom(room: Room, player: Player, io: Server) {
 }
 
 async function checkForcedStart(room: Room, io: Server) {
-  let forceStartNum = forceStartOK[
-    room.players.filter((player) => !player.spectating()).length
-  ]
+  let forceStartNum = forceStartOK[room.players.filter((player) => !player.spectating()).length];
 
   if (!room.gameStarted && room.forceStartNum >= forceStartNum) {
     await handleGame(room, io);
@@ -359,13 +352,12 @@ async function handleGame(room: Room, io: Server) {
 
       const customMapData = {
         ...data,
-        mapTilesData: JSON.parse(data.mapTilesData)
-      }
+        mapTilesData: JSON.parse(data.mapTilesData),
+      };
       room.map = GameMap.from_custom_map(customMapData, room.players, room.revealKing);
-
     } else {
-      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 12 * room.mapWidth)
-      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 12 * room.mapHeight)
+      let actualWidth = Math.ceil(Math.sqrt(room.players.length) * 5 + 12 * room.mapWidth);
+      let actualHeight = Math.ceil(Math.sqrt(room.players.length) * 5 + 12 * room.mapHeight);
       room.map = new GameMap(
         'random_map_id',
         'random_map_name',
@@ -459,7 +451,11 @@ async function handleGame(room: Room, io: Server) {
         for (let socket of room_sockets) {
           let playerIndex = getPlayerIndexBySocket(room, socket.id);
           if (playerIndex !== -1 && room.players[playerIndex].patchView && !room.players[playerIndex].disconnected) {
-            if ((room.deathSpectator && room.players[playerIndex].isDead) || !room.fogOfWar || room.players[playerIndex].spectating()) {
+            if (
+              (room.deathSpectator && room.players[playerIndex].isDead) ||
+              !room.fogOfWar ||
+              room.players[playerIndex].spectating()
+            ) {
               await room.players[playerIndex].patchView.patch(room.map.map);
             } else {
               await room.players[playerIndex].patchView.patch(await room.map.getViewPlayer(room.players[playerIndex]));
@@ -473,18 +469,21 @@ async function handleGame(room: Room, io: Server) {
         room.map.updateTurn();
         room.map.updateUnit();
 
-        let countAlive = 0;
+        let aliveTeams = [];
         for (let player of room.players) {
-          if (!player.isDead && !player.spectating()) {
-            lastAlivePlayer = player;
-            ++countAlive;
+          if (!player.isDead && !player.spectating() && !aliveTeams.includes(player.team)) {
+            aliveTeams.push(player.team);
           }
         }
         // Game over, Find Winner
-        if (countAlive <= 1) {
-          if (!lastAlivePlayer) throw new Error('lastAlivePlayer is null');
+        if (aliveTeams.length <= 1) {
+          if (!aliveTeams.length) return;
           let link = room.gameRecord.outPutToJSON(process.cwd());
-          io.in(room.id).emit('game_ended', lastAlivePlayer.minify(true), link); // winner
+          io.in(room.id).emit(
+            'game_ended',
+            room.players.filter((x) => x.team === aliveTeams[0]).map((x) => x.minify(true)),
+            link
+          ); // winner
           console.log('Game ended, replay link: ', link);
 
           room.gameStarted = false;
@@ -604,7 +603,7 @@ io.on('connection', async (socket) => {
     let occupiedTeam = room.players.map((player) => player.team);
     let availableTeam = allTeam.filter((team) => {
       return !occupiedTeam.includes(team);
-    })
+    });
     let playerTeam = availableTeam[0];
 
     player = new Player(playerId, socket.id, username, playerColor, playerTeam);
@@ -642,7 +641,6 @@ io.on('connection', async (socket) => {
     // }
   }
 
-
   // ====================================
   // set up socket event listeners
   // ====================================
@@ -652,7 +650,7 @@ io.on('connection', async (socket) => {
   });
 
   socket.on('set_team', async (team) => {
-    if (team as number <= 0 || team as number > MaxTeamNum + 1) {
+    if ((team as number) <= 0 || (team as number) > MaxTeamNum + 1) {
       socket.emit('error', 'Unable to change team', `Team must be between 1 and ${MaxTeamNum} or spectators`);
       return;
     }
@@ -667,7 +665,7 @@ io.on('connection', async (socket) => {
       }
     }
     io.in(room.id).emit('update_room', room);
-    io.in(room.id).emit('room_message', player.minify(), player.spectating() ? 'became a spectator.' : `change to team ${team}`);
+    io.in(room.id).emit('room_message', player.minify(), player.spectating() ? 'became a spectator.' : `change to team ${team}.`);
     checkForcedStart(room, io);
   });
 
@@ -690,7 +688,6 @@ io.on('connection', async (socket) => {
     await handleNeutralized(room, player);
 
     io.in(room.id).emit('room_message', player.minify(), 'surrendered');
-
   });
 
   socket.on('change_host', async (playerId) => {
@@ -776,8 +773,7 @@ io.on('connection', async (socket) => {
           io.in(room.id).emit('update_room', room);
           if (property === 'mapId') {
             io.in(room.id).emit('room_message', player.minify(), `changed mapName to ${room.mapName}.`);
-          }
-          else {
+          } else {
             io.in(room.id).emit('room_message', player.minify(), `changed ${property} to ${value}.`);
           }
         } else {
@@ -819,7 +815,6 @@ io.on('connection', async (socket) => {
       }
 
       checkForcedStart(room, io);
-
     } catch (e: any) {
       console.log(e.stack);
       console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
@@ -860,13 +855,17 @@ io.on('connection', async (socket) => {
           room.players[playerIndex].operatedTurn = room.map.turn;
           socket.emit('attack_success', from, to, room.map.turn);
         } else {
-          socket.emit('attack_failure', from, to, `Invalid operation: ${player.operatedTurn} ${room.map.turn} ${room.map.commendable(player, from, to)}`);
+          socket.emit(
+            'attack_failure',
+            from,
+            to,
+            `Invalid operation: ${player.operatedTurn} ${room.map.turn} ${room.map.commendable(player, from, to)}`
+          );
         }
       }
     } catch (e: any) {
       console.log(e.stack);
       console.error(JSON.stringify(e, ['message', 'arguments', 'type', 'name']));
     }
-
   });
 });

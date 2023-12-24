@@ -453,7 +453,7 @@ class GameMap {
       for (let j = 0; j < this.height; j++) {
         const point = new Point(i, j);
         const origin = this.getBlock(point);
-        if (origin.player.team === player.team) {
+        if (origin.player && origin.player.team === player.team) {
           const block = new Block(
             origin.x,
             origin.y,
