@@ -395,8 +395,6 @@ async function handleGame(room: Room, io: Server) {
       }
     });
 
-    let lastAlivePlayer = room.players[0];
-
     let updTime = 500 / room.gameSpeed;
     room.gameLoop = setInterval(async () => {
       try {
@@ -407,26 +405,21 @@ async function handleGame(room: Room, io: Server) {
             let blockPlayerIndex = getPlayerIndex(room, block.player?.id);
             if (blockPlayerIndex !== -1) {
               if (block.player !== player && player.isDead === false) {
-                if (block.player.team === player.team) {
-                  block.player = player;
+                console.log(block.player.username, 'captured', player.username);
+                io.in(room.id).emit('captured', block.player.minify(), player.minify());
+                let player_socket = io.sockets.sockets.get(player.socket_id);
+                if (player_socket) {
+                  player_socket.emit('game_over', block.player.minify()); // captured by block.player
                 } else {
-                  console.log(block.player.username, 'captured', player.username);
-                  lastAlivePlayer = block.player;
-                  io.in(room.id).emit('captured', block.player.minify(), player.minify());
-                  let player_socket = io.sockets.sockets.get(player.socket_id);
-                  if (player_socket) {
-                    player_socket.emit('game_over', block.player.minify()); // captured by block.player
-                  } else {
-                    throw new Error('socket is null');
-                  }
-                  player.isDead = true;
-                  player.land.forEach((block) => {
-                    room.map.transferBlock(block, room.players[blockPlayerIndex]);
-                    room.players[blockPlayerIndex].winLand(block);
-                  });
-                  room.map.getBlock(player.king).kingBeDominated();
-                  player.land.length = 0;
+                  throw new Error('socket is null');
                 }
+                player.isDead = true;
+                player.land.forEach((block) => {
+                  room.map.transferBlock(block, room.players[blockPlayerIndex]);
+                  room.players[blockPlayerIndex].winLand(block);
+                });
+                room.map.getBlock(player.king).kingBeDominated();
+                player.land.length = 0;
               } else if (player.operatedTurn === 0 && player.operatedTurn + 160 <= room.map.turn) {
                 // if player is not operated for 160/2 turns, it will be neutralized
                 handleNeutralized(room, player);

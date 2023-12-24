@@ -11,7 +11,7 @@ class Block extends Point {
     public player: any = null,
     public isAlwaysRevealed: boolean = false,
     public priority: number = 0,
-    public unitsCountRevealed: boolean = true,
+    public unitsCountRevealed: boolean = true
   ) {
     super(x, y);
   }
@@ -45,7 +45,7 @@ class Block extends Point {
   enterUnit(player: any, unit: number): void {
     if (this.player && this.player.team === player.team) {
       this.unit += unit;
-      this.beDominated(player, unit);
+      if (this.type !== TileType.King) this.beDominated(player, unit);
     } else {
       if (this.unit >= unit) {
         this.unit -= unit;
