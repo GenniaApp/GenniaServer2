@@ -22,7 +22,7 @@ export default function Game() {
   const handleSurrender = () => {
     socketRef.current.emit('surrender', myPlayerId);
     setIsSurrendered(true);
-    setDialogContent([null, 'game_surrender', null]);
+    setDialogContent([[null], 'game_surrender', null]);
     setOpenOverDialog(true);
   };
 
