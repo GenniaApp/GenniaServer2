@@ -1,24 +1,23 @@
-import { useCallback, useMemo, useState, useEffect, useRef } from 'react';
-import usePossibleNextMapPositions from '@/lib/use-possible-next-map-positions';
 import { useGame, useGameDispatch } from '@/context/GameContext';
-import MapTile from './MapTile';
-import { TileType, Room, Route, Position } from '@/lib/types';
 import useMap from '@/hooks/useMap';
+import { Position, SelectedMapTileInfo, TileProp, TileType } from '@/lib/types';
+import usePossibleNextMapPositions from '@/lib/use-possible-next-map-positions';
 import { getPlayerIndex } from '@/lib/utils';
-import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import { useTranslation } from 'next-i18next';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { ZoomInMap, ZoomOutMap } from '@mui/icons-material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import HomeIcon from '@mui/icons-material/Home';
-import ClearIcon from '@mui/icons-material/Clear';
-import UndoIcon from '@mui/icons-material/Undo';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { ZoomInMap, ZoomOutMap } from '@mui/icons-material';
+import ClearIcon from '@mui/icons-material/Clear';
+import HomeIcon from '@mui/icons-material/Home';
+import UndoIcon from '@mui/icons-material/Undo';
+import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
-
+import { useTranslation } from 'next-i18next';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import MapTile from './MapTile';
 function GameMap() {
   const {
     attackQueueRef,
@@ -88,8 +87,7 @@ function GameMap() {
   );
 
   const handlePositionChange = useCallback(
-    (newPoint: Position, className: string) => {
-      let selectPos = selectRef.current;
+    (selectPos: SelectedMapTileInfo, newPoint: Position, className: string) => {
       if (withinMap(newPoint)) {
         attackQueueRef.current.insert({
           from: selectPos,
@@ -124,10 +122,11 @@ function GameMap() {
         //     turnsCount
         //   );
         // }
+      } else {
+        console.log("new point not within map", newPoint)
       }
     },
     [
-      selectRef,
       withinMap,
       attackQueueRef,
       mapQueueDataDispatch,
@@ -160,14 +159,14 @@ function GameMap() {
         half: touchHalf.current,
       });
     }
-  }, [mapQueueDataDispatch]);
+  }, [mapQueueDataDispatch, setSelectedMapTileInfo]);
 
   const selectGeneral = useCallback(() => {
     if (initGameInfo && selectRef.current) {
       const { king } = initGameInfo;
       setSelectedMapTileInfo({ ...selectRef.current, x: king.x, y: king.y });
     }
-  }, [initGameInfo, setPosition]);
+  }, [initGameInfo, setSelectedMapTileInfo]);
 
   const centerGeneral = useCallback(() => {
     if (initGameInfo) {
@@ -203,7 +202,7 @@ function GameMap() {
         });
       }
     }
-  }, []);
+  }, [attackQueueRef, setSelectedMapTileInfo]);
   const clearQueue = useCallback(() => {
     if (selectRef.current) {
       let route = attackQueueRef.current.front();
@@ -216,49 +215,43 @@ function GameMap() {
         });
       }
     }
-  }, []);
-  const attackUp = useCallback(() => {
-    if (selectRef.current) {
-      let selectPos = selectRef.current;
+  }, [attackQueueRef, setSelectedMapTileInfo]);
+  const attackUp = useCallback((selectPos?: SelectedMapTileInfo) => {
+    if (selectPos) {
       let newPoint = {
         x: selectPos.x - 1,
         y: selectPos.y,
       };
-      handlePositionChange(newPoint, 'queue_up');
+      handlePositionChange(selectPos, newPoint, 'queue_up');
     }
-  }, []);
-  const attackDown = useCallback(() => {
-    if (selectRef.current) {
-      let selectPos = selectRef.current;
-
+  }, [handlePositionChange]);
+  const attackDown = useCallback((selectPos?: SelectedMapTileInfo) => {
+    if (selectPos) {
       let newPoint = {
         x: selectPos.x + 1,
         y: selectPos.y,
       };
-      handlePositionChange(newPoint, 'queue_down');
+      handlePositionChange(selectPos, newPoint, 'queue_down');
     }
-  }, []);
-  const attackLeft = useCallback(() => {
-    if (selectRef.current) {
-      let selectPos = selectRef.current;
+  }, [handlePositionChange]);
+  const attackLeft = useCallback((selectPos?: SelectedMapTileInfo) => {
+    if (selectPos) {
       let newPoint = {
         x: selectPos.x,
         y: selectPos.y - 1,
       };
-      handlePositionChange(newPoint, 'queue_left');
+      handlePositionChange(selectPos, newPoint, 'queue_left');
     }
-  }, []);
-  const attackRight = useCallback(() => {
-    if (selectRef.current) {
-      let selectPos = selectRef.current;
-
+  }, [handlePositionChange])
+  const attackRight = useCallback((selectPos?: SelectedMapTileInfo) => {
+    if (selectPos) {
       let newPoint = {
         x: selectPos.x,
         y: selectPos.y + 1,
       };
-      handlePositionChange(newPoint, 'queue_right');
+      handlePositionChange(selectPos, newPoint, 'queue_right');
     }
-  }, []);
+  }, [handlePositionChange]);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -285,37 +278,37 @@ function GameMap() {
         case 'a':
         case 'ArrowLeft': // 37 Left
           event.preventDefault();
-          attackLeft();
+          attackLeft(selectRef.current);
           break;
         case 'w':
         case 'ArrowUp': // 38 Up
           event.preventDefault();
-          attackUp();
+          attackUp(selectRef.current);
           break;
         case 'd':
         case 'ArrowRight': // 39 Right
           event.preventDefault();
-          attackRight();
+          attackRight(selectRef.current);
           break;
         case 's':
         case 'ArrowDown': // 40 Down
           event.preventDefault();
-          attackDown();
+          attackDown(selectRef.current);
           break;
       }
     },
-    [handleZoomOption]
+    [attackDown, attackLeft, attackRight, attackUp, centerGeneral, clearQueue, halfArmy, handleZoomOption, popQueue, selectGeneral, setPosition]
   );
 
   const myPlayerIndex = useMemo(() => {
     return getPlayerIndex(room, myPlayerId);
-  }, [room.players, myPlayerId, getPlayerIndex]);
+  }, [room, myPlayerId]);
 
   const queueEmpty = mapQueueData.length === 0;
 
   let displayMapData = mapData.map((tiles, x) => {
     return tiles.map((tile, y) => {
-      const [tileType, color, unitsCount] = tile;
+      const [, color] = tile;
       const isOwned = color === room.players[myPlayerIndex].color;
       const _className = queueEmpty ? '' : mapQueueData[x][y].className;
 
@@ -331,36 +324,12 @@ function GameMap() {
       const isSelected =
         x === selectedMapTileInfo.x && y === selectedMapTileInfo.y;
 
-      const isNextPossibleMapPosition = Object.values(
-        possibleNextMapPositions
-      ).some((p) => {
-        return p && p.x === x && p.y === y;
-      });
-
-      const isNextPossibleMove =
-        isNextPossibleMapPosition && tileType !== TileType.Mountain;
-
-      const getPossibleMoveDirection = () => {
-        if (isNextPossibleMove) {
-          const { bottom, left, right } = possibleNextMapPositions;
-          if (bottom && bottom.x === x && bottom.y === y) return 'down';
-          if (left && left.x === x && left.y === y) return 'left';
-          if (right && right.x === x && right.y === y) return 'right';
-          return 'up';
-        }
-        return '';
-      };
-      const moveDirection = getPossibleMoveDirection();
-
       return {
         tile,
         isOwned,
         _className,
         tileHalf,
         isSelected,
-        selectRef,
-        isNextPossibleMove,
-        moveDirection,
       };
     });
   });
@@ -416,7 +385,7 @@ function GameMap() {
         initialDistance.current = distance;
       }
     },
-    [tileSize, mapRef, mapData, room, myPlayerIndex, position]
+    [mapRef, tileSize, zoom, mapData, room.players, myPlayerIndex, position.x, position.y, setSelectedMapTileInfo]
   );
 
   const handleTouchMove = useCallback(
@@ -478,7 +447,7 @@ function GameMap() {
           // console.log('valid touch move attack', x, y, className);
           touchHalf.current = false;
           const newPoint = { x, y };
-          handlePositionChange(newPoint, `queue_${direction}`);
+          handlePositionChange(selectRef.current, newPoint, `queue_${direction}`);
           lastTouchPosition.current = newPoint;
         }
       } else if (event.touches.length === 2) {
@@ -493,25 +462,80 @@ function GameMap() {
         setZoom(newZoom);
       }
     },
-    [
-      tileSize,
-      mapRef,
-      selectRef,
-      lastTouchPosition,
-      mapData,
-      room,
-      myPlayerIndex,
-      handlePositionChange,
-      initialDistance,
-      touchStartPosition,
-      zoom,
-    ]
+    [mapRef, setPosition, tileSize, zoom, mapData, handlePositionChange, setZoom]
   );
 
   const handleTouchEnd = useCallback((event: TouchEvent) => {
     touchAttacking.current = false;
     touchDragging.current = false;
   }, []);
+
+  const testIfNextPossibleMove = useCallback((tileType: TileType, x: number, y: number) => {
+    const isNextPossibleMapPosition = Object.values(
+      possibleNextMapPositions
+    ).some((p) => {
+      return p && p.x === x && p.y === y;
+    });
+
+    return isNextPossibleMapPosition && tileType !== TileType.Mountain;
+  }, [possibleNextMapPositions])
+
+  const handleClick = useCallback((tile: TileProp, x: number, y: number) => {
+    const [tileType, color, unitsCount] = tile;
+    const isOwned = color === room.players[myPlayerIndex].color;
+
+    let tileHalf = false;
+
+    if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
+      tileHalf = selectedMapTileInfo.half;
+    } else if (mapQueueData.length !== 0 && mapQueueData[x][y].half) {
+      tileHalf = true;
+    } else {
+      tileHalf = false;
+    }
+
+    const isNextPossibleMove = testIfNextPossibleMove(tileType, x, y)
+
+    const getPossibleMoveDirection = () => {
+      if (isNextPossibleMove) {
+        const { bottom, left, right } = possibleNextMapPositions;
+        if (bottom && bottom.x === x && bottom.y === y) return 'down';
+        if (left && left.x === x && left.y === y) return 'left';
+        if (right && right.x === x && right.y === y) return 'right';
+        return 'up';
+      }
+      return '';
+    };
+    const moveDirection = getPossibleMoveDirection();
+
+    if (isNextPossibleMove) {
+      handlePositionChange(selectRef.current, {x, y}, `queue_${moveDirection}`);
+    } else if (isOwned) {
+      if (selectRef.current.x === x && selectRef.current.y === y) {
+        console.log(
+          'Clicked on the current tile, changing tile half state to',
+          !tileHalf
+        );
+        setSelectedMapTileInfo({
+          x,
+          y,
+          half: !tileHalf,
+          unitsCount: unitsCount,
+        });
+      } else {
+        setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
+      }
+    } else {
+      setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
+      mapQueueDataDispatch({
+        type: 'change',
+        x: x,
+        y: y,
+        className: '',
+        half: false,
+      });
+    }
+  }, [room.players, myPlayerIndex, selectedMapTileInfo.x, selectedMapTileInfo.y, selectedMapTileInfo.half, mapQueueData, testIfNextPossibleMove, possibleNextMapPositions, handlePositionChange, setSelectedMapTileInfo, mapQueueDataDispatch]);
 
   useEffect(() => {
     const mapNode = mapRef.current;
@@ -523,7 +547,7 @@ function GameMap() {
       };
     }
     return () => { };
-  }, [mapRef]);
+  }, [handleKeyDown, mapRef]);
 
   useEffect(() => {
     const mapNode = mapRef.current;
@@ -568,17 +592,15 @@ function GameMap() {
           return tiles.map((tile, y) => {
             return (
               <MapTile
+                isNextPossibleMove={testIfNextPossibleMove(tile.tile[0], x, y)} 
+                handleClick={() => handleClick(tile.tile, x, y)}
                 key={`${x}/${y}`}
                 zoom={zoom}
                 size={tileSize}
                 x={x}
                 y={y}
                 {...tile}
-                attackQueueRef={attackQueueRef}
-                setSelectedMapTileInfo={setSelectedMapTileInfo}
-                mapQueueDataDispatch={mapQueueDataDispatch}
-                warringStatesMode={room.warringStatesMode}
-              />
+                warringStatesMode={room.warringStatesMode}              />
             );
           });
         })}
@@ -661,7 +683,7 @@ function GameMap() {
               alignItems: 'center',
             }}
           >
-            <IconButton onClick={attackUp} className='attack-button'>
+            <IconButton onClick={() => attackUp(selectRef.current)} className='attack-button'>
               <ArrowUpwardIcon />
             </IconButton>
             <Box
@@ -677,14 +699,14 @@ function GameMap() {
                 justifyContent: 'space-between',
               }}
             >
-              <IconButton onClick={attackLeft} className='attack-button'>
+              <IconButton onClick={() => attackLeft(selectRef.current)} className='attack-button'>
                 <ArrowBackIcon />
               </IconButton>
-              <IconButton onClick={attackRight} className='attack-button'>
+              <IconButton onClick={() => attackRight(selectRef.current)} className='attack-button'>
                 <ArrowForwardIcon />
               </IconButton>
             </Box>
-            <IconButton onClick={attackDown} className='attack-button'>
+            <IconButton onClick={() => attackDown(selectRef.current)} className='attack-button'>
               <ArrowDownwardIcon />
             </IconButton>
           </Box>
