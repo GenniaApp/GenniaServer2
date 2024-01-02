@@ -1,6 +1,6 @@
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, StrictMode } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 
 import Navbar from '../components/Navbar';
@@ -30,17 +30,19 @@ export default function Home() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <Head>
-        <title>Home | Gennia</title>
-      </Head>
-      <Navbar />
-      {!username && (
-        <Login username={username} handlePlayClick={handlePlayClick} />
-      )}
-      {username && <Lobby />}
-      <Footer />
-    </ThemeProvider>
+    <StrictMode>
+      <ThemeProvider theme={theme}>
+        <Head>
+          <title>Home | Gennia</title>
+        </Head>
+        <Navbar />
+        {!username && (
+          <Login username={username} handlePlayClick={handlePlayClick} />
+        )}
+        {username && <Lobby />}
+        <Footer />
+      </ThemeProvider>
+    </StrictMode>
   );
 }
 

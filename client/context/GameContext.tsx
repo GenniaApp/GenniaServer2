@@ -1,28 +1,26 @@
+import {
+  LeaderBoardTable,
+  MapData,
+  MapQueueData,
+  Room,
+  RoomUiStatus,
+  SelectedMapTileInfo,
+  SnackState,
+  UserData,
+  initGameInfo
+} from '@/lib/types';
 import React, {
   createContext,
-  useReducer,
   useContext,
-  useState,
+  useReducer,
   useRef,
+  useState,
 } from 'react';
-import {
-  Room,
-  SelectedMapTileInfo,
-  MapData,
-  MapDiffData,
-  MapQueueData,
-  LeaderBoardTable,
-  RoomUiStatus,
-  initGameInfo,
-  TileType,
-  UserData,
-  SnackState,
-} from '@/lib/types';
 
 import {
-  roomReducer,
   mapDataReducer,
   mapQueueDataReducer,
+  roomReducer,
   snackStateReducer,
 } from './GameReducer';
 

@@ -50,8 +50,6 @@ function GameMap() {
   };
 
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
-  const selectRef = useRef<SelectedMapTileInfo | undefined>(undefined);
-  // todo: selectedMapTileInfo is a often change value, use ref to sync update to prevent rerender, not sure if it's a good idea
 
   const {
     tileSize,
@@ -68,10 +66,6 @@ function GameMap() {
     mapHeight: initGameInfo ? initGameInfo.mapHeight : 0,
     listenTouch: false, // implement touch later
   });
-
-  useEffect(() => {
-    selectRef.current = selectedMapTileInfo;
-  }, [selectedMapTileInfo]);
 
   const withinMap = useCallback(
     (point: Position) => {
@@ -137,12 +131,12 @@ function GameMap() {
   const possibleNextMapPositions = usePossibleNextMapPositions({
     width: room.map ? room.map.width : 0,
     height: room.map ? room.map.height : 0,
-    selectedMapTileInfo: selectRef.current ? { x: selectRef.current!.x, y: selectRef.current!.y } : undefined,
+    selectedMapTileInfo: selectedMapTileInfo ? { x: selectedMapTileInfo.x, y: selectedMapTileInfo.y } : undefined,
   });
 
   const halfArmy = useCallback(() => {
-    if (selectRef.current) {
-      let selectPos = selectRef.current;
+    if (selectedMapTileInfo) {
+      let selectPos = selectedMapTileInfo;
       if (selectPos.x === -1 || selectPos.y === -1) return;
       touchHalf.current = !touchHalf.current; // todo: potential bug
       setSelectedMapTileInfo({
@@ -159,14 +153,14 @@ function GameMap() {
         half: touchHalf.current,
       });
     }
-  }, [mapQueueDataDispatch, setSelectedMapTileInfo]);
+  }, [mapQueueDataDispatch, selectedMapTileInfo, setSelectedMapTileInfo]);
 
   const selectGeneral = useCallback(() => {
-    if (initGameInfo && selectRef.current) {
+    if (initGameInfo && selectedMapTileInfo) {
       const { king } = initGameInfo;
-      setSelectedMapTileInfo({ ...selectRef.current, x: king.x, y: king.y });
+      setSelectedMapTileInfo({ ...selectedMapTileInfo, x: king.x, y: king.y });
     }
-  }, [initGameInfo, setSelectedMapTileInfo]);
+  }, [initGameInfo, selectedMapTileInfo, setSelectedMapTileInfo]);
 
   const centerGeneral = useCallback(() => {
     if (initGameInfo) {
@@ -191,31 +185,31 @@ function GameMap() {
   // }, [isSmallScreen, centerGeneral]);
 
   const popQueue = useCallback(() => {
-    if (selectRef.current) {
+    if (selectedMapTileInfo) {
       let route = attackQueueRef.current.pop_back();
       if (route) {
         setSelectedMapTileInfo({
-          ...selectRef.current,
+          ...selectedMapTileInfo,
           x: route.from.x,
           y: route.from.y,
           //  todo: fix half/unitsCount logic
         });
       }
     }
-  }, [attackQueueRef, setSelectedMapTileInfo]);
+  }, [attackQueueRef, selectedMapTileInfo, setSelectedMapTileInfo]);
   const clearQueue = useCallback(() => {
-    if (selectRef.current) {
+    if (selectedMapTileInfo) {
       let route = attackQueueRef.current.front();
       if (route) {
         attackQueueRef.current.clear();
         setSelectedMapTileInfo({
-          ...selectRef.current,
+          ...selectedMapTileInfo,
           x: route.from.x,
           y: route.from.y,
         });
       }
     }
-  }, [attackQueueRef, setSelectedMapTileInfo]);
+  }, [attackQueueRef, selectedMapTileInfo, setSelectedMapTileInfo]);
   const attackUp = useCallback((selectPos?: SelectedMapTileInfo) => {
     if (selectPos) {
       let newPoint = {
@@ -278,26 +272,26 @@ function GameMap() {
         case 'a':
         case 'ArrowLeft': // 37 Left
           event.preventDefault();
-          attackLeft(selectRef.current);
+          attackLeft(selectedMapTileInfo);
           break;
         case 'w':
         case 'ArrowUp': // 38 Up
           event.preventDefault();
-          attackUp(selectRef.current);
+          attackUp(selectedMapTileInfo);
           break;
         case 'd':
         case 'ArrowRight': // 39 Right
           event.preventDefault();
-          attackRight(selectRef.current);
+          attackRight(selectedMapTileInfo);
           break;
         case 's':
         case 'ArrowDown': // 40 Down
           event.preventDefault();
-          attackDown(selectRef.current);
+          attackDown(selectedMapTileInfo);
           break;
       }
     },
-    [attackDown, attackLeft, attackRight, attackUp, centerGeneral, clearQueue, halfArmy, handleZoomOption, popQueue, selectGeneral, setPosition]
+    [attackDown, attackLeft, attackRight, attackUp, centerGeneral, clearQueue, halfArmy, handleZoomOption, popQueue, selectGeneral, selectedMapTileInfo, setPosition]
   );
 
   const myPlayerIndex = useMemo(() => {
@@ -315,18 +309,18 @@ function GameMap() {
       let tileHalf = false;
 
       const getIsSelected = () => {
-        if (!selectRef.current) {
+        if (!selectedMapTileInfo) {
           return false;
         }
 
-        if (selectRef.current!.x === x && selectRef.current!.y === y) {
-          tileHalf = selectRef.current!.half;
+        if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
+          tileHalf = selectedMapTileInfo.half;
         } else if (mapQueueData.length !== 0 && mapQueueData[x][y].half) {
           tileHalf = true;
         } else {
           tileHalf = false;
         }
-        const isSelected = x === selectRef.current!.x && y === selectRef.current!.y;
+        const isSelected = x === selectedMapTileInfo.x && y === selectedMapTileInfo.y;
         return isSelected;
       }
       const isSelected = getIsSelected();
@@ -416,8 +410,8 @@ function GameMap() {
           const y = Math.floor((touch.clientX - rect.left) / (tileSize * zoom));
           const x = Math.floor((touch.clientY - rect.top) / (tileSize * zoom));
 
-          const dx = x - selectRef.current!.x;
-          const dy = y - selectRef.current!.y;
+          const dx = x - selectedMapTileInfo.x;
+          const dy = y - selectedMapTileInfo.y;
           // check if newPosition is valid
           if (
             (dx === 0 && dy === 0) ||
@@ -454,7 +448,7 @@ function GameMap() {
           // console.log('valid touch move attack', x, y, className);
           touchHalf.current = false;
           const newPoint = { x, y };
-          handlePositionChange(selectRef.current!, newPoint, `queue_${direction}`);
+          handlePositionChange(selectedMapTileInfo, newPoint, `queue_${direction}`);
           lastTouchPosition.current = newPoint;
         }
       } else if (event.touches.length === 2) {
@@ -469,7 +463,7 @@ function GameMap() {
         setZoom(newZoom);
       }
     },
-    [mapRef, setPosition, tileSize, zoom, mapData, handlePositionChange, setZoom]
+    [mapRef, setPosition, tileSize, zoom, selectedMapTileInfo, mapData, handlePositionChange, setZoom]
   );
 
   const handleTouchEnd = useCallback((event: TouchEvent) => {
@@ -493,8 +487,8 @@ function GameMap() {
 
     let tileHalf = false;
 
-    if (selectRef.current!.x === x && selectRef.current!.y === y) {
-      tileHalf = selectRef.current!.half;
+    if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
+      tileHalf = selectedMapTileInfo.half;
     } else if (mapQueueData.length !== 0 && mapQueueData[x][y].half) {
       tileHalf = true;
     } else {
@@ -516,9 +510,9 @@ function GameMap() {
     const moveDirection = getPossibleMoveDirection();
 
     if (isNextPossibleMove) {
-      handlePositionChange(selectRef.current!, { x, y }, `queue_${moveDirection}`);
+      handlePositionChange(selectedMapTileInfo, { x, y }, `queue_${moveDirection}`);
     } else if (isOwned) {
-      if (selectRef.current!.x === x && selectRef.current!.y === y) {
+      if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
         console.log(
           'Clicked on the current tile, changing tile half state to',
           !tileHalf
@@ -542,9 +536,7 @@ function GameMap() {
         half: false,
       });
     }
-  }, [room.players, myPlayerIndex,
-    selectRef,
-    mapQueueData, testIfNextPossibleMove, possibleNextMapPositions, handlePositionChange, setSelectedMapTileInfo, mapQueueDataDispatch]);
+  }, [room.players, myPlayerIndex, selectedMapTileInfo, mapQueueData, testIfNextPossibleMove, possibleNextMapPositions, handlePositionChange, setSelectedMapTileInfo, mapQueueDataDispatch]);
 
   useEffect(() => {
     const mapNode = mapRef.current;
@@ -583,7 +575,9 @@ function GameMap() {
         ref={mapRef}
         tabIndex={0}
         onBlur={() => {
-          setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
+          // TODO: inifite re-render loop. 
+          // when surrender or game over dialog is shown. onBlur will execute, it set SelectedMapTile so a re-render is triggered. in the next render, onBlur execute again
+          // setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
         }}
         style={{
           position: 'absolute',
@@ -692,7 +686,7 @@ function GameMap() {
               alignItems: 'center',
             }}
           >
-            <IconButton onClick={() => attackUp(selectRef.current)} className='attack-button'>
+            <IconButton onClick={() => attackUp(selectedMapTileInfo)} className='attack-button'>
               <ArrowUpwardIcon />
             </IconButton>
             <Box
@@ -708,14 +702,14 @@ function GameMap() {
                 justifyContent: 'space-between',
               }}
             >
-              <IconButton onClick={() => attackLeft(selectRef.current)} className='attack-button'>
+              <IconButton onClick={() => attackLeft(selectedMapTileInfo)} className='attack-button'>
                 <ArrowBackIcon />
               </IconButton>
-              <IconButton onClick={() => attackRight(selectRef.current)} className='attack-button'>
+              <IconButton onClick={() => attackRight(selectedMapTileInfo)} className='attack-button'>
                 <ArrowForwardIcon />
               </IconButton>
             </Box>
-            <IconButton onClick={() => attackDown(selectRef.current)} className='attack-button'>
+            <IconButton onClick={() => attackDown(selectedMapTileInfo)} className='attack-button'>
               <ArrowDownwardIcon />
             </IconButton>
           </Box>
