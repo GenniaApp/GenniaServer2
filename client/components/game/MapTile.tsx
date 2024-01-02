@@ -26,13 +26,9 @@ interface MapTileProps {
   _className: string;
   tileHalf: boolean;
   isSelected: boolean;
-  selectRef: any;
-  attackQueueRef: any;
-  setSelectedMapTileInfo: any;
-  mapQueueDataDispatch: any;
   isNextPossibleMove: boolean;
-  moveDirection: string;
   warringStatesMode: boolean;
+  handleClick: () => void;
 }
 
 export default React.memo(function MapTile(props: MapTileProps) {
@@ -48,13 +44,9 @@ export default React.memo(function MapTile(props: MapTileProps) {
     _className,
     tileHalf,
     isSelected,
-    selectRef,
-    attackQueueRef,
-    setSelectedMapTileInfo,
-    mapQueueDataDispatch,
     isNextPossibleMove,
-    moveDirection,
     warringStatesMode = false,
+    handleClick
   } = props;
   // console.log(`${x} ${y} render`, new Date().toISOString());
   const [cursorStyle, setCursorStyle] = useState('default');
@@ -79,79 +71,6 @@ export default React.memo(function MapTile(props: MapTileProps) {
   const canMove = useMemo(() => {
     return isOwned || isNextPossibleMove;
   }, [isOwned, isNextPossibleMove]);
-
-  const handlePositionChange = useCallback(
-    (className: string) => {
-      attackQueueRef.current.insert({
-        from: selectRef.current,
-        to: { x, y },
-        half: selectRef.current.half,
-      });
-      setSelectedMapTileInfo({
-        // ...selectRef.current,
-        x,
-        y,
-        half: false,
-        unitsCount: 0,
-      });
-      mapQueueDataDispatch({
-        type: 'change',
-        x: selectRef.current.x,
-        y: selectRef.current.y,
-        className: className,
-      });
-    },
-    [
-      selectRef,
-      attackQueueRef,
-      mapQueueDataDispatch,
-      setSelectedMapTileInfo,
-      x,
-      y,
-    ]
-  );
-
-  const handleClick = useCallback(() => {
-    if (isNextPossibleMove) {
-      handlePositionChange(`queue_${moveDirection}`);
-    } else if (isOwned) {
-      if (selectRef.current.x === x && selectRef.current.y === y) {
-        console.log(
-          'Clicked on the current tile, changing tile half state to',
-          !tileHalf
-        );
-        setSelectedMapTileInfo({
-          x,
-          y,
-          half: !tileHalf,
-          unitsCount: unitsCount,
-        });
-      } else {
-        setSelectedMapTileInfo({ x, y, half: false, unitsCount: unitsCount });
-      }
-    } else {
-      setSelectedMapTileInfo({ x: -1, y: -1, half: false, unitsCount: 0 });
-      mapQueueDataDispatch({
-        type: 'change',
-        x: x,
-        y: y,
-        className: '',
-        half: false,
-      });
-    }
-  }, [
-    x,
-    y,
-    selectRef,
-    unitsCount,
-    tileHalf,
-    isOwned,
-    isNextPossibleMove,
-    moveDirection,
-    handlePositionChange,
-    setSelectedMapTileInfo,
-    mapQueueDataDispatch,
-  ]);
 
   const handleMouseEnter = useCallback(() => {
     if (canMove) {
@@ -185,7 +104,7 @@ export default React.memo(function MapTile(props: MapTileProps) {
       return WarringStates[color];
     }
     return '';
-  }, [color]);
+  }, [color, warringStatesMode]);
 
   const bgcolor = useMemo(() => {
     // 战争迷雾
