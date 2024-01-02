@@ -16,7 +16,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTranslation } from 'next-i18next';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import MapTile from './MapTile';
 function GameMap() {
   const {
@@ -50,7 +50,7 @@ function GameMap() {
   };
 
   const { setSelectedMapTileInfo, mapQueueDataDispatch } = useGameDispatch();
-  const selectRef = useRef<any>(null);
+  const selectRef = useRef<SelectedMapTileInfo | undefined>(undefined);
   // todo: selectedMapTileInfo is a often change value, use ref to sync update to prevent rerender, not sure if it's a good idea
 
   const {
@@ -137,7 +137,7 @@ function GameMap() {
   const possibleNextMapPositions = usePossibleNextMapPositions({
     width: room.map ? room.map.width : 0,
     height: room.map ? room.map.height : 0,
-    selectedMapTileInfo,
+    selectedMapTileInfo: selectRef.current ? { x: selectRef.current!.x, y: selectRef.current!.y } : undefined,
   });
 
   const halfArmy = useCallback(() => {
@@ -314,15 +314,22 @@ function GameMap() {
 
       let tileHalf = false;
 
-      if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
-        tileHalf = selectedMapTileInfo.half;
-      } else if (mapQueueData.length !== 0 && mapQueueData[x][y].half) {
-        tileHalf = true;
-      } else {
-        tileHalf = false;
+      const getIsSelected = () => {
+        if (!selectRef.current) {
+          return false;
+        }
+
+        if (selectRef.current!.x === x && selectRef.current!.y === y) {
+          tileHalf = selectRef.current!.half;
+        } else if (mapQueueData.length !== 0 && mapQueueData[x][y].half) {
+          tileHalf = true;
+        } else {
+          tileHalf = false;
+        }
+        const isSelected = x === selectRef.current!.x && y === selectRef.current!.y;
+        return isSelected;
       }
-      const isSelected =
-        x === selectedMapTileInfo.x && y === selectedMapTileInfo.y;
+      const isSelected = getIsSelected();
 
       return {
         tile,
@@ -409,8 +416,8 @@ function GameMap() {
           const y = Math.floor((touch.clientX - rect.left) / (tileSize * zoom));
           const x = Math.floor((touch.clientY - rect.top) / (tileSize * zoom));
 
-          const dx = x - selectRef.current.x;
-          const dy = y - selectRef.current.y;
+          const dx = x - selectRef.current!.x;
+          const dy = y - selectRef.current!.y;
           // check if newPosition is valid
           if (
             (dx === 0 && dy === 0) ||
@@ -447,7 +454,7 @@ function GameMap() {
           // console.log('valid touch move attack', x, y, className);
           touchHalf.current = false;
           const newPoint = { x, y };
-          handlePositionChange(selectRef.current, newPoint, `queue_${direction}`);
+          handlePositionChange(selectRef.current!, newPoint, `queue_${direction}`);
           lastTouchPosition.current = newPoint;
         }
       } else if (event.touches.length === 2) {
@@ -486,8 +493,8 @@ function GameMap() {
 
     let tileHalf = false;
 
-    if (selectedMapTileInfo.x === x && selectedMapTileInfo.y === y) {
-      tileHalf = selectedMapTileInfo.half;
+    if (selectRef.current!.x === x && selectRef.current!.y === y) {
+      tileHalf = selectRef.current!.half;
     } else if (mapQueueData.length !== 0 && mapQueueData[x][y].half) {
       tileHalf = true;
     } else {
@@ -509,9 +516,9 @@ function GameMap() {
     const moveDirection = getPossibleMoveDirection();
 
     if (isNextPossibleMove) {
-      handlePositionChange(selectRef.current, {x, y}, `queue_${moveDirection}`);
+      handlePositionChange(selectRef.current!, { x, y }, `queue_${moveDirection}`);
     } else if (isOwned) {
-      if (selectRef.current.x === x && selectRef.current.y === y) {
+      if (selectRef.current!.x === x && selectRef.current!.y === y) {
         console.log(
           'Clicked on the current tile, changing tile half state to',
           !tileHalf
@@ -535,7 +542,9 @@ function GameMap() {
         half: false,
       });
     }
-  }, [room.players, myPlayerIndex, selectedMapTileInfo.x, selectedMapTileInfo.y, selectedMapTileInfo.half, mapQueueData, testIfNextPossibleMove, possibleNextMapPositions, handlePositionChange, setSelectedMapTileInfo, mapQueueDataDispatch]);
+  }, [room.players, myPlayerIndex,
+    selectRef,
+    mapQueueData, testIfNextPossibleMove, possibleNextMapPositions, handlePositionChange, setSelectedMapTileInfo, mapQueueDataDispatch]);
 
   useEffect(() => {
     const mapNode = mapRef.current;
@@ -592,7 +601,7 @@ function GameMap() {
           return tiles.map((tile, y) => {
             return (
               <MapTile
-                isNextPossibleMove={testIfNextPossibleMove(tile.tile[0], x, y)} 
+                isNextPossibleMove={testIfNextPossibleMove(tile.tile[0], x, y)}
                 handleClick={() => handleClick(tile.tile, x, y)}
                 key={`${x}/${y}`}
                 zoom={zoom}
@@ -600,7 +609,7 @@ function GameMap() {
                 x={x}
                 y={y}
                 {...tile}
-                warringStatesMode={room.warringStatesMode}              />
+                warringStatesMode={room.warringStatesMode} />
             );
           });
         })}

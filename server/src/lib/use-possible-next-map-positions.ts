@@ -4,7 +4,7 @@ import { Position } from './types';
 interface UsePossibleNextMapPositionsProps {
   width: number;
   height: number;
-  selectedMapTileInfo?: Position;
+  selectedMapTileInfo: Position;
 }
 
 export default function usePossibleNextMapPositions({
@@ -13,12 +13,8 @@ export default function usePossibleNextMapPositions({
   selectedMapTileInfo,
 }: UsePossibleNextMapPositionsProps) {
   const isMapSelected = useMemo(() => {
-    if (selectedMapTileInfo) {
-      const { x, y } = selectedMapTileInfo;
-      return x !== -1 && y !== -1;
-    } else {
-      return false;
-    }
+    const { x, y } = selectedMapTileInfo;
+    return x !== -1 && y !== -1;
   }, [selectedMapTileInfo]);
 
 
@@ -27,7 +23,7 @@ export default function usePossibleNextMapPositions({
       return;
     }
 
-    const { x, y: topColumnIndex } = selectedMapTileInfo!;
+    const { x, y: topColumnIndex } = selectedMapTileInfo;
     const topRowIndex = x - 1;
 
     if (topRowIndex < 0) {
@@ -42,7 +38,7 @@ export default function usePossibleNextMapPositions({
       return;
     }
 
-    const { x, y: bottomColumnIndex } = selectedMapTileInfo!;
+    const { x, y: bottomColumnIndex } = selectedMapTileInfo;
     const bottomRowIndex = x + 1;
 
     if (bottomRowIndex > height) {
@@ -60,7 +56,7 @@ export default function usePossibleNextMapPositions({
       return;
     }
 
-    const { x: leftRowIndex, y } = selectedMapTileInfo!;
+    const { x: leftRowIndex, y } = selectedMapTileInfo;
     const leftColumnIndex = y - 1;
 
     if (leftColumnIndex < 0) {
@@ -78,7 +74,7 @@ export default function usePossibleNextMapPositions({
       return;
     }
 
-    const { x: rightRowIndex, y } = selectedMapTileInfo!;
+    const { x: rightRowIndex, y } = selectedMapTileInfo;
     const rightColumnIndex = y + 1;
 
     if (rightColumnIndex > width) {
