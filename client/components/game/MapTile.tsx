@@ -200,8 +200,11 @@ export default React.memo(function MapTile(props: MapTileProps) {
             textOverflow: 'ellipsis',
             overflow: 'visible',
             textShadow: '0 0 2px #000',
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
+          }}
+          ref={(node) => {
+            if (node) {
+              node.style.setProperty("user-select", "none", "important");
+            }
           }}
         >
           {/* 50% */}

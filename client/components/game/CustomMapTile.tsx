@@ -146,6 +146,11 @@ export default React.memo(function CustomMapTile(props: CustomMapTileProps) {
             userSelect: 'none',
             WebkitUserSelect: 'none',
           }}
+          ref={(node) => {
+            if (node) {
+              node.style.setProperty("user-select", "none", "important");
+            }
+          }}
         >
           {unitsCount}
         </div>
