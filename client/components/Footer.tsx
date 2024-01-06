@@ -23,7 +23,7 @@ function Footer() {
   return (
     <FooterContainer>
       <div style={{ color: 'white' }}>
-        {t('all-right-reserved')} © 2022~2023 Gennia &nbsp;
+        {t('all-right-reserved')} © 2022~{new Date().getFullYear()} Gennia &nbsp;
         {t('open-source-team')}
       </div>
       {
