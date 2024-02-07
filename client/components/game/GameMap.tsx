@@ -50,7 +50,7 @@ function GameMap() {
   };
 
   const { setSelectedMapTileInfo, halfArmy, clearQueue, popQueue, selectGeneral,
-    
+
     handlePositionChange, testIfNextPossibleMove,
     handleClick,
     attackUp, attackDown, attackLeft, attackRight } = useGameDispatch();
@@ -373,17 +373,17 @@ function GameMap() {
         {displayMapData.map((tiles, x) => {
           return tiles.map((tile, y) => {
             return (
-              <MapTile
-                isNextPossibleMove={testIfNextPossibleMove(tile.tile[0], x, y)}
-                handleClick={() => handleClick(tile.tile, x, y, myPlayerIndex)}
-                // handleClick={() => { }}
-                key={`${x}/${y}`}
-                zoom={zoom}
-                size={tileSize}
-                x={x}
-                y={y}
-                {...tile}
-                warringStatesMode={room.warringStatesMode} />
+              <div key={`${x}/${y}`}
+                onClick={() => handleClick(tile.tile, x, y, myPlayerIndex)}>
+                <MapTile
+                  isNextPossibleMove={testIfNextPossibleMove(tile.tile[0], x, y)}
+                  zoom={zoom}
+                  size={tileSize}
+                  x={x}
+                  y={y}
+                  {...tile}
+                  warringStatesMode={room.warringStatesMode} />
+              </div>
             );
           });
         })}

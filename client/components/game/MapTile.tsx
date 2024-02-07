@@ -28,7 +28,6 @@ interface MapTileProps {
   isSelected: boolean;
   isNextPossibleMove: boolean;
   warringStatesMode: boolean;
-  handleClick: () => void;
 }
 
 export default React.memo(function MapTile(props: MapTileProps) {
@@ -46,9 +45,8 @@ export default React.memo(function MapTile(props: MapTileProps) {
     isSelected,
     isNextPossibleMove,
     warringStatesMode = false,
-    handleClick
   } = props;
-  // console.log(`${x} ${y} render`, new Date().toISOString());
+  console.log(`${x} ${y} render`, new Date().toISOString());
   const [cursorStyle, setCursorStyle] = useState('default');
 
   const [tileType, color, unitsCount] = tile;
@@ -151,7 +149,6 @@ export default React.memo(function MapTile(props: MapTileProps) {
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
     >
       <div
         style={{
