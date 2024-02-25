@@ -1,14 +1,14 @@
-import { styled } from '@mui/material/styles';
-import React, { useState, useEffect, useRef } from 'react';
-import { InputBase, Divider } from '@mui/material';
-import { useTranslation } from 'next-i18next';
-import { Socket } from 'socket.io-client';
-import { Message } from '@/lib/types';
-import { ColorArr } from '@/lib/constants';
-import { Typography } from '@mui/material';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { styled } from "@mui/material/styles";
+import React, { useState, useEffect, useRef } from "react";
+import { InputBase, Divider } from "@mui/material";
+import { useTranslation } from "next-i18next";
+import { Socket } from "socket.io-client";
+import { Message } from "@/lib/types";
+import { ColorArr } from "@/lib/constants";
+import { Typography } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
-const ChatBoxContainer = styled('div')`
+const ChatBoxContainer = styled("div")`
   position: fixed;
   bottom: 0;
   right: 0;
@@ -37,7 +37,7 @@ const ChatBoxContainer = styled('div')`
   }
 `;
 
-const ChatBoxMessages = styled('div')`
+const ChatBoxMessages = styled("div")`
   flex: 1;
   overflow-y: auto;
   padding: 10px;
@@ -50,7 +50,7 @@ const ChatBoxMessages = styled('div')`
   }
 `;
 
-const ChatBoxInput = styled('div')`
+const ChatBoxInput = styled("div")`
   display: flex;
   align-items: center;
 `;
@@ -58,29 +58,39 @@ const ChatBoxInput = styled('div')`
 const ChatBoxMessage = ({ message }: { message: Message }) => {
   return (
     <div>
-      <span
-        style={{
-          paddingLeft: 10,
-          display: 'inline',
-          color: ColorArr[message.player.color],
-        }}
-      >
-        {message.player.username}
-      </span>
+      {message.player ? (
+        <span
+          style={{
+            paddingLeft: 10,
+            display: "inline",
+            color: ColorArr[message.player.color],
+          }}
+        >
+          {message.player.username}
+        </span>
+      ) : (
+        <Typography color="white" style={{ display: "inline" }}>
+          {"[system]"}
+        </Typography>
+      )}
       &nbsp;
-      <Typography color='white' style={{ display: 'inline' }}>{message.content}</Typography>
+      <Typography color="white" style={{ display: "inline" }}>
+        {message.content}
+      </Typography>
       &nbsp;
       {message.target && (
         <>
           <span
             style={{
-              display: 'inline',
+              display: "inline",
               color: ColorArr[message.target.color],
             }}
           >
             {message.target.username}
           </span>
-          <Typography color='white' style={{ display: 'inline' }}>.</Typography>
+          <Typography color="white" style={{ display: "inline" }}>
+            .
+          </Typography>
         </>
       )}
       <br />
@@ -94,12 +104,12 @@ interface ChatBoxProp {
 }
 
 export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isExpand, setIsExpand] = useState(false);
   const textFieldRef = useRef<any>(null);
   const messagesEndRef = useRef<any>(null);
 
-  const isSmallScreen = useMediaQuery('(max-width:600px)');
+  const isSmallScreen = useMediaQuery("(max-width:600px)");
 
   useEffect(() => {
     messagesEndRef.current.scrollIntoView({});
@@ -112,22 +122,22 @@ export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
   const { t } = useTranslation();
 
   const handleInputKeyDown = (event: any) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       handleSendMessage();
     }
   };
 
   const handleGlobalKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Enter' && textFieldRef.current) {
+    if (event.key === "Enter" && textFieldRef.current) {
       event.preventDefault();
       textFieldRef.current.focus();
     }
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', handleGlobalKeyDown);
+    window.addEventListener("keydown", handleGlobalKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleGlobalKeyDown);
+      window.removeEventListener("keydown", handleGlobalKeyDown);
     };
   }, []);
 
@@ -136,15 +146,15 @@ export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
   };
 
   const handleSendMessage = () => {
-    if (inputValue.trim() !== '') {
-      setInputValue('');
-      if (socket) socket.emit('player_message', inputValue);
+    if (inputValue.trim() !== "") {
+      setInputValue("");
+      if (socket) socket.emit("player_message", inputValue);
     }
   };
 
   return (
     <ChatBoxContainer
-      className={isExpand ? '' : 'shrink'}
+      className={isExpand ? "" : "shrink"}
       onClick={() => {
         if (!isExpand) setIsExpand(true);
       }}
@@ -164,13 +174,13 @@ export default React.memo(function ChatBox({ socket, messages }: ChatBoxProp) {
           <Divider />
           <ChatBoxInput>
             <InputBase
-              margin='none'
+              margin="none"
               sx={{
-                width: '100%',
-                padding: '5px 10px',
+                width: "100%",
+                padding: "5px 10px",
               }}
-              placeholder={t('type-a-message')}
-              size='medium'
+              placeholder={t("type-a-message")}
+              size="medium"
               value={inputValue}
               onChange={handleInputChange}
               inputRef={textFieldRef}

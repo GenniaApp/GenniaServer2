@@ -381,7 +381,9 @@ async function handleGame(room: Room, io: Server) {
     // todo 对于自定义地图，地图名称应该在游戏开始前获知，而不是开始时
     console.info(`Start game`);
     room.gameStarted = true;
+    room.gameRecord.addMessage({ turn: room.map.turn, player: null, content: 'Chat is being recorded.' });
     io.in(room.id).emit('update_room', room);
+    io.in(room.id).emit('room_message', null, 'Chat is being recorded.');
     room.players.forEach((player) => {
       let player_socket = io.sockets.sockets.get(player.socket_id);
       if (player_socket) {

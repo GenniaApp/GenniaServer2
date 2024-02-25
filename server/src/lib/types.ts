@@ -47,7 +47,7 @@ export interface UserData {
 
 export class Message {
   constructor(
-    public player: UserData,
+    public player: UserData | null,
     public content: string,
     public target?: UserData | null,
     public turn?: number

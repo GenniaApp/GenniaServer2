@@ -228,18 +228,17 @@ function GamingRoom() {
       });
     });
 
-    socket.on('room_message', (player: UserData, content: string) => {
-      console.log(`room_message: ${player.username} ${content}`);
-      setMessages((messages) => [...messages, new Message(player, content)]);
+    socket.on('room_message', (player: UserData | null, content: string) => {
+      setMessages((messages: any) => [...messages, new Message(player, content)]);
     });
     socket.on('captured', (player1: UserData, player2: UserData) => {
-      setMessages((messages) => [
+      setMessages((messages: any) => [
         ...messages,
         new Message(player1, t('captured'), player2),
       ]);
     });
     socket.on('host_modification', (player1: UserData, player2: UserData) => {
-      setMessages((messages) => [
+      setMessages((messages: any) => [
         ...messages,
         new Message(player1, t('transfer-host-to'), player2),
       ]);

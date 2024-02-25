@@ -303,7 +303,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             textColor='inherit'
             aria-label='game settings tabs'
           >
-            <Tab label={t('team') + '(beta)'} />
+            <Tab label={t('team')} />
             <Tab label={t('game')} />
             <Tab label={t('map')} />
             <Tab label={t('terrain')} />
