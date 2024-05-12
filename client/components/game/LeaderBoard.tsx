@@ -148,7 +148,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
           <TableBody>
             {teams.map((team, index) => (
               <>
-                <TableRow key={index + '-' + 0}>
+                <TableRow key={team.id}>
                   <TableCell
                     sx={{
                       display:
