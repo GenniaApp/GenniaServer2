@@ -11,7 +11,7 @@ install_in_china:
 	pnpm config set sharp_libvips_binary_host "https://npmmirror.com/mirrors/sharp-libvips"
 	pnpm install sharp
 
-.PHONY: deploy # change `client/.env.production` & `server/.env` to your own settings, for example, change gennia.io to gennia.cn
+.PHONY: deploy # change `client/.env.production` & `server/.env` to your own settings, for example, change gennia.online to gennia.cn
 deploy:
 	cd client && pnpm run build
 	pm2 delete gennia-client 2> /dev/null || true

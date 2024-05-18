@@ -31,7 +31,7 @@ import {
 
 const navItems = [
   { href: '/', label: 'home', icon: <HomeRounded /> },
-  { href: 'https://docs.gennia.io/', label: 'wiki', icon: <BookRounded /> },
+  { href: 'https://docs.gennia.online/', label: 'wiki', icon: <BookRounded /> },
   {
     href: 'https://github.com/GenniaApp/GenniaServer2',
     label: 'github',
