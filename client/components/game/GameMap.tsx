@@ -320,7 +320,6 @@ function GameMap() {
   useEffect(() => {
     const mapNode = mapRef.current;
     if (mapNode) {
-      mapNode.focus();
       mapNode.addEventListener('keydown', handleKeyDown);
       return () => {
         mapNode.removeEventListener('keydown', handleKeyDown);
@@ -328,6 +327,14 @@ function GameMap() {
     }
     return () => { };
   }, [handleKeyDown, mapRef]);
+
+  useEffect(() => {
+    const mapNode = mapRef.current;
+    if (mapNode) {
+      mapNode.focus(); // 只在地图初始化的时候自动 focus 一次
+    }
+    return () => { };
+  }, []);
 
   useEffect(() => {
     const mapNode = mapRef.current;
