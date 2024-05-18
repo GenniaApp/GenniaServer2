@@ -1,10 +1,10 @@
 ## GenniaServer 2
 
 <h1 align="center">
-  <!-- <img src="client/public/img/favicon.png" style="height: 90px;"alt="Gennia"> -->
-  <!-- <br> -->
+  <img src="client/public/img/favicon.png" style="height: 90px;"alt="Gennia">
+  <br>
+  <img src="client/public/img/gennia-logo.png" style="height: 30px;"alt="Gennia">
   <!-- <a href="https://gennia.io"> Gennia</a> -->
-  <img src="client/public/img/gennia-capture-fun.png" style="height: 90px;"alt="Gennia">
 </h1>
 
 > [Gennia](https://gennia.io): Yet another generals.io clone server & client
