@@ -63,7 +63,9 @@ class GameMap {
     );
     this.turn = 0;
     this.revealKing = revealKing;
-    this.minKingDistance = 6; // todo: change this according to the Manhattan distance
+    this.minKingDistance = Math.ceil(Math.sqrt(this.width * this.height) / this.players.length);
+    console.log('Width:', this.width, 'Height:', this.height, "players:", this.players.length);
+    console.log('minKingDistance', this.minKingDistance);
   }
 
   toJSON() {
@@ -241,7 +243,6 @@ class GameMap {
   }
 
   generate(): void {
-    console.log('Width:', this.width, 'Height:', this.height);
     for (let i = 0; i < this.width; i++) {
       for (let j = 0; j < this.height; j++) {
         this.map[i][j] = new Block(i, j, TileType.Plain);
