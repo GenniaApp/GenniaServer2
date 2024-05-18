@@ -23,6 +23,7 @@ import Link from 'next/link';
 import {
   BookRounded,
   FeedbackRounded,
+  Contacts,
   GitHub,
   HomeRounded,
   SmartToyRounded,
@@ -45,6 +46,11 @@ const navItems = [
     href: 'https://github.com/GenniaApp/GenniaServer2/issues',
     label: 'feedback',
     icon: <FeedbackRounded />,
+  },
+  {
+    href: 'http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=VAwNA8NiYUMsPHrBxLso-t09saGZCT14&authKey=fFpto%2Ff%2FhNUpcxZhSVZt6msLOZrMhW3e14mypEBlO3Ih7PdqOmXq%2FQ0OlV3D%2BuyO&noverify=0&group_code=374889821',
+    label: 'qq-group',
+    icon: <Contacts />,
   },
 ];
 
