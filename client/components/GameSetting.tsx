@@ -39,7 +39,7 @@ import MapExplorer from './game/MapExplorer';
 import { forceStartOK, MaxTeamNum, SpeedOptions } from '@/lib/constants';
 import { useGame, useGameDispatch } from '@/context/GameContext';
 
-interface GameSettingProps {}
+interface GameSettingProps { }
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   '& .MuiToggleButtonGroup-grouped': {
@@ -298,8 +298,10 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
           <Tabs
             value={tabIndex}
             onChange={(event, value) => setTabIndex(value)}
-            variant='fullWidth'
+            variant='scrollable'
             indicatorColor='primary'
+            scrollButtons
+            allowScrollButtonsMobile
             textColor='inherit'
             aria-label='game settings tabs'
           >
@@ -426,7 +428,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
             </Box>
           </TabPanel>
           <TabPanel value={tabIndex} index={4}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', padding: 0 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               <SliderBox
                 label={t('max-player-num')}
                 value={room.maxPlayers}
@@ -550,7 +552,7 @@ const GameSetting: React.FC<GameSettingProps> = (props) => {
         {t('ready')}({room.forceStartNum}/
         {
           forceStartOK[
-            room.players.filter((player) => !player.spectating).length
+          room.players.filter((player) => !player.spectating).length
           ]
         }
         )
