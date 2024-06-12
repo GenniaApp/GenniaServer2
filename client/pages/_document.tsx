@@ -1,6 +1,7 @@
+'use client';
 import { Html, Head, Main, NextScript } from 'next/document';
 import { Router } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 export default function Document() {
   useEffect(() => {

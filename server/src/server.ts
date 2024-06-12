@@ -1,10 +1,8 @@
-import express from 'express';
-import { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import { Server, Socket } from 'socket.io';
 import xss from 'xss';
 import crypto from 'crypto';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { Prisma, PrismaClient } from '@prisma/client';
@@ -18,8 +16,6 @@ import Player from './lib/player';
 import GameMap from './lib/map';
 import MapDiff from './lib/map-diff';
 import GameRecord from './lib/game-record';
-
-dotenv.config();
 
 if (!process.env.CLIENT_URL || !process.env.PORT) {
   throw new Error('Please fill in `CLIENT_URL` and `PORT`.');
