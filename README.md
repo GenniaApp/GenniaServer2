@@ -8,6 +8,10 @@
 
 > [Gennia](https://gennia.online): Yet another generals.io clone server & client
 
+> Looking for the latest version? We now recommend [BlockWar (方块战争)](https://github.com/makerjackie/BlockWar), the new official name and latest version of this project. It is a complete rewrite with major improvements, rebuilt with React, Hono.js, and Cloudflare Durable Objects, and designed for modern serverless deployment on Cloudflare.
+>
+> 如果你在找这个项目的最新版本，我们现在推荐 [BlockWar（方块战争）](https://github.com/makerjackie/BlockWar)。这是该项目的新名称和最新版本，已经完成全面重构与多项改进，基于 React、Hono.js 和 Cloudflare Durable Objects 重建，并采用 Cloudflare 的现代无服务器部署架构。
+
 <h5 align="center">
 <img src="gennia-pc.png" width="400" >
 
